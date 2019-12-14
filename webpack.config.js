@@ -28,7 +28,7 @@ module.exports = {
       },
     plugins: [
         new HWP(
-            { template: path.resolve(__dirname, './dist/index.html') }
+            { template: path.resolve(__dirname, './templates/index.html') }
         ),
         new webpack.HotModuleReplacementPlugin()
     ],
