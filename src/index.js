@@ -42,6 +42,12 @@ class SmartTable extends React.Component {
         }
     }
 
+    componentDidMount() {
+        fetch('https://api.mydomain.com')
+            .then(response => response.json())
+            .then(data => this.setState({ data }));
+    }
+
     handleHOTChange(changes, source) {
         alert('changed!');
         console.log(changes);
