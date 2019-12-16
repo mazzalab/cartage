@@ -8,7 +8,7 @@ class SmartTable extends React.Component {
     constructor(props) {
         super(props);
 
-        this.hotTableComponent = React.createRef();
+        this.handleHOTChange = this.handleHOTChange.bind(this);
 
         this.state = {
             secondColumnSettings: {
@@ -28,26 +28,42 @@ class SmartTable extends React.Component {
                 manualColumnMove: true,
                 manualColumnResize: true,
                 headerTooltips: {
-                  rows: false,
-                  columns: true,
-                  onlyTrimmed: true
+                    rows: false,
+                    columns: true,
+                    onlyTrimmed: true
                 },
                 stretchH: 'all',
-                contextMenu: true
+                contextMenu: true,
+                afterChange: ((changes) => {
+                    alert('changed!');
+                    console.log('changed!');
+                })
             }
-        };
+        }
+    }
+
+    handleHOTChange(changes, source) {
+        alert('changed!');
+        console.log(changes);
+    }
+
+    handleClick(e) {
+        this.refs.hot.hotInstance.setDataAtCell(0, 0, 'new value')
     }
 
     render() {
         return (
-            <HotTable
-                settings={this.state.general_settings}
-                licenseKey="non-commercial-and-evaluation"
-                addEvent={}
-            >
-                {/* <HotColumn title="First column header" />
+            <div>
+                <HotTable
+                    settings={this.state.general_settings}
+                    licenseKey="non-commercial-and-evaluation"
+                    ref="hot"
+                >
+                    {/* <HotColumn title="First column header" />
                 <HotColumn settings={this.state.secondColumnSettings} /> */}
-            </HotTable>
+                </HotTable>
+                <button onClick={(e) => this.handleClick(e)}>Click Me</button>
+            </div>
         );
     }
 }
@@ -57,10 +73,10 @@ const searchFiled = document.getElementById('search_field');
 Handsontable.dom.addEvent(searchFiled, 'keyup', function (event) {
     var search = this.hotTableComponent.current.hotInstance.getPlugin('search');
     var queryResult = search.query(this.value);
-  
+
     console.log(queryResult);
     this.hotTableComponent.current.hotInstance.render();
-  });
+});
 
 const title = 'React with Webpack and Babel!!';
 
