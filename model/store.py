@@ -1,27 +1,28 @@
-from .. import db, flask_bcrypt
+from flask_sqlalchemy import SQLAlchemy
+from marshmallow import Schema, fields
+from flask_marshmallow import Marshmallow
 
-class User(db.Model):
-    """ User Model for storing user related details """
+db = SQLAlchemy()
+ma = Marshmallow()
+
+class Product(db.Model):
+    """ Product Model for storing product related details """
     __tablename__ = "store"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    operatore = db.Column(db.String(255), unique=True, nullable=False)
+    operatore = db.Column(db.String(255), nullable=False)
     data_evento = db.Column(db.DateTime, nullable=False)
-    admin = db.Column(db.Boolean, nullable=False, default=False)
-    public_id = db.Column(db.String(100), unique=True)
-    username = db.Column(db.String(50), unique=True)
-    password_hash = db.Column(db.String(100))
-
-    @property
-    def password(self):
-        raise AttributeError('password: write-only field')
-
-    @password.setter
-    def password(self, password):
-        self.password_hash = flask_bcrypt.generate_password_hash(password).decode('utf-8')
-
-    def check_password(self, password):
-        return flask_bcrypt.check_password_hash(self.password_hash, password)
+    quantita = db.Column(db.Integer, nullable=False)
+    categoria = db.Column(db.String(100), nullable=False)
+    codice_articolo = db.Column(
+        db.String(50), nullable=False, default=False, unique=True)
+    articolo = db.Column(db.String(300), nullable=False, default=False)
+    lotto = db.Column(db.String(100), nullable=False, default=False, unique=True)
+    ditta = db.Column(db.String(100), nullable=False, default=False)
 
     def __repr__(self):
-        return "<User '{}'>".format(self.username)
+        return '[{}]: {}'.format(self.categoria, self.articolo)
+
+class ProductSchema(ma.ModelSchema):
+    class Meta:
+        model = Product

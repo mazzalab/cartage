@@ -43,9 +43,14 @@ class SmartTable extends React.Component {
     }
 
     componentDidMount() {
-        fetch('https://api.mydomain.com')
-            .then(response => response.json())
-            .then(data => this.setState({ data }));
+        fetch('http://127.0.0.1:5000/')
+            .then(response => response)
+            .then(data => {
+                var gsettings = {...this.state.general_settings};
+                gsettings.data = data;
+                this.setState({gsettings});
+                console.log(gsettings);
+            });
     }
 
     handleHOTChange(changes, source) {
