@@ -23,6 +23,7 @@ class Product(db.Model):
     def __repr__(self):
         return '[{}]: {}'.format(self.categoria, self.articolo)
 
-class ProductSchema(ma.ModelSchema):
+class ProductSchema(ma.Schema):
     class Meta:
-        model = Product
+        fields = ("id","operatore","data_evento","quantita","categoria","codice_articolo","articolo","lotto","ditta")
+        # model = Product

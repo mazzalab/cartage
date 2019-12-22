@@ -6,10 +6,10 @@ import 'handsontable/dist/handsontable.full.css';
 
 class SmartTable extends React.Component {
     constructor(props) {
+        var _isMounted = false;
+
         super(props);
-
         this.handleHOTChange = this.handleHOTChange.bind(this);
-
         this.state = {
             secondColumnSettings: {
                 title: "Second column header",
@@ -17,14 +17,14 @@ class SmartTable extends React.Component {
             },
             general_settings: {
                 ref: "hot",
-                data: Handsontable.helper.createSpreadsheetData(6, 10),
+                data: [],
                 colWidths: 100,
                 width: '100%',
                 height: 320,
                 rowHeights: 23,
                 rowHeaders: false,
                 colHeaders: true,
-                colHeaders: ['A', 'B', 'Long column header label', 'D', 'Another long label', 'E', 'F', 'G', 'H', 'T'],
+                // colHeaders: [],
                 manualColumnMove: true,
                 manualColumnResize: true,
                 headerTooltips: {
@@ -34,23 +34,42 @@ class SmartTable extends React.Component {
                 },
                 stretchH: 'all',
                 contextMenu: true,
-                afterChange: ((changes) => {
-                    alert('changed!');
-                    console.log('changed!');
-                })
+                // afterChange: ((changes) => {
+                //     alert('changed!');
+                //     console.log('changed!');
+                // })
             }
         }
     }
 
     componentDidMount() {
+        this._isMounted = true;
+
         fetch('http://127.0.0.1:5000/')
-            .then(response => response)
+            .then(response => response.json())
             .then(data => {
-                var gsettings = {...this.state.general_settings};
-                gsettings.data = data;
-                this.setState({gsettings});
-                console.log(gsettings);
+                var keys = (data[0] && Object.keys(data[0])) || [];
+                var csv = []
+                
+                var i=0
+                for (var line of data){
+                    csv[i] = keys.map(key => line[key]);
+                    i++;
+                }
+
+                console.log(csv);
+
+                var gsettings = { ...this.state.general_settings };
+                gsettings.data = csv;
+                gsettings.colHeaders = keys;
+                if (this._isMounted) {
+                    this.setState({ general_settings: gsettings });
+                }
             });
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
     }
 
     handleHOTChange(changes, source) {
