@@ -1,6 +1,5 @@
 const path = require('path');
 const HWP = require('html-webpack-plugin');
-const webpack = require('webpack');
 
 module.exports = {
     // entry: path.join(__dirname, '/src/index.js'),
@@ -19,7 +18,8 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['@babel/preset-env', "@babel/preset-react"]
+                        presets: ['@babel/preset-env', "@babel/preset-react"],
+                        plugins: ["@babel/plugin-proposal-class-properties"]
                     }
                 }
             },
@@ -34,11 +34,10 @@ module.exports = {
     plugins: [
         new HWP(
             { template: path.resolve(__dirname, './templates/index.html') }
-        ),
-        new webpack.HotModuleReplacementPlugin()
+        )
     ],
     devServer: {
         contentBase: './dist',
-        hot: true
+        // hot: true
     }
 }

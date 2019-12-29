@@ -11,7 +11,7 @@ from model.store import Product
 from model.store import db
 from model.store import ma
 from model.store import ProductSchema
-from model.db_manager import load_all_db
+from model.db_manager import load_all_db, load_all_categoria, load_all_ditta
 
 
 app = Flask(__name__)
@@ -34,6 +34,22 @@ def retrieve_all_data():
     output = pschema.dump(res)
     return jsonify(output)
 
+@app.route('/categorie')
+@cross_origin()
+def retrieve_all_categoria():
+    res = load_all_categoria()
+    pschema = ProductSchema(many=True)
+    output = pschema.dump(res)
+    return jsonify(output.data)
+
+@app.route('/ditte')
+@cross_origin()
+def retrieve_all_ditta():
+    res = load_all_ditta()
+    pschema = ProductSchema(many=True)
+    output = pschema.dump(res)
+    return jsonify(output)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -46,15 +62,18 @@ if __name__ == "__main__":
     if args.load:
         with app.app_context():
             db.create_all()
-            first = Product(operatore="MCD", data_evento=datetime.date.today(), quantita=2, categoria="guanti",
-                            codice_articolo="234kj2t", articolo="naso", lotto="23j23", ditta="agattaditta")
-            second = Product(operatore="Tom", data_evento=datetime.date.today(), quantita=-1, categoria="puntali",
-                             codice_articolo="1111", articolo="bocca", lotto="1bis", ditta="divo")
-            third = Product(operatore="MCD", data_evento=datetime.date.today(), quantita=4, categoria="fogli",
-                            codice_articolo="ABA222", articolo="orecchie", lotto="183e", ditta="sillino")
+            first = Product(code="234kj2t", operatore="MCD", data_evento=datetime.datetime.now(), quantita=2, categoria="guanti",
+                            articolo="naso", lotto="23j23", ditta="agattaditta")
+            second = Product(code="1111", operatore="Tom", data_evento=datetime.datetime.now(), quantita=0, categoria="puntali",
+                             articolo="bocca", lotto="1bis", ditta="divo")
+            third = Product(code="ABA222", operatore="MCD", data_evento=datetime.datetime.now(), quantita=4, categoria="fogli",
+                            articolo="orecchie", lotto="183e", ditta="sillino")
+            fourth = Product(code="ABA222", operatore="PIP", data_evento=datetime.datetime.now(), quantita=1, categoria="fogli",
+                             articolo="orecchie", lotto="183T", ditta="sillino")
             db.session.add(first)
             db.session.add(second)
             db.session.add(third)
+            db.session.add(fourth)
 
             db.session.commit()
 
