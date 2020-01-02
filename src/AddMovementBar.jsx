@@ -3,9 +3,10 @@ import { Col, Row, Button, Form, FormGroup, Label, Input } from 'reactstrap';
 
 
 export default class AddMovementBar extends React.Component {
-    constructor(props) {
-        super(props)
-    }
+    // constructor(props) {
+    //     super(props)
+    // }
+    barFontSize = 11;
 
     state = {
         productid: '',
@@ -17,20 +18,60 @@ export default class AddMovementBar extends React.Component {
         quantita: ''
     }
 
-    componentDidMount () {
-        this.setState({ categoria: this.props.categorie})
-        this.setState({ ditta: this.props.ditte})
+    areEmpty = (fields) => {
+        var fempty = Object.keys(fields).map(function(key) {
+            if (fields[key].trim() == '') return key;
+        });
+
+        return fempty;
     }
 
-    onMovementAdd = (e) => {
-        e.preventDefault()
-        alert(this.state.productid + ' ' + this.state.categoria + ' - ' + this.state.dataevento);
+    handleSubmitNewMovement = e => {
+        e.preventDefault();
+
+        var fempty = this.areEmpty({'Product ID': this.state.productid, 'Data evento': this.state.dataevento, 'Lotto': this.state.lotto, 'State': this.state.quantita})
+        if (fempty.length != 0) {
+            alert(fempty.toString() + "fields are missing");
+        }
+        else {
+            const productid = {
+                productid: this.state.productid
+            };
+            const operatore = {
+                operatore: this.state.operatore
+            };
+            const dataevento = {
+                dataevento: this.state.dataevento
+            };
+            const categoria = {
+                categoria: this.state.categorie
+            };
+            const lotto = {
+                lotto: this.state.lotto
+            };
+            const ditta = {
+                ditta: this.state.ditta
+            };
+            const quantita = {
+                quantita: this.state.quantita
+            };
+
+            const form = axios.get("/api/form", {
+                productid,
+                operatore,
+                dataevento,
+                categoria,
+                lotto,
+                ditta,
+                quantita
+            });
+        }
     }
 
     render() {
         return (
             <div>
-                <Form onSubmit={this.onMovementAdd}>
+                <Form onSubmit={this.handleSubmitNewMovement} method="GET">
                     <Row form>
                         <Col md={1}>
                             <FormGroup>
@@ -42,6 +83,7 @@ export default class AddMovementBar extends React.Component {
                                     placeholder="Product ID"
                                     value={this.state.productid}
                                     onChange={e => this.setState({ productid: e.target.value })}
+                                    style={{ fontSize: this.barFontSize }}
                                 />
                             </FormGroup>
                         </Col>
@@ -49,16 +91,20 @@ export default class AddMovementBar extends React.Component {
                             <FormGroup>
                                 <Label for="operatore">Operatore</Label>
                                 <Input
-                                    type="text"
+                                    type="select"
                                     name="operatore"
                                     id="operatore"
                                     placeholder="Operatore"
-                                    value={this.state.operatore}
                                     onChange={e => this.setState({ operatore: e.target.value })}
-                                />
+                                    style={{ fontSize: this.barFontSize }}
+                                >
+                                    {
+                                        this.props.operatori
+                                    }
+                                </Input>
                             </FormGroup>
                         </Col>
-                        <Col md={1}>
+                        <Col md={2}>
                             <FormGroup>
                                 <Label for="dataevento">Data evento</Label>
                                 <Input
@@ -68,6 +114,7 @@ export default class AddMovementBar extends React.Component {
                                     placeholder="Data evento"
                                     value={this.state.dataevento}
                                     onChange={e => this.setState({ dataevento: e.target.value })}
+                                    style={{ fontSize: this.barFontSize }}
                                 />
                             </FormGroup>
                         </Col>
@@ -78,10 +125,13 @@ export default class AddMovementBar extends React.Component {
                                     type="select"
                                     name="categoria"
                                     id="categoria"
-                                    placeholder="Categoria"
-                                    value={this.state.categoria}
                                     onChange={e => this.setState({ categoria: e.target.value })}
-                                />
+                                    style={{ fontSize: this.barFontSize }}
+                                >
+                                    {
+                                        this.props.categorie
+                                    }
+                                </Input>
                             </FormGroup>
                         </Col>
                         <Col md={1}>
@@ -94,6 +144,7 @@ export default class AddMovementBar extends React.Component {
                                     placeholder="Lotto"
                                     value={this.state.lotto}
                                     onChange={e => this.setState({ lotto: e.target.value })}
+                                    style={{ fontSize: this.barFontSize }}
                                 />
                             </FormGroup>
                         </Col>
@@ -104,9 +155,13 @@ export default class AddMovementBar extends React.Component {
                                     type="select"
                                     name="ditta"
                                     id="ditta"
-                                    value={this.state.ditta}
                                     onChange={e => this.setState({ ditta: e.target.value })}
-                                />
+                                    style={{ fontSize: this.barFontSize }}
+                                >
+                                    {
+                                        this.props.ditte
+                                    }
+                                </Input>
                             </FormGroup>
                         </Col>
                         <Col md={1}>
@@ -119,11 +174,12 @@ export default class AddMovementBar extends React.Component {
                                     placeholder="Quantità"
                                     value={this.state.quantita}
                                     onChange={e => this.setState({ quantita: e.target.value })}
+                                    style={{ fontSize: this.barFontSize }}
                                 />
                             </FormGroup>
                         </Col>
                     </Row>
-                    <Button>Add</Button>
+                    <Button type="submit">Add</Button>
                 </Form>
             </div>
         )

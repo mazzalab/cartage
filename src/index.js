@@ -22,9 +22,9 @@ const CaptionElement = () => <h3 style={{ borderRadius: '0.25em', textAlign: 'ce
 //   });
 
 class SmartTable extends React.Component {
-    constructor(props) {
-        var _isMounted = false;
+    _isMounted = false;
 
+    constructor(props) {
         super(props);
         this.handleHOTChange = this.handleHOTChange.bind(this);
 
@@ -34,8 +34,9 @@ class SmartTable extends React.Component {
                 dataField: 'id',
                 text: 'Product IDs'
             }],
+            operatori: [],
             categorie: [],
-            ditta: [],
+            ditte: [],
             rowCount: 10
         }
     }
@@ -50,53 +51,35 @@ class SmartTable extends React.Component {
         const requestAll = axios.get('http://127.0.0.1:5000/');
         const requestCat = axios.get('http://127.0.0.1:5000/categorie');
         const requestDit = axios.get('http://127.0.0.1:5000/ditte');
+        const requestOpe = axios.get('http://127.0.0.1:5000/operatori');
 
-        axios.all([requestAll, requestCat, requestDit])
-        .then(axios.spread((...responses) => {
-            const responseAll = responses[0].data;
-            const responseCat = responses[1].data;
-            const responseDit = responses[2].data;
+        axios.all([requestAll, requestCat, requestDit, requestOpe])
+            .then(axios.spread((...responses) => {
+                const responseAll = responses[0].data;
+                const responseCat = responses[1].data;
+                const responseDit = responses[2].data;
+                const responseOpe = responses[3].data;
 
-            if (this._isMounted) {
-                var sorted_header = this.formatHeader(data);
+                var items_ditta     = responseDit.map(r => { return <option key={r.ditta}>{r.ditta}</option> });
+                var items_categoria = responseCat.map(r => { return <option key={r.categoria}>{r.categoria}</option> });
+                var items_operatore = responseOpe.map(r => { return <option key={r.operatore}>{r.operatore}</option> });
+                
+                if (this._isMounted) {
+                    var sorted_header = this.formatHeader(responseAll);
 
-                this.setState({ columns: sorted_header });
-                this.setState({ data: responseAll });
-                // this.setState({ rowCounts: responseAll.length })
-
-                this.setState({ catogorie: responseCat})
-                this.setState({ ditte: responseDit})
-            }
-        })).catch(errors => {
-            console.log(errors)
-        })
-
-
-        // axios.get(`http://127.0.0.1:5000/`)
-        //     .then(res => {
-        //         const data = res.data;
-
-        //         if (this._isMounted) {
-        //             var sorted_header = this.formatHeader(data);
-
-        //             this.setState({ columns: sorted_header });
-        //             this.setState({ data: data });
-        //             // this.setState({ rowCounts: data.length })
-        //         }
-        //     })
-        //     .catch(err => console.log(err))
-
-        // fetch('http://127.0.0.1:5000/')
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         var sorted_header = this.formatHeader(data);
-
-        //         if (this._isMounted) {
-        //             this.setState({ columns: sorted_header });
-        //             this.setState({ data: data });
-        //             // this.setState({ rowCounts: data.length })
-        //         }
-        //     });
+                    this.setState({
+                        columns: sorted_header,
+                        data: responseAll,
+                        categorie: items_categoria,
+                        ditte: items_ditta,
+                        operatori: items_operatore
+                    })
+                    // this.setState({ rowCounts: responseAll.length })
+                }
+            }))
+            .catch(errors => {
+                console.log(errors)
+            })
     }
 
     componentWillUnmount() {
@@ -246,7 +229,7 @@ class SmartTable extends React.Component {
     render() {
         return (
             <div>
-                <AddMovementBar categorie={this.state.categorie} ditte={this.state.ditta}/>
+                <AddMovementBar operatori={this.state.operatori} categorie={this.state.categorie} ditte={this.state.ditte} />
                 <h5>Row Count:<span className="badge">{this.state.rowCount}</span></h5>
                 <BootstrapTable
                     onDataSizeChange={this.handleDataChange}

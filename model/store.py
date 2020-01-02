@@ -1,5 +1,4 @@
 from flask_sqlalchemy import SQLAlchemy
-from marshmallow import Schema, fields
 from flask_marshmallow import Marshmallow
 
 db = SQLAlchemy()
@@ -23,7 +22,10 @@ class Product(db.Model):
     def __repr__(self):
         return '[{}]: {}'.format(self.categoria, self.articolo)
 
-class ProductSchema(ma.Schema):
+class ProductSchema(ma.ModelSchema):
     class Meta:
-        fields = ("id","operatore","data_evento","quantita","categoria","articolo","code","lotto","ditta")
-        # model = Product
+        # fields = ('id','operatore','data_evento','quantita','categoria','articolo','code','lotto','ditta')
+        model = Product
+
+product_schema = ProductSchema()
+products_schema = ProductSchema(many=True)

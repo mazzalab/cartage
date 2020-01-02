@@ -10,8 +10,8 @@ from config import config_by_name
 from model.store import Product
 from model.store import db
 from model.store import ma
-from model.store import ProductSchema
-from model.db_manager import load_all_db, load_all_categoria, load_all_ditta
+from model.store import products_schema, product_schema
+from model.db_manager import load_all_db, load_all_categoria, load_all_ditta, load_all_operatore
 
 
 app = Flask(__name__)
@@ -30,24 +30,28 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 @cross_origin()
 def retrieve_all_data():
     res = load_all_db()
-    pschema = ProductSchema(many=True)
-    output = pschema.dump(res)
+    output = products_schema.dump(res)
     return jsonify(output)
 
 @app.route('/categorie')
 @cross_origin()
 def retrieve_all_categoria():
     res = load_all_categoria()
-    pschema = ProductSchema(many=True)
-    output = pschema.dump(res)
-    return jsonify(output.data)
+    output = products_schema.dump(res)
+    return jsonify(output)
 
 @app.route('/ditte')
 @cross_origin()
 def retrieve_all_ditta():
     res = load_all_ditta()
-    pschema = ProductSchema(many=True)
-    output = pschema.dump(res)
+    output = products_schema.dump(res)
+    return jsonify(output)
+
+@app.route('/operatori')
+@cross_origin()
+def retrieve_all_operatore():
+    res = load_all_operatore()
+    output = products_schema.dump(res)
     return jsonify(output)
 
 
