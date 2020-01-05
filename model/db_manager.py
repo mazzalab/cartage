@@ -1,6 +1,4 @@
 from model.store import Product
-import sys
-import json
 
 
 def load_all_db():
@@ -14,3 +12,6 @@ def load_all_ditta():
 
 def load_all_operatore():
     return Product.query.with_entities(Product.operatore).distinct()
+
+def load_articoli_per_categoria(categoria):
+    return Product.query.filter_by(categoria=categoria).with_entities(Product.articolo).distinct()

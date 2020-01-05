@@ -5,7 +5,8 @@ import ReactDOM from 'react-dom';
 import axios from 'axios';
 
 import './styles.css';
-import AddMovementBar from './AddMovementBar';
+import AddMovementBar from './components/AddMovementBar';
+import CancelIcon from '@material-ui/icons/Cancel';
 
 import BootstrapTable from 'react-bootstrap-table-next';
 import filterFactory, { textFilter, dateFilter } from 'react-bootstrap-table2-filter';
@@ -30,10 +31,10 @@ class SmartTable extends React.Component {
 
         this.state = {
             data: [{ 'id': 1 }],
-            columns: [{
-                dataField: 'id',
-                text: 'Product IDs'
-            }],
+            // columns: [{
+            //     dataField: 'id',
+            //     text: 'Product IDs'
+            // }],
             operatori: [],
             categorie: [],
             ditte: [],
@@ -60,15 +61,19 @@ class SmartTable extends React.Component {
                 const responseDit = responses[2].data;
                 const responseOpe = responses[3].data;
 
-                var items_ditta     = responseDit.map(r => { return <option key={r.ditta}>{r.ditta}</option> });
+                var items_ditta = responseDit.map(r => { return <option key={r.ditta}>{r.ditta}</option> });
                 var items_categoria = responseCat.map(r => { return <option key={r.categoria}>{r.categoria}</option> });
                 var items_operatore = responseOpe.map(r => { return <option key={r.operatore}>{r.operatore}</option> });
-                
+
+                items_ditta.unshift(<option key={'empty_ditta'}>{'select'}</option>)
+                items_categoria.unshift(<option key={'empty_categoria'}>{'select'}</option>)
+                items_operatore.unshift(<option key={'empty_operatore'}>{'select'}</option>)
+
                 if (this._isMounted) {
-                    var sorted_header = this.formatHeader(responseAll);
+                    // var sorted_header = this.formatHeader(responseAll);
 
                     this.setState({
-                        columns: sorted_header,
+                        // columns: sorted_header,
                         data: responseAll,
                         categorie: items_categoria,
                         ditte: items_ditta,
@@ -87,13 +92,12 @@ class SmartTable extends React.Component {
     }
 
     quantitaFormatter(cell, row) {
-        let col = 'black'
-        if (cell <= 3) {
-            col = '#009e73';  // green
+        let col = 'black';
 
-        } else if (cell === 0) {
+        if (cell > 0)
+            col = '#009e73';  // green
+        else if (cell < 0)
             col = '#DC3220';  // red
-        }
 
         return (<span><strong style={{ color: col }}>{cell}</strong></span>);
     }
@@ -106,9 +110,8 @@ class SmartTable extends React.Component {
 
     articoloHeaderFormatter(column, colIndex, { sortElement, filterElement }) {
         return (
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                {/* {sortElement} */}
-                {column.text}
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
+                {column.text} {sortElement}
                 {filterElement}
             </div>
         );
@@ -120,26 +123,34 @@ class SmartTable extends React.Component {
             dateObj = new Date(cell);
         }
 
-        return `${('0' + dateObj.getUTCDate()).slice(-2)}/${('0' + (dateObj.getUTCMonth() + 1)).slice(-2)}/${dateObj.getUTCFullYear()} - 
-        ${('0' + (dateObj.getUTCHours())).slice(-2)}:${('0' + (dateObj.getUTCMinutes())).slice(-2)}:${(dateObj.getUTCSeconds())}`;
+        // return `${('0' + dateObj.getUTCDate()).slice(-2)}/${('0' + (dateObj.getUTCMonth() + 1)).slice(-2)}/${dateObj.getUTCFullYear()} - 
+        // ${('0' + (dateObj.getUTCHours())).slice(-2)}:${('0' + (dateObj.getUTCMinutes())).slice(-2)}:${(dateObj.getUTCSeconds())}`;
+        return `${('0' + dateObj.getUTCDate()).slice(-2)}/${('0' + (dateObj.getUTCMonth() + 1)).slice(-2)}/${dateObj.getUTCFullYear()}`;
+    }
+
+    handleEventDelete = (e, event_id) => {
+        if (window.confirm('Are you sure you wish to delete this item?')){
+            alert("Removing: " + event_id);
+
+            // axios call here to remove event_id from the database
+            // remove event_id from the table
+        } 
     }
 
     formatHeader(data) {
         const sorted_header = [{
             dataField: 'id',
             text: 'ID',
-            hidden: true
-            // sort: true,
-            // onSort: (field, order) => {
-            //     console.log('....');
-            //   }
+            hidden: true,
         }, {
-            dataField: 'code',
-            text: 'Product ID'
-            // sort: true,
-            // onSort: (field, order) => {
-            //     console.log('....');
-            //   }
+            dataField: 'data_evento',
+            text: 'Data evento',
+            filter: dateFilter(),
+            formatter: this.dateFormatter,
+            sort: true,
+            headerStyle: (column, colIndex) => {
+                return { width: '220px' }; 
+            }
         }, {
             dataField: 'operatore',
             text: 'Operatore',
@@ -147,74 +158,82 @@ class SmartTable extends React.Component {
             style: {
                 fontStyle: 'italic',
                 // fontSize: '18px'
-            }
-            // sort: true
+            },
+            sort: true
         }, {
-            dataField: 'data_evento',
-            text: 'Data evento',
-            filter: dateFilter(),
-            formatter: this.dateFormatter,
-            // editor: {
-            //     type: Type.DATE
-            // },
-            // sort: true
-        }, {
-            dataField: 'articolo',
-            text: 'Articolo',
+            dataField: 'code',
+            text: 'Product ID',
             sort: true,
-            filter: textFilter(),
-            formatter: this.articoloFormatter,
-            headerFormatter: this.articoloHeaderFormatter
+            filter: textFilter()
+            // onSort: (field, order) => {
+            //     console.log('....');
+            //   }
         }, {
             dataField: 'categoria',
             text: 'Categoria',
-            filter: textFilter()
+            filter: textFilter(),
+            sort: true
+        }, {
+            dataField: 'articolo',
+            text: 'Articolo',
+            filter: textFilter(),
+            formatter: this.articoloFormatter,
+            headerFormatter: this.articoloHeaderFormatter,
+            sort: true,
+            // headerStyle: (column, colIndex) => {
+            //     return { width: '400px' }; 
+            // }
         }, {
             dataField: 'lotto',
             text: 'Lotto',
-            filter: textFilter()
+            filter: textFilter(),
+            sort: true
         }, {
             dataField: 'ditta',
             text: 'Ditta',
-            filter: textFilter()
+            filter: textFilter(),
+            sort: true
         }, {
             dataField: 'quantita',
             text: 'Quantità',
             align: 'center',
             type: 'number',
             filter: textFilter(),
-            formatter: this.quantitaFormatter
+            formatter: this.quantitaFormatter,
+            sort: true
+        }, {
+            dataField: 'deleteIcon',
+            isDummyField: true,
+            text: 'Status',
+            // headerStyle: (column, colIndex) => {
+            //     return { width: '70px' }; 
+            // },
+            formatter: (cellContent, row) => {
+                if (row.operatore === 'Tom') {
+                    return (
+                        <CancelIcon color="secondary" onClick={(e) => this.handleEventDelete(e, row.id)}/>
+                    );
+                }
+                return (
+                    <h5>
+                        <CancelIcon color="disabled" />
+                    </h5>
+                );
+            }
         }
-            // }, {
-            //     dataField: 'df1',
-            //     isDummyField: true,
-            //     text: 'Status',
-            //     formatter: (cellContent, row) => {
-            //         if (row.quantita !== 0) {
-            //             return (
-            //                 <h5>
-            //                     <span className="btn btn-success"> Available</span>
-            //                 </h5>
-            //             );
-            //         }
-            //         return (
-            //             <h5>
-            //                 <span className="label label-default"> Backordered</span>
-            //             </h5>
-            //         );
-            //     }
-            //    }
         ];
 
-        const keys = (data[0] && Object.keys(data[0])) || [];
-        if (sorted_header.every(sh => keys.indexOf(sh.dataField) > -1)) {
-            return sorted_header;
-        } else {
-            return [{
-                dataField: 'error',
-                text: 'Database and Schema not matching'
-            }]
-        }
+        return sorted_header;
+
+        // const keys = (data[0] && Object.keys(data[0])) || [];
+        // if (sorted_header.every(sh => keys.indexOf(sh.dataField) > -1)) {
+        //     return sorted_header;
+        // } else {
+        //     return [{
+        //         dataField: 'error',
+        //         text: 'Database and Schema do not match'
+        //     }]
+        // }
     }
 
     handleHOTChange(changes, source) {
@@ -226,27 +245,39 @@ class SmartTable extends React.Component {
         this.refs.hot.hotInstance.setDataAtCell(0, 0, 'new value')
     }
 
+    onTableUpdate = (productid, operatore, dataevento, articolo, categoria, lotto, ditta, quantita) => {
+        var oldData = this.state.data;
+        oldData.push({
+            code: productid['productid'], operatore: operatore['operatore'], data_evento: dataevento['dataevento'], articolo: articolo['articolo'],
+            categoria: categoria['categoria'], lotto: lotto['lotto'], ditta: ditta['ditta'], quantita: quantita['quantita']
+        });
+        this.setState({ data: oldData });
+    }
+
     render() {
         return (
             <div>
-                <AddMovementBar operatori={this.state.operatori} categorie={this.state.categorie} ditte={this.state.ditte} />
+                {/* <div style={{ borderRadius: '0.25em', textAlign: 'center', color: 'purple', border: '1px solid purple', padding: '0.5em' }}> */}
+                <AddMovementBar operatori={this.state.operatori} categorie={this.state.categorie} ditte={this.state.ditte} onTableUpdate={this.onTableUpdate} />
+                {/* </div> */}
                 <h5>Row Count:<span className="badge">{this.state.rowCount}</span></h5>
                 <BootstrapTable
                     onDataSizeChange={this.handleDataChange}
                     keyField="id"
                     data={this.state.data}
-                    columns={this.state.columns}
+                    //columns={this.state.columns}
+                    columns={this.formatHeader()}
                     filter={filterFactory()}
                     filterPosition="top"
                     pagination={paginationFactory()}
-                    bordered={false}
-                    noDataIndication="Table is Empty"
+                    bordered={true}
+                    noDataIndication="Table is Empty!"
                     // caption="Caption here"
                     caption={<CaptionElement />}
                     tabIndexCell
-                    selectRow={{ mode: 'checkbox' }}
+                    // selectRow={{ mode: 'checkbox' }}
                     defaultSorted={[{
-                        dataField: 'articolo',
+                        dataField: 'data_evento',
                         order: 'desc'
                     }]}
                     bootstrap4
@@ -257,8 +288,6 @@ class SmartTable extends React.Component {
     }
 }
 
-
-const title = 'React with Webpack and Babel!!';
 
 ReactDOM.render(
     <SmartTable />,

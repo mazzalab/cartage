@@ -1,5 +1,11 @@
 .SmartTable {
     font-family: sans-serif;
     text-align: center;
-  }
+}
+
+  .bottomCol {
+    align-self: flex-end;
+    width: 100px;
+    height: 50px;
+}
   
