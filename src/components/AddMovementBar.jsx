@@ -92,7 +92,7 @@ export default class AddMovementBar extends React.Component {
                 quantita
             }).then(response => {
                 //Add a new row in the table by a callback
-                this.props.onTableUpdate(
+                this.props.onTableAdd(
                     productid,
                     operatore,
                     dataevento,

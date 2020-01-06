@@ -7,21 +7,14 @@ module.exports = {
     output: {
         filename: 'build.js',
         //path: path.join(__dirname, '/dist')
-        path: path.resolve(__dirname, './dist'),
-        publicPath: '/'
+        path: path.resolve(__dirname, './templates')
     },
     module: {
         rules: [
             {
                 test: /\.(js|jsx)$/,
                 exclude: /node_modules/,
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/preset-env', "@babel/preset-react"],
-                        plugins: ["@babel/plugin-proposal-class-properties"]
-                    }
-                }
+                loader: 'babel-loader'
             },
             {
                 test: /\.css$/,
@@ -29,15 +22,16 @@ module.exports = {
             }]
     },
     resolve: {
-        extensions: ['*', '.js', '.jsx']
+        extensions: ['*', '.js', '.jsx'],
     },
     plugins: [
         new HWP(
-            { template: path.resolve(__dirname, './templates/index.html') }
+            { template: path.resolve(__dirname, './templates/index.html'), inject: false }
         )
     ],
+    devtool: 'cheap-module-eval-source-map',
     devServer: {
-        contentBase: './dist',
+        contentBase: path.join(__dirname, 'templates'),
         // hot: true
     }
 }
