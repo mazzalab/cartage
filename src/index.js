@@ -32,20 +32,19 @@ class SmartTable extends React.Component {
 
     constructor(props) {
         super(props);
-        this.handleHOTChange = this.handleHOTChange.bind(this);
-
+        
         this.state = {
             data: [{ 'id': 1 }],
             // columns: [{
             //     dataField: 'id',
             //     text: 'Product IDs'
             // }],
-            operatori: [],
-            operatori_maintable: [],
-            categorie: [],
-            categorie_maintable: [],
-            ditte: [],
-            ditte_maintable: [],
+            operators: [],
+            operators_maintable: [],
+            categories: [],
+            categories_maintable: [],
+            companies: [],
+            companies_maintable: [],
 
             rowCount: 10,
             bordered_row_id: -1,
@@ -61,27 +60,27 @@ class SmartTable extends React.Component {
         this._isMounted = true;
 
         const requestAll = axios.get('http://127.0.0.1:5000/');
-        const requestCat = axios.get('http://127.0.0.1:5000/categorie');
-        const requestDit = axios.get('http://127.0.0.1:5000/ditte');
-        const requestOpe = axios.get('http://127.0.0.1:5000/operatori');
+        const requestCat = axios.get('http://127.0.0.1:5000/categories');
+        const requestCom = axios.get('http://127.0.0.1:5000/companies');
+        const requestOpe = axios.get('http://127.0.0.1:5000/operators');
 
-        axios.all([requestAll, requestCat, requestDit, requestOpe])
+        axios.all([requestAll, requestCat, requestCom, requestOpe])
             .then(axios.spread((...responses) => {
                 const responseAll = responses[0].data;
                 const responseCat = responses[1].data;
-                const responseDit = responses[2].data;
+                const responseCom = responses[2].data;
                 const responseOpe = responses[3].data;
 
-                var items_ditta = responseDit.map(r => { return <option key={r.ditta}>{r.ditta}</option> });
-                var items_ditta4table = responseDit.map(r => { return {value: r.ditta, label: r.ditta} });
-                var items_categoria = responseCat.map(r => { return <option key={r.categoria}>{r.categoria}</option> });
-                var items_categoria4table = responseCat.map(r => { return { value: r.categoria, label: r.categoria } });
-                var items_operatore = responseOpe.map(r => { return <option key={r.operatore}>{r.operatore}</option> });
-                var items_operatore4table = responseOpe.map(r => { return { value: r.operatore, label: r.operatore } });
+                var items_company = responseCom.map(r => { return <option key={r.company}>{r.company}</option> });
+                var items_company4table = responseCom.map(r => { return {value: r.company, label: r.company} });
+                var items_category = responseCat.map(r => { return <option key={r.category}>{r.category}</option> });
+                var items_category4table = responseCat.map(r => { return { value: r.category, label: r.category } });
+                var items_operator = responseOpe.map(r => { return <option key={r.operator}>{r.operator}</option> });
+                var items_operator4table = responseOpe.map(r => { return { value: r.operator, label: r.operator } });
 
-                items_ditta.unshift(<option key={'empty_ditta'}>{'select'}</option>)
-                items_categoria.unshift(<option key={'empty_categoria'}>{'select'}</option>)
-                items_operatore.unshift(<option key={'empty_operatore'}>{'select'}</option>)
+                items_company.unshift(<option key={'empty_company'}>{'select'}</option>)
+                items_category.unshift(<option key={'empty_category'}>{'select'}</option>)
+                items_operator.unshift(<option key={'empty_operator'}>{'select'}</option>)
 
                 if (this._isMounted) {
                     // var sorted_header = this.formatHeader(responseAll);
@@ -89,12 +88,12 @@ class SmartTable extends React.Component {
                     this.setState({
                         // columns: sorted_header,
                         data: responseAll,
-                        categorie: items_categoria,
-                        categorie_maintable: items_categoria4table,
-                        ditte: items_ditta,
-                        ditte_maintable: items_ditta4table,
-                        operatori: items_operatore,
-                        operatori_maintable: items_operatore4table
+                        categories: items_category,
+                        categories_maintable: items_category4table,
+                        companies: items_company,
+                        companies_maintable: items_company4table,
+                        operators: items_operator,
+                        operators_maintable: items_operator4table
                     })
                     // this.setState({ rowCounts: responseAll.length })
                 }
@@ -108,7 +107,7 @@ class SmartTable extends React.Component {
         this._isMounted = false;
     }
 
-    quantitaFormatter(cell, row) {
+    quantityFormatter(cell, row) {
         let col = 'black';
 
         if (cell > 0)
@@ -119,13 +118,13 @@ class SmartTable extends React.Component {
         return (<span><strong style={{ color: col }}>{cell}</strong></span>);
     }
 
-    articoloFormatter(cell, row) {
+    itemFormatter(cell, row) {
         return (
             <span><strong style={{ color: '#0072b2' }}>{cell}</strong></span>
         );
     }
 
-    articoloHeaderFormatter(column, colIndex, { sortElement, filterElement }) {
+    itemHeaderFormatter(column, colIndex, { sortElement, filterElement }) {
         return (
             <div style={{ display: 'flex', flexDirection: 'row' }}>
                 {column.text} {sortElement}
@@ -145,52 +144,47 @@ class SmartTable extends React.Component {
         return `${('0' + dateObj.getUTCDate()).slice(-2)}/${('0' + (dateObj.getUTCMonth() + 1)).slice(-2)}/${dateObj.getUTCFullYear()}`;
     }
 
-    handleHOTChange(changes, source) {
-        alert('changed!');
-        console.log(changes);
-    }
+    // handleClick(e) {
+    //     this.refs.hot.hotInstance.setDataAtCell(0, 0, 'new value')
+    // }
 
-    handleClick(e) {
-        this.refs.hot.hotInstance.setDataAtCell(0, 0, 'new value')
-    }
-
-    onTableAdd = (productid, operatore, dataevento, articolo, categoria, lotto, ditta, quantita) => {
+    onTableAdd = (code_item, operator, date_movement, item, category, batch, company, quantity) => {
         var oldData = this.state.data;
         oldData.push({
-            code: productid['productid'], operatore: operatore['operatore'], data_evento: dataevento['dataevento'], articolo: articolo['articolo'],
-            categoria: categoria['categoria'], lotto: lotto['lotto'], ditta: ditta['ditta'], quantita: quantita['quantita']
+            code_item: code_item['code_item'], operator: operator['operator'], date_movement: date_movement['date_movement'], item: item['item'],
+            category: category['category'], batch: batch['batch'], company: company['company'], quantity: quantity['quantity']
         });
         this.setState({ data: oldData });
     }
 
-    handleEventDelete = (e, event_id) => {
+    handleMovementDelete = (e, movement_id) => {
         if (window.confirm('Are you sure you wish to delete this item?')) {
             // axios call here to remove event_id from the database
 
-            const eid_obj = {
-                id: event_id
+            const movement_id_obj = {
+                id: movement_id
             };
 
             axios.post("http://127.0.0.1:5000/deleteMovement", {
-                eid_obj
+                eid_obj: movement_id_obj
             }).then(response => {
-                alert('Removed event with ID: ' + response.data['ID']);
+                alert('Removed movement with ID: ' + response.data['ID']);
             }).catch(err => {
                 console.log(err);
             });
 
             // remove event_id from the table
-            this.removeMovementIdfromTable(event_id);
+            this.removeMovementFromTable(movement_id);
         }
     }
 
-    removeMovementIdfromTable = (event_id) => {
-        console.log(event_id);
-        var filteredData = this.state.data.filter(el => el.id !== event_id);
+    removeMovementFromTable = (movement_id) => {
+        console.log(movement_id);
+        var filteredData = this.state.data.filter(el => el.id !== movement_id);
         this.setState({ data: filteredData });
     }
        
-    handleEventEdit = (e, row_id) => {
+    handleMovementEdit = (e, row_id) => {
         this.setState({ bordered_row_id: row_id })
 
         // generate array of not editable rows here and update this.state.nonEditableRows: [-1]
@@ -206,7 +200,7 @@ class SmartTable extends React.Component {
         return style;
     };
 
-    handleCommitAllEditForEvent = (e, row_id) => {
+    handleCommitAllEditsForMovement = (e, row_id) => {
         if (row_id === this.state.bordered_row_id) {
             this.setState({ bordered_row_id: -1 });
         }
@@ -223,8 +217,8 @@ class SmartTable extends React.Component {
             text: 'ID',
             hidden: true,
         }, {
-            dataField: 'data_evento',
-            text: 'Data evento',
+            dataField: 'date_movement',
+            text: 'Movement date',
             filter: dateFilter(),
             formatter: this.dateFormatter,
             sort: true,
@@ -232,8 +226,8 @@ class SmartTable extends React.Component {
                 return { width: '220px' };
             }
         }, {
-            dataField: 'operatore',
-            text: 'Operatore',
+            dataField: 'operator',
+            text: 'Operator',
             filter: textFilter(),
             style: {
                 fontStyle: 'italic',
@@ -241,32 +235,32 @@ class SmartTable extends React.Component {
             },
             editor: {
                 type: Type.SELECT,
-                options: this.state.operatori_maintable
+                options: this.state.operators_maintable
             },
             sort: true
         }, {
-            dataField: 'code',
-            text: 'Product ID',
+            dataField: 'code_item',
+            text: 'Item code',
             sort: true,
             filter: textFilter()
             // onSort: (field, order) => {
             //     console.log('....');
             //   }
         }, {
-            dataField: 'categoria',
-            text: 'Categoria',
+            dataField: 'category',
+            text: 'Category',
             filter: textFilter(),
             editor: {
                 type: Type.SELECT,
-                options: this.state.categorie_maintable
+                options: this.state.categories_maintable
             },
             sort: true
         }, {
-            dataField: 'articolo',
-            text: 'Articolo',
+            dataField: 'item',
+            text: 'Item',
             filter: textFilter(),
-            formatter: this.articoloFormatter,
-            headerFormatter: this.articoloHeaderFormatter,
+            formatter: this.itemFormatter,
+            headerFormatter: this.itemHeaderFormatter,
             editor: {
                 type: Type.SELECT,
                 options: this.state.articoli_maintable
@@ -276,42 +270,42 @@ class SmartTable extends React.Component {
             //     return { width: '400px' }; 
             // }
         }, {
-            dataField: 'lotto',
-            text: 'Lotto',
+            dataField: 'batch',
+            text: 'Batch',
             filter: textFilter(),
             sort: true
         }, {
-            dataField: 'ditta',
-            text: 'Ditta',
+            dataField: 'company',
+            text: 'Company',
             filter: textFilter(),
             editor: {
                 type: Type.SELECT,
-                options: this.state.ditte_maintable
+                options: this.state.companies_maintable
               },
             sort: true
         }, {
-            dataField: 'quantita',
-            text: 'Quantità',
+            dataField: 'quantity',
+            text: 'Quantity',
             align: 'center',
             type: 'number',
             filter: textFilter(),
-            formatter: this.quantitaFormatter,
+            formatter: this.quantityFormatter,
             sort: true
         }, {
             dataField: 'deleteIcon',
             isDummyField: true,
-            text: 'Status',
+            text: 'Actions',
             editable: false,
             // headerStyle: (column, colIndex) => {
             //     return { width: '70px' }; 
             // },
             formatter: (cellContent, row) => {
-                if (row.operatore === 'Tom') {
+                if (row.operator === 'Tom') {
                     return (
                         <div>
-                            <CancelIcon color="secondary" onClick={(e) => this.handleEventDelete(e, row.id)} />&nbsp;&nbsp;
-                            <EditIcon color="primary" onClick={e => this.handleEventEdit(e, row.id)} />&nbsp;&nbsp;
-                            <DoneAllIcon style={{ color: green[500] }} onClick={e => this.handleCommitAllEditForEvent(e, row.id)} />
+                            <CancelIcon color="secondary" onClick={(e) => this.handleMovementDelete(e, row.id)} />&nbsp;&nbsp;
+                            <EditIcon color="primary" onClick={e => this.handleMovementEdit(e, row.id)} />&nbsp;&nbsp;
+                            <DoneAllIcon style={{ color: green[500] }} onClick={e => this.handleCommitAllEditsForMovement(e, row.id)} />
                         </div>
                     );
                 }
@@ -343,7 +337,7 @@ class SmartTable extends React.Component {
         return (
             <div>
                 {/* <div style={{ borderRadius: '0.25em', textAlign: 'center', color: 'purple', border: '1px solid purple', padding: '0.5em' }}> */}
-                <AddMovementBar operatori={this.state.operatori} categorie={this.state.categorie} ditte={this.state.ditte} onTableAdd={this.onTableAdd} />
+                <AddMovementBar operators={this.state.operators} categories={this.state.categories} companies={this.state.companies} onTableAdd={this.onTableAdd} />
                 {/* </div> */}
                 <h5>Row Count:<span className="badge">{this.state.rowCount}</span></h5>
                 <BootstrapTable
@@ -358,13 +352,13 @@ class SmartTable extends React.Component {
                     filterPosition="top"
                     pagination={paginationFactory()}
                     bordered={true}
-                    noDataIndication="Table is Empty!"
+                    noDataIndication="Empty table"
                     // caption="Caption here"
                     caption={<CaptionElement />}
                     tabIndexCell
                     // selectRow={{ mode: 'checkbox' }}
                     defaultSorted={[{
-                        dataField: 'data_evento',
+                        dataField: 'date_movement',
                         order: 'desc'
                     }]}
                     bootstrap4

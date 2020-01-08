@@ -2,35 +2,36 @@ from model.store import Product
 from model.store import db
 
 
-def load_all_db():
+def load_whole_db():
     return Product.query.all()
 
-def load_all_categoria():
-    return Product.query.with_entities(Product.categoria).distinct()
+def load_all_categories():
+    return Product.query.with_entities(Product.category).distinct()
 
-def load_all_ditta():
-    return Product.query.with_entities(Product.ditta).distinct()
+def load_all_companies():
+    return Product.query.with_entities(Product.company).distinct()
 
-def load_all_operatore():
-    return Product.query.with_entities(Product.operatore).distinct()
+def load_all_operators():
+    return Product.query.with_entities(Product.operator).distinct()
 
-def load_articoli_per_categoria(categoria):
-    return Product.query.filter_by(categoria=categoria).with_entities(Product.articolo).distinct()
+def load_items_per_category(category):
+    return Product.query.filter_by(category=category).with_entities(Product.item).distinct()
 
 def delete_movement(delete_id):
     Product.query.filter_by(id=delete_id).delete()
     db.session.commit()
 
-def add_movement(code, operatore, data_evento, articolo, categoria, lotto, ditta, quantita):
+def add_movement(code_item, operator, date_movement, item, category, batch, expiry_date_batch, company, quantity):
     addedData = Product(
-        code=code,
-        operatore=operatore,
-        data_evento=data_evento,
-        articolo=articolo,
-        categoria=categoria,
-        lotto=lotto,
-        ditta=ditta,
-        quantita=quantita
+        code_item=code_item,
+        operator=operator,
+        date_movement=date_movement,
+        item=item,
+        category=category,
+        batch=batch,
+        expiry_date_batch=expiry_date_batch, 
+        company=company,
+        quantity=quantity
     )
 
     db.session.add(addedData)

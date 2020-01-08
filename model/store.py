@@ -9,22 +9,22 @@ class Product(db.Model):
     __tablename__ = "store"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    code = db.Column(db.String(50), nullable=False)
-    operatore = db.Column(db.String(255), nullable=False)
-    data_evento = db.Column(db.Date, nullable=False)
-    quantita = db.Column(db.Integer, nullable=False)
-    categoria = db.Column(db.String(100), nullable=False)
-    # codice_articolo = db.Column(db.String(50), nullable=False, unique=True)
-    articolo = db.Column(db.String(300), nullable=False)
-    lotto = db.Column(db.String(100), nullable=False)
-    ditta = db.Column(db.String(100), nullable=False)  # , default=False
+    code_item = db.Column(db.String(50), nullable=False)
+    operator = db.Column(db.String(255), nullable=False)
+    date_movement = db.Column(db.Date, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    category = db.Column(db.String(100), nullable=False)
+    item = db.Column(db.String(300), nullable=False)
+    batch = db.Column(db.String(100), nullable=True)
+    expiry_date_batch = db.Column(db.Date, nullable=True)
+    company = db.Column(db.String(100), nullable=False)  # , default=False
 
     def __repr__(self):
-        return '[{}]: {}'.format(self.categoria, self.articolo)
+        return '[{}]: {}'.format(self.category, self.item)
 
 class ProductSchema(ma.ModelSchema):
     class Meta:
-        # fields = ('id','operatore','data_evento','quantita','categoria','articolo','code','lotto','ditta')
+        # fields = ('id','operator', ... ,'company')
         model = Product
 
 product_schema = ProductSchema()

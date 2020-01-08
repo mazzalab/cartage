@@ -15,15 +15,15 @@ export default class AddMovementBar extends React.Component {
     barFontSize = 11;
 
     state = {
-        productid: '',
-        operatore: '',
-        dataevento: '',
-        articolo_list: [<option key={'empty_articolo'}>{'select'}</option>],
-        articolo: '',
-        categoria: '',
-        lotto: '',
-        ditta: '',
-        quantita: ''
+        code_item: '',
+        operator: '',
+        date_movement: '',
+        items_list: [<option key={'empty_item'}>{'select'}</option>],
+        item: '',
+        category: '',
+        batch: '',
+        company: '',
+        quantity: ''
     }
 
     areEmpty = (fields) => {
@@ -45,62 +45,62 @@ export default class AddMovementBar extends React.Component {
     handleSubmitNewMovement = e => {
         e.preventDefault();
 
-        var fempty = this.areEmpty({ 'Product ID': this.state.productid, 'Data evento': this.state.dataevento, 'Lotto': this.state.lotto, 'Quantita': this.state.quantita })
-        var fselect = this.areSelect({ 'Operatore': this.state.operatore, 'Articolo': this.state.articolo, 'Categoria': this.state.categoria, 'Ditta': this.state.ditta })
+        var fempty = this.areEmpty({ 'Item code': this.state.code_item, 'Movement date': this.state.date_movement, 'Batch': this.state.batch, 'Quantity': this.state.quantity })
+        var fselect = this.areSelect({ 'Operator': this.state.operator, 'Item': this.state.item, 'Category': this.state.category, 'Company': this.state.company })
 
         if (fempty.length !== 0) {
             alert(fempty.toString() + " are missing field(s)");
-        } else if (isNaN(this.state.quantita)) {
-            alert("The field 'Quantità' is not a number");
+        } else if (isNaN(this.state.quantity)) {
+            alert("The field 'Quantity' is not a number");
         } else if (fselect.length !== 0) {
             alert(fselect.toString() + " must be selected");
         }
         else {
-            const productid = {
-                productid: this.state.productid
+            const code_item = {
+                code_item: this.state.code_item
             };
-            const operatore = {
-                operatore: this.state.operatore
+            const operator = {
+                operator: this.state.operator
             };
-            const dataevento = {
-                dataevento: this.state.dataevento
+            const date_movement = {
+                date_movement: this.state.date_movement
             };
-            const articolo = {
-                articolo: this.state.articolo
+            const item = {
+                item: this.state.item
             };
-            const categoria = {
-                categoria: this.state.categoria
+            const category = {
+                category: this.state.category
             };
-            const lotto = {
-                lotto: this.state.lotto
+            const batch = {
+                batch: this.state.batch
             };
-            const ditta = {
-                ditta: this.state.ditta
+            const company = {
+                company: this.state.company
             };
-            const quantita = {
-                quantita: this.state.quantita
+            const quantity = {
+                quantity: this.state.quantity
             };
 
-            axios.post("http://127.0.0.1:5000/addMovement", {
-                productid,
-                operatore,
-                dataevento,
-                articolo,
-                categoria,
-                lotto,
-                ditta,
-                quantita
+            axios.post("http://127.0.0.1:5000/add_movement", {
+                code_item,
+                operator,
+                date_movement,
+                item,
+                category,
+                batch,
+                company,
+                quantity
             }).then(response => {
                 //Add a new row in the table by a callback
                 this.props.onTableAdd(
-                    productid,
-                    operatore,
-                    dataevento,
-                    articolo,
-                    categoria,
-                    lotto,
-                    ditta,
-                    quantita);
+                    code_item,
+                    operator,
+                    date_movement,
+                    item,
+                    category,
+                    batch,
+                    company,
+                    quantity);
 
                 alert('Inserted item with ID: ' + response.data['ID']);
             }).catch(err => {
@@ -116,68 +116,68 @@ export default class AddMovementBar extends React.Component {
                     <Row form>
                         <Col md={2}>
                             <FormGroup>
-                                <Label for="dataevento">Data evento</Label>
+                                <Label for="date_movement">Movement date</Label>
                                 <Input
                                     type="date"
-                                    name="dataevento"
-                                    id="dataevento"
-                                    placeholder="Data evento"
-                                    value={this.state.dataevento}
-                                    onChange={e => this.setState({ dataevento: e.target.value })}
+                                    name="date_movement"
+                                    id="date_movement"
+                                    placeholder="Movement date"
+                                    value={this.state.date_movement}
+                                    onChange={e => this.setState({ date_movement: e.target.value })}
                                     style={{ fontSize: this.barFontSize }}
                                 />
                             </FormGroup>
                         </Col>
                         <Col md={1}>
                             <FormGroup>
-                                <Label for="operatore">Operatore</Label>
+                                <Label for="operator">Operator</Label>
                                 <Input
                                     type="select"
-                                    name="operatore"
-                                    id="operatore"
-                                    placeholder="Operatore"
-                                    onChange={e => this.setState({ operatore: e.target.value })}
+                                    name="operator"
+                                    id="operator"
+                                    placeholder="Operator"
+                                    onChange={e => this.setState({ operator: e.target.value })}
                                     style={{ fontSize: this.barFontSize }}
                                 >
                                     {
-                                        this.props.operatori
+                                        this.props.operators
                                     }
                                 </Input>
                             </FormGroup>
                         </Col>
                         <Col md={1}>
                             <FormGroup>
-                                <Label for="ProductID">Product ID</Label>
+                                <Label for="code_item">Item code</Label>
                                 <Input
                                     type="text"
-                                    name="productid"
-                                    id="productid"
-                                    placeholder="Product ID"
-                                    value={this.state.productid}
-                                    onChange={e => this.setState({ productid: e.target.value })}
+                                    name="code_item"
+                                    id="code_item"
+                                    placeholder="Item code"
+                                    value={this.state.code_item}
+                                    onChange={e => this.setState({ code_item: e.target.value })}
                                     style={{ fontSize: this.barFontSize }}
                                 />
                             </FormGroup>
                         </Col>
                         <Col md={1}>
                             <FormGroup>
-                                <Label for="categoria">Categoria</Label>
+                                <Label for="category">Category</Label>
                                 <Input
                                     type="select"
-                                    name="categoria"
-                                    id="categoria"
+                                    name="category"
+                                    id="category"
                                     onChange={e => {
-                                        this.setState({ categoria: e.target.value });
+                                        this.setState({ category: e.target.value });
 
                                         const selectedCat = {
-                                            categoria: e.target.value
+                                            category: e.target.value
                                         };
-                                        axios.post("http://127.0.0.1:5000/articoliPerCategoria", { selectedCat })
+                                        axios.post("http://127.0.0.1:5000/items_per_category", { selectedCat })
                                             .then(response => {
-                                                let articolo_list = response.data.map(r => { return <option key={r.articolo}>{r.articolo}</option> })
-                                                articolo_list.unshift(<option key={'empty_articolo'}>{'select'}</option>)
+                                                let items_list = response.data.map(r => { return <option key={r.item}>{r.item}</option> })
+                                                items_list.unshift(<option key={'empty_item'}>{'select'}</option>)
 
-                                                this.setState({ articolo_list: articolo_list });
+                                                this.setState({ items_list: items_list });
                                             }).catch(err => {
                                                 console.log(err);
                                             });
@@ -185,67 +185,67 @@ export default class AddMovementBar extends React.Component {
                                     style={{ fontSize: this.barFontSize }}
                                 >
                                     {
-                                        this.props.categorie
+                                        this.props.categories
                                     }
                                 </Input>
                             </FormGroup>
                         </Col>
                         <Col md={3}>
                             <FormGroup>
-                                <Label for="articolo">Articolo</Label>
+                                <Label for="item">Item</Label>
                                 <Input
                                     type="select"
-                                    name="articolo"
-                                    id="articolo"
-                                    onChange={e => this.setState({ articolo: e.target.value })}
+                                    name="item"
+                                    id="item"
+                                    onChange={e => this.setState({ item: e.target.value })}
                                     style={{ fontSize: this.barFontSize }}
                                 >
                                     {
-                                        this.state.articolo_list
+                                        this.state.items_list
                                     }
                                 </Input>
                             </FormGroup>
                         </Col>
                         <Col md={1}>
                             <FormGroup>
-                                <Label for="lotto">Lotto</Label>
+                                <Label for="batch">Batch</Label>
                                 <Input
                                     type="text"
-                                    name="lotto"
-                                    id="lotto"
-                                    placeholder="Lotto"
-                                    value={this.state.lotto}
-                                    onChange={e => this.setState({ lotto: e.target.value })}
+                                    name="batch"
+                                    id="batch"
+                                    placeholder="batch"
+                                    value={this.state.batch}
+                                    onChange={e => this.setState({ batch: e.target.value })}
                                     style={{ fontSize: this.barFontSize }}
                                 />
                             </FormGroup>
                         </Col>
                         <Col md={1}>
                             <FormGroup>
-                                <Label for="ditta">Ditta</Label>
+                                <Label for="company">Company</Label>
                                 <Input
                                     type="select"
-                                    name="ditta"
-                                    id="ditta"
-                                    onChange={e => this.setState({ ditta: e.target.value })}
+                                    name="company"
+                                    id="company"
+                                    onChange={e => this.setState({ company: e.target.value })}
                                     style={{ fontSize: this.barFontSize }}
                                 >
                                     {
-                                        this.props.ditte
+                                        this.props.companies
                                     }
                                 </Input>
                             </FormGroup>
                         </Col>
                         <Col md={1}>
                             <FormGroup>
-                                <Label for="quantita">Quantità</Label>
+                                <Label for="quantity">Quantities</Label>
                                 <Input
                                     type="numeric"
-                                    name="quantita"
-                                    id="quantita"
-                                    placeholder="Quantità"
-                                    value={this.state.quantita}
-                                    onChange={e => this.setState({ quantita: e.target.value })}
+                                    name="quantity"
+                                    id="quantity"
+                                    placeholder="quantity"
+                                    value={this.state.quantity}
+                                    onChange={e => this.setState({ quantity: e.target.value })}
                                     style={{ fontSize: this.barFontSize }}
                                 />
                             </FormGroup>
