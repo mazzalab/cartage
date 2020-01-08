@@ -11,6 +11,7 @@ from model.store import Product
 from model.store import db
 from model.store import ma
 from model.store import products_schema, product_schema
+from model.account import Store, User
 import model.db_manager
 
 
@@ -111,6 +112,21 @@ if __name__ == "__main__":
             # db.session.add(third)
             # db.session.add(fourth)
 
+            tom = User(name="Tom", surname="Maz", email="t.maz@mend.it", password="sticaz", master=True)
+            gino = User(name="Gino", surname="Pomicino", email="g.pom@oper.it", password="gauz", master=False)
+
+            mol1 = Store(name="Bio Mol 1", description="La desscrizione di mol1")
+            mol2 = Store(name="Bio Mol 2", description="La desscrizione di mol2")
+            mol3 = Store(name="Bio Mol 3", description="La desscrizione di mol3")
+
+            mol1.operators.append(gino)
+            mol1.administrators.append(tom)
+            mol2.administrators.append(tom)
+            mol2.operators.append(tom)
+            mol3.administrators.append(gino)
+
+            db.session.add(tom)
+            db.session.add(gino)
             db.session.commit()
 
             # flask_bcrypt.init_app(app)

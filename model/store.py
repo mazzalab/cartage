@@ -6,7 +6,7 @@ ma = Marshmallow()
 
 class Product(db.Model):
     """ Product Model for storing product related details """
-    __tablename__ = "store"
+    __tablename__ = "product"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     code_item = db.Column(db.String(50), nullable=False)
