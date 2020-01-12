@@ -116,51 +116,6 @@ export default class AddMovementBar extends React.Component {
                     <Row form>
                         <Col md={2}>
                             <FormGroup>
-                                <Label for="date_movement">Movement date</Label>
-                                <Input
-                                    type="date"
-                                    name="date_movement"
-                                    id="date_movement"
-                                    placeholder="Movement date"
-                                    value={this.state.date_movement}
-                                    onChange={e => this.setState({ date_movement: e.target.value })}
-                                    style={{ fontSize: this.barFontSize }}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={1}>
-                            <FormGroup>
-                                <Label for="operator">Operator</Label>
-                                <Input
-                                    type="select"
-                                    name="operator"
-                                    id="operator"
-                                    placeholder="Operator"
-                                    onChange={e => this.setState({ operator: e.target.value })}
-                                    style={{ fontSize: this.barFontSize }}
-                                >
-                                    {
-                                        this.props.operators
-                                    }
-                                </Input>
-                            </FormGroup>
-                        </Col>
-                        <Col md={1}>
-                            <FormGroup>
-                                <Label for="code_item">Item code</Label>
-                                <Input
-                                    type="text"
-                                    name="code_item"
-                                    id="code_item"
-                                    placeholder="Item code"
-                                    value={this.state.code_item}
-                                    onChange={e => this.setState({ code_item: e.target.value })}
-                                    style={{ fontSize: this.barFontSize }}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={1}>
-                            <FormGroup>
                                 <Label for="category">Category</Label>
                                 <Input
                                     type="select"
@@ -186,6 +141,22 @@ export default class AddMovementBar extends React.Component {
                                 >
                                     {
                                         this.props.categories
+                                    }
+                                </Input>
+                            </FormGroup>
+                        </Col>
+                        <Col md={2}>
+                            <FormGroup>
+                                <Label for="company">Company</Label>
+                                <Input
+                                    type="select"
+                                    name="company"
+                                    id="company"
+                                    onChange={e => this.setState({ company: e.target.value })}
+                                    style={{ fontSize: this.barFontSize }}
+                                >
+                                    {
+                                        this.props.companies
                                     }
                                 </Input>
                             </FormGroup>
@@ -218,22 +189,6 @@ export default class AddMovementBar extends React.Component {
                                     onChange={e => this.setState({ batch: e.target.value })}
                                     style={{ fontSize: this.barFontSize }}
                                 />
-                            </FormGroup>
-                        </Col>
-                        <Col md={1}>
-                            <FormGroup>
-                                <Label for="company">Company</Label>
-                                <Input
-                                    type="select"
-                                    name="company"
-                                    id="company"
-                                    onChange={e => this.setState({ company: e.target.value })}
-                                    style={{ fontSize: this.barFontSize }}
-                                >
-                                    {
-                                        this.props.companies
-                                    }
-                                </Input>
                             </FormGroup>
                         </Col>
                         <Col md={1}>

@@ -1,10 +1,11 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
+import './styles.css';
 
 import React, { useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 
-import './styles.css';
 import AddMovementBar from './components/AddMovementBar';
 
 import CancelIcon from '@material-ui/icons/Cancel';
@@ -16,7 +17,6 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import filterFactory, { textFilter, dateFilter } from 'react-bootstrap-table2-filter';
 import cellEditFactory, { Type } from 'react-bootstrap-table2-editor';
 import paginationFactory from 'react-bootstrap-table2-paginator';
-import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 
 
 const CaptionElement = () => <h3 style={{ borderRadius: '0.25em', textAlign: 'center', color: 'purple', border: '1px solid purple', padding: '0.5em' }}>History</h3>;
@@ -32,14 +32,13 @@ class SmartTable extends React.Component {
 
     constructor(props) {
         super(props);
-        
+
         this.state = {
             data: [{ 'id': 1 }],
             // columns: [{
             //     dataField: 'id',
             //     text: 'Product IDs'
             // }],
-            operators: [],
             operators_maintable: [],
             categories: [],
             categories_maintable: [],
@@ -71,16 +70,16 @@ class SmartTable extends React.Component {
                 const responseCom = responses[2].data;
                 const responseOpe = responses[3].data;
 
-                var items_company = responseCom.map(r => { return <option key={r.company}>{r.company}</option> });
-                var items_company4table = responseCom.map(r => { return {value: r.company, label: r.company} });
-                var items_category = responseCat.map(r => { return <option key={r.category}>{r.category}</option> });
-                var items_category4table = responseCat.map(r => { return { value: r.category, label: r.category } });
-                var items_operator = responseOpe.map(r => { return <option key={r.operator}>{r.operator}</option> });
-                var items_operator4table = responseOpe.map(r => { return { value: r.operator, label: r.operator } });
+                var items_category = responseCat.map(r => { return <option key={r.id + '_' + r.name}>{r.name}</option> });
+                var items_category4table = responseCat.map(r => { return { value: r.name, label: r.name } });
+                var items_company = responseCom.map(r => { return <option key={r.id + '_' + r.name}>{r.name}</option> });
+                var items_company4table = responseCom.map(r => { return { value: r.name, label: r.name } });
+                var items_operator4table = responseOpe.map(r => { return { value: r.name + ' ' + r.surname, label: r.name + ' ' + r.surname } });
+
+                console.log(items_category4table)
 
                 items_company.unshift(<option key={'empty_company'}>{'select'}</option>)
                 items_category.unshift(<option key={'empty_category'}>{'select'}</option>)
-                items_operator.unshift(<option key={'empty_operator'}>{'select'}</option>)
 
                 if (this._isMounted) {
                     // var sorted_header = this.formatHeader(responseAll);
@@ -92,7 +91,6 @@ class SmartTable extends React.Component {
                         categories_maintable: items_category4table,
                         companies: items_company,
                         companies_maintable: items_company4table,
-                        operators: items_operator,
                         operators_maintable: items_operator4table
                     })
                     // this.setState({ rowCounts: responseAll.length })
@@ -183,7 +181,7 @@ class SmartTable extends React.Component {
         var filteredData = this.state.data.filter(el => el.id !== movement_id);
         this.setState({ data: filteredData });
     }
-       
+
     handleMovementEdit = (e, row_id) => {
         this.setState({ bordered_row_id: row_id })
 
@@ -209,7 +207,7 @@ class SmartTable extends React.Component {
         // and the reset of all styles for edited cells
     }
 
-    
+
 
     formatHeader(data) {
         const sorted_header = [{
@@ -264,7 +262,7 @@ class SmartTable extends React.Component {
             editor: {
                 type: Type.SELECT,
                 options: this.state.articoli_maintable
-              },
+            },
             sort: true,
             // headerStyle: (column, colIndex) => {
             //     return { width: '400px' }; 
@@ -281,7 +279,7 @@ class SmartTable extends React.Component {
             editor: {
                 type: Type.SELECT,
                 options: this.state.companies_maintable
-              },
+            },
             sort: true
         }, {
             dataField: 'quantity',
@@ -300,7 +298,7 @@ class SmartTable extends React.Component {
             //     return { width: '70px' }; 
             // },
             formatter: (cellContent, row) => {
-                if (row.operator === 'Tom') {
+                if (row.operator !== 'Tom') {
                     return (
                         <div>
                             <CancelIcon color="secondary" onClick={(e) => this.handleMovementDelete(e, row.id)} />&nbsp;&nbsp;
