@@ -47,7 +47,11 @@ class SmartTable extends React.Component {
 
             rowCount: 10,
             bordered_row_id: -1,
-            nonEditableRows: [-1]
+            nonEditableRows: [-1],
+
+            cancel_color: 'secondary',
+            edit_color: 'primary',
+            done_color: 'disabled'   // green[500]
         }
     }
 
@@ -71,12 +75,8 @@ class SmartTable extends React.Component {
                 const responseOpe = responses[3].data;
 
                 var items_category = responseCat.map(r => { return <option key={r.id + '_' + r.name}>{r.name}</option> });
-                var items_category4table = responseCat.map(r => { return { value: r.name, label: r.name } });
                 var items_company = responseCom.map(r => { return <option key={r.id + '_' + r.name}>{r.name}</option> });
-                var items_company4table = responseCom.map(r => { return { value: r.name, label: r.name } });
                 var items_operator4table = responseOpe.map(r => { return { value: r.name + ' ' + r.surname, label: r.name + ' ' + r.surname } });
-
-                console.log(items_category4table)
 
                 items_company.unshift(<option key={'empty_company'}>{'select'}</option>)
                 items_category.unshift(<option key={'empty_category'}>{'select'}</option>)
@@ -88,9 +88,7 @@ class SmartTable extends React.Component {
                         // columns: sorted_header,
                         data: responseAll,
                         categories: items_category,
-                        categories_maintable: items_category4table,
                         companies: items_company,
-                        companies_maintable: items_company4table,
                         operators_maintable: items_operator4table
                     })
                     // this.setState({ rowCounts: responseAll.length })
@@ -183,7 +181,12 @@ class SmartTable extends React.Component {
     }
 
     handleMovementEdit = (e, row_id) => {
-        this.setState({ bordered_row_id: row_id })
+        this.setState({ 
+            bordered_row_id: row_id,
+            edit_color: 'disabled',
+            cancel_color: 'disabled',
+            done_color: green[500]
+        }, ()=>alert('State changed'))
 
         // generate array of not editable rows here and update this.state.nonEditableRows: [-1]
     }
@@ -191,16 +194,32 @@ class SmartTable extends React.Component {
     setRowStyle = (row, rowIndex) => {
         const style = {};
         if (row.id === this.state.bordered_row_id) {
-            style.backgroundColor = '#c8e6c9';
+            // style.backgroundColor = '#c8e6c9';
             style.border = '3px solid red';
         }
 
         return style;
     };
 
+    setEditCellStyle = (cell, row, rowIndex, colIndex) => {
+        if (rowIndex +1 === this.state.bordered_row_id) {
+          return {
+            backgroundColor: '#c8e6c9'
+          };
+        }
+        return {
+          backgroundColor: '#FFFFFF'
+        };
+      }
+
     handleCommitAllEditsForMovement = (e, row_id) => {
         if (row_id === this.state.bordered_row_id) {
-            this.setState({ bordered_row_id: -1 });
+            this.setState({ 
+                bordered_row_id: -1,
+                cancel_color: 'secondary',
+                done_color: 'disabled',
+                edit_color: 'primary'
+            })
         }
 
         // Handle here the commit of changes to database
@@ -222,15 +241,17 @@ class SmartTable extends React.Component {
             sort: true,
             headerStyle: (column, colIndex) => {
                 return { width: '220px' };
-            }
+            },
+            style: this.setEditCellStyle
         }, {
             dataField: 'operator',
             text: 'Operator',
             filter: textFilter(),
-            style: {
-                fontStyle: 'italic',
-                // fontSize: '18px'
-            },
+            // style: {
+            //     fontStyle: 'italic',
+            //     // fontSize: '18px'
+            // },
+            style: this.setEditCellStyle,
             editor: {
                 type: Type.SELECT,
                 options: this.state.operators_maintable
@@ -240,7 +261,8 @@ class SmartTable extends React.Component {
             dataField: 'code_item',
             text: 'Item code',
             sort: true,
-            filter: textFilter()
+            filter: textFilter(),
+            editable: false
             // onSort: (field, order) => {
             //     console.log('....');
             //   }
@@ -248,10 +270,7 @@ class SmartTable extends React.Component {
             dataField: 'category',
             text: 'Category',
             filter: textFilter(),
-            editor: {
-                type: Type.SELECT,
-                options: this.state.categories_maintable
-            },
+            editable: false,
             sort: true
         }, {
             dataField: 'item',
@@ -259,36 +278,42 @@ class SmartTable extends React.Component {
             filter: textFilter(),
             formatter: this.itemFormatter,
             headerFormatter: this.itemHeaderFormatter,
-            editor: {
-                type: Type.SELECT,
-                options: this.state.articoli_maintable
-            },
-            sort: true,
+            editable: false,
+            // events: {
+            //     onDoubleClick: (e, column, columnIndex, row, rowIndex) => {
+            //       console.log(e);
+            //       console.log(column);
+            //       console.log(columnIndex);
+            //       console.log(row);
+            //       console.log(rowIndex);
+            //       alert('Click on Product ID field');
+            //     }
+            // },
+            sort: true
             // headerStyle: (column, colIndex) => {
             //     return { width: '400px' }; 
             // }
         }, {
-            dataField: 'batch',
+            dataField: 'batches',
             text: 'Batch',
             filter: textFilter(),
+            editable: false,
             sort: true
         }, {
             dataField: 'company',
             text: 'Company',
             filter: textFilter(),
-            editor: {
-                type: Type.SELECT,
-                options: this.state.companies_maintable
-            },
+            editable: false,
             sort: true
         }, {
             dataField: 'quantity',
             text: 'Quantity',
             align: 'center',
             type: 'number',
-            filter: textFilter(),
+            // filter: textFilter(),
             formatter: this.quantityFormatter,
-            sort: true
+            sort: true,
+            style: this.setEditCellStyle
         }, {
             dataField: 'deleteIcon',
             isDummyField: true,
@@ -301,9 +326,9 @@ class SmartTable extends React.Component {
                 if (row.operator !== 'Tom') {
                     return (
                         <div>
-                            <CancelIcon color="secondary" onClick={(e) => this.handleMovementDelete(e, row.id)} />&nbsp;&nbsp;
-                            <EditIcon color="primary" onClick={e => this.handleMovementEdit(e, row.id)} />&nbsp;&nbsp;
-                            <DoneAllIcon style={{ color: green[500] }} onClick={e => this.handleCommitAllEditsForMovement(e, row.id)} />
+                            <CancelIcon color={this.state.cancel_color} onClick={(e) => this.handleMovementDelete(e, row.id)} />&nbsp;&nbsp;
+                            <EditIcon color={this.state.edit_color} onClick={e => this.handleMovementEdit(e, row.id)} />&nbsp;&nbsp;
+                            <DoneAllIcon color={ this.state.done_color } onClick={e => this.handleCommitAllEditsForMovement(e, row.id)} />
                         </div>
                     );
                 }
@@ -353,7 +378,7 @@ class SmartTable extends React.Component {
                     noDataIndication="Empty table"
                     // caption="Caption here"
                     caption={<CaptionElement />}
-                    tabIndexCell
+                    // tabIndexCell
                     // selectRow={{ mode: 'checkbox' }}
                     defaultSorted={[{
                         dataField: 'date_movement',
