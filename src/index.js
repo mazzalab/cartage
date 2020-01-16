@@ -186,7 +186,7 @@ class SmartTable extends React.Component {
             edit_color: 'disabled',
             cancel_color: 'disabled',
             done_color: green[500]
-        }, ()=>alert('State changed'))
+        }, ()=>alert(this.state.done_color))
 
         // generate array of not editable rows here and update this.state.nonEditableRows: [-1]
     }
