@@ -30,6 +30,7 @@ const CaptionElement = () => <h3 style={{ borderRadius: '0.25em', textAlign: 'ce
 class SmartTable extends React.Component {
     _isMounted = false;
 
+
     constructor(props) {
         super(props);
 
@@ -49,9 +50,9 @@ class SmartTable extends React.Component {
             bordered_row_id: -1,
             nonEditableRows: [-1],
 
-            cancel_color: 'secondary',
-            edit_color: 'primary',
-            done_color: 'disabled'   // green[500]
+            cancel_color: 'red',
+            edit_color: 'blue',
+            done_color: 'gray'
         }
     }
 
@@ -181,12 +182,12 @@ class SmartTable extends React.Component {
     }
 
     handleMovementEdit = (e, row_id) => {
-        this.setState({ 
+        this.setState({
             bordered_row_id: row_id,
-            edit_color: 'disabled',
-            cancel_color: 'disabled',
+            edit_color: 'gray',
+            cancel_color: 'gray',
             done_color: green[500]
-        }, ()=>alert(this.state.done_color))
+        })
 
         // generate array of not editable rows here and update this.state.nonEditableRows: [-1]
     }
@@ -202,19 +203,19 @@ class SmartTable extends React.Component {
     };
 
     setEditCellStyle = (cell, row, rowIndex, colIndex) => {
-        if (rowIndex +1 === this.state.bordered_row_id) {
-          return {
-            backgroundColor: '#c8e6c9'
-          };
+        if (rowIndex + 1 === this.state.bordered_row_id) {
+            return {
+                backgroundColor: '#c8e6c9'
+            };
         }
         return {
-          backgroundColor: '#FFFFFF'
+            backgroundColor: '#FFFFFF'
         };
-      }
+    }
 
     handleCommitAllEditsForMovement = (e, row_id) => {
         if (row_id === this.state.bordered_row_id) {
-            this.setState({ 
+            this.setState({
                 bordered_row_id: -1,
                 cancel_color: 'secondary',
                 done_color: 'disabled',
@@ -326,9 +327,9 @@ class SmartTable extends React.Component {
                 if (row.operator !== 'Tom') {
                     return (
                         <div>
-                            <CancelIcon color={this.state.cancel_color} onClick={(e) => this.handleMovementDelete(e, row.id)} />&nbsp;&nbsp;
-                            <EditIcon color={this.state.edit_color} onClick={e => this.handleMovementEdit(e, row.id)} />&nbsp;&nbsp;
-                            <DoneAllIcon color={ this.state.done_color } onClick={e => this.handleCommitAllEditsForMovement(e, row.id)} />
+                            <CancelIcon style={{ color: this.state.cancel_color }} onClick={(e) => this.handleMovementDelete(e, row.id)} />&nbsp;&nbsp;
+                            <EditIcon style={{ color: this.state.edit_color }} onClick={e => this.handleMovementEdit(e, row.id)} />&nbsp;&nbsp;
+                            <DoneAllIcon style={{ color: this.state.done_color }} onClick={e => this.handleCommitAllEditsForMovement(e, row.id)} />
                         </div>
                     );
                 }
