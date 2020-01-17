@@ -50,8 +50,8 @@ class SmartTable extends React.Component {
             bordered_row_id: -1,
             nonEditableRows: [-1],
 
-            cancel_color: 'red',
-            edit_color: 'blue',
+            cancel_color: 'secondary',
+            edit_color: 'primary',
             done_color: 'gray'
         }
     }
@@ -184,12 +184,13 @@ class SmartTable extends React.Component {
     handleMovementEdit = (e, row_id) => {
         this.setState({
             bordered_row_id: row_id,
-            edit_color: 'gray',
-            cancel_color: 'gray',
+            edit_color: 'disabled',
+            cancel_color: 'disabled',
             done_color: green[500]
-        })
+        });
 
-        // generate array of not editable rows here and update this.state.nonEditableRows: [-1]
+        // make fields editable (change nonEditableRows state)
+        
     }
 
     setRowStyle = (row, rowIndex) => {
@@ -215,21 +216,23 @@ class SmartTable extends React.Component {
 
     handleCommitAllEditsForMovement = (e, row_id) => {
         if (row_id === this.state.bordered_row_id) {
+            // Handle here the commit of changes to database
+            
+            // make fields not editable (reset nonEditableRows state)
+
+            // button reset
             this.setState({
                 bordered_row_id: -1,
                 cancel_color: 'secondary',
-                done_color: 'disabled',
-                edit_color: 'primary'
+                edit_color: 'primary',
+                done_color: 'gray'
             })
         }
-
-        // Handle here the commit of changes to database
-        // and the reset of all styles for edited cells
     }
 
 
 
-    formatHeader(data) {
+    formatHeader = (data) => {
         const sorted_header = [{
             dataField: 'id',
             text: 'ID',
@@ -323,24 +326,31 @@ class SmartTable extends React.Component {
             // headerStyle: (column, colIndex) => {
             //     return { width: '70px' }; 
             // },
-            formatter: (cellContent, row) => {
+            formatter: (cell, row, rowIndex, extraData) => {
                 if (row.operator !== 'Tom') {
                     return (
                         <div>
-                            <CancelIcon style={{ color: this.state.cancel_color }} onClick={(e) => this.handleMovementDelete(e, row.id)} />&nbsp;&nbsp;
-                            <EditIcon style={{ color: this.state.edit_color }} onClick={e => this.handleMovementEdit(e, row.id)} />&nbsp;&nbsp;
-                            <DoneAllIcon style={{ color: this.state.done_color }} onClick={e => this.handleCommitAllEditsForMovement(e, row.id)} />
+                            <CancelIcon color={extraData[0]} onClick={(e) => {
+                                extraData[0] === "disabled" ? "" : this.handleMovementDelete(e, row.id)
+                            }} />&nbsp;&nbsp;
+                            <EditIcon color={extraData[1]} onClick={e => {
+                                extraData[0] === "disabled" ? "" : this.handleMovementEdit(e, row, row.id)
+                                }} />&nbsp;&nbsp;
+                            <DoneAllIcon style={{ color: extraData[2] }} onClick={e => 
+                                extraData[0] === "gray" ? "" : this.handleCommitAllEditsForMovement(e, row.id)
+                                } />
                         </div>
-                    );
+                    )
                 }
                 return (
                     <h5>
                         <CancelIcon color="disabled" />&nbsp;&nbsp;
                         <EditIcon color="disabled" />&nbsp;&nbsp;
-                        <DoneAllIcon color="disabled" />
+                        <DoneAllIcon style={{color: "gray"}} />
                     </h5>
                 );
-            }
+            },
+            formatExtraData: [this.state.cancel_color, this.state.edit_color, this.state.done_color]
         }
         ];
 
