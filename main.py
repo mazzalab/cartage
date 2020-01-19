@@ -48,11 +48,28 @@ def retrieve_all_operators():
     return jsonify(result)
 
 
-@app.route('/items_per_category', methods=['POST'])
-def retrieveItemsPerCategory():
+@app.route('/companies_per_category', methods=['POST'])
+def retrieveCompaniesPerCategory():
     json_data = request.get_json()
-    category = json_data.get('selected_category')['category']
-    result = db_manager.load_items_per_category(category)
+    category = json_data.get('selectedCat')['category']
+    result = db_manager.load_companies_per_category(category)
+    return jsonify(result)
+
+
+@app.route('/items_per_category_and_company', methods=['POST'])
+def retrieveItemsPerCompanyAndCategory():
+    json_data = request.get_json()
+    category = json_data.get('selectedCatCom')['category']
+    company = json_data.get('selectedCatCom')['company']
+    result = db_manager.load_items_per_companies_and_category(category, company)
+    return jsonify(result)
+
+
+@app.route('/batches_per_item', methods=['POST'])
+def retrieveBatchesPerItem():
+    json_data = request.get_json()
+    item = json_data.get('selectedItem')['item']
+    result = db_manager.load_batches_per_item(item)
     return jsonify(result)
 
 

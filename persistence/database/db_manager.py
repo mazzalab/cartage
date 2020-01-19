@@ -29,6 +29,8 @@ def create_empty_db():
         '13/02/2020', '%d/%m/%Y').date())
     ite1 = Item(code_item='icode_1', name='siringhetta')
     ite1.batches = [bat1]
+    ite1.category = cat
+    ite1.company = com1
     
     mov1 = Movement(item=ite1, date_movement=datetime.today(), quantity=2)
     mov1.operator = gino
@@ -83,12 +85,43 @@ def load_all_operators():
     return output
 
 
-def load_items_per_category(category):
-    rs = Movement.query.filter_by(
-        category=category).with_entities(Movement.item).distinct()
-    output = movements_schema.dump(rs)
-    return output
+def load_companies_per_category(category):
+    items = Item.query.all()
+    company_names = []
 
+    for item in items:
+        if item.category.name == category:
+            company_names.append(item.company.name)
+
+    return {'companies': list(set(company_names))}
+
+
+def load_items_per_companies_and_category(category: str, company: str):
+    # rs = Movement.query.filter_by(
+    #     category=category).with_entities(Movement.item).distinct()
+
+    # rs = Movement.query.filter_by(category == 
+
+    items = Item.query.all()
+    item_names = []
+
+    for item in items:
+        if item.category.name == category and item.company.name == company:
+            item_names.append(item.name)
+
+    return {'items': item_names}
+
+
+def load_batches_per_item(item: str):
+    items = Item.query.all()
+    batches = []
+
+    for i in items:
+        if i.name == item:
+            batches.extend([b.code for b in i.batches])
+            break
+
+    return {'batches': batches}
 
 def add_movement(code_item, operator, date_movement, item, category, batch, expiry_date_batch, company, quantity):
     addedData = Movement(

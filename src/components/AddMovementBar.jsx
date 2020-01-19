@@ -4,26 +4,51 @@ import { Col, Row, Button, Form, FormGroup, Label, Input } from 'reactstrap';
 import axios from 'axios';
 
 import '../styles.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 
 
 export default class AddMovementBar extends React.Component {
-    // constructor(props) {
-    //     super(props)
-
-    //     console.log('AA:  ' + this.props.articolo);
-    // }
     barFontSize = 11;
+    _isMounted = false;
 
     state = {
-        code_item: '',
-        operator: '',
-        date_movement: '',
+        categories: [<option key={'empty_category'}>{'select'}</option>],
+        selected_category: '',
+        companies: [<option key={'empty_company'}>{'select'}</option>],
+        selected_company: '',
         items_list: [<option key={'empty_item'}>{'select'}</option>],
-        item: '',
-        category: '',
-        batch: '',
-        company: '',
+        selected_item: '',
+        batches: [<option key={'empty_batch'}>{'select'}</option>],
+        selected_batch: '',
+
         quantity: ''
+    }
+
+    componentDidMount() {
+        this._isMounted = true;
+
+        const requestCat = axios.get('http://127.0.0.1:5000/categories');
+        axios.all([requestCat])
+            .then(axios.spread((...responses) => {
+                const responseCat = responses[0].data;
+
+                var items_category = responseCat.map(r => { return <option key={r.id + '_' + r.name}>{r.name}</option> });
+                items_category.unshift(<option key={'empty_category'}>{'select'}</option>)
+
+                if (this._isMounted) {
+                    this.setState({
+                        categories: items_category
+                    })
+                }
+            }))
+            .catch(errors => {
+                console.log(errors)
+            })
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
     }
 
     areEmpty = (fields) => {
@@ -122,17 +147,18 @@ export default class AddMovementBar extends React.Component {
                                     name="category"
                                     id="category"
                                     onChange={e => {
-                                        this.setState({ category: e.target.value });
+                                        this.setState({ selected_category: e.target.value });
 
                                         const selectedCat = {
                                             category: e.target.value
                                         };
-                                        axios.post("http://127.0.0.1:5000/items_per_category", { selectedCat })
+                                        axios.post("http://127.0.0.1:5000/companies_per_category", { selectedCat })
                                             .then(response => {
-                                                let items_list = response.data.map(r => { return <option key={r.item}>{r.item}</option> })
-                                                items_list.unshift(<option key={'empty_item'}>{'select'}</option>)
+                                                let company_list = response.data['companies'];
+                                                company_list = company_list.map(r => { return <option key={r}>{r}</option> })
+                                                company_list.unshift(<option key={'empty_item'}>{'select'}</option>)
 
-                                                this.setState({ items_list: items_list });
+                                                this.setState({ companies: company_list });
                                             }).catch(err => {
                                                 console.log(err);
                                             });
@@ -140,7 +166,7 @@ export default class AddMovementBar extends React.Component {
                                     style={{ fontSize: this.barFontSize }}
                                 >
                                     {
-                                        this.props.categories
+                                        this.state.categories
                                     }
                                 </Input>
                             </FormGroup>
@@ -152,11 +178,29 @@ export default class AddMovementBar extends React.Component {
                                     type="select"
                                     name="company"
                                     id="company"
-                                    onChange={e => this.setState({ company: e.target.value })}
+                                    style={{ fontSize: this.barFontSize }}
+                                    onChange={e => {
+                                        this.setState({ selected_company: e.target.value });
+
+                                        const selectedCatCom = {
+                                            category: this.state.selected_category,
+                                            company: e.target.value
+                                        };
+                                        axios.post("http://127.0.0.1:5000/items_per_category_and_company", { selectedCatCom })
+                                            .then(response => {
+                                                let item_list = response.data['items'];
+                                                item_list = item_list.map(r => { return <option key={r}>{r}</option> })
+                                                item_list.unshift(<option key={'empty_item'}>{'select'}</option>)
+
+                                                this.setState({ items_list: item_list });
+                                            }).catch(err => {
+                                                console.log(err);
+                                            });
+                                    }}
                                     style={{ fontSize: this.barFontSize }}
                                 >
                                     {
-                                        this.props.companies
+                                        this.state.companies
                                     }
                                 </Input>
                             </FormGroup>
@@ -168,7 +212,23 @@ export default class AddMovementBar extends React.Component {
                                     type="select"
                                     name="item"
                                     id="item"
-                                    onChange={e => this.setState({ item: e.target.value })}
+                                    onChange={e => {
+                                        this.setState({ selected_item: e.target.value });
+
+                                        const selectedItem = {
+                                            item: e.target.value
+                                        };
+                                        axios.post("http://127.0.0.1:5000/batches_per_item", { selectedItem })
+                                            .then(response => {
+                                                let batch_list = response.data['batches'];
+                                                batch_list = batch_list.map(r => { return <option key={r}>{r}</option> })
+                                                batch_list.unshift(<option key={'empty_batch'}>{'select'}</option>)
+
+                                                this.setState({ batches: batch_list });
+                                            }).catch(err => {
+                                                console.log(err);
+                                            });
+                                    }}
                                     style={{ fontSize: this.barFontSize }}
                                 >
                                     {
@@ -181,14 +241,17 @@ export default class AddMovementBar extends React.Component {
                             <FormGroup>
                                 <Label for="batch">Batch</Label>
                                 <Input
-                                    type="text"
+                                    type="select"
                                     name="batch"
                                     id="batch"
                                     placeholder="batch"
-                                    value={this.state.batch}
-                                    onChange={e => this.setState({ batch: e.target.value })}
+                                    onChange={e => this.setState({ selected_batch: e.target.value })}
                                     style={{ fontSize: this.barFontSize }}
-                                />
+                                >
+                                    {
+                                        this.state.batches
+                                    }
+                                </Input>
                             </FormGroup>
                         </Col>
                         <Col md={1}>

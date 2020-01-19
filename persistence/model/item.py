@@ -1,4 +1,6 @@
 from persistence.model import db, ma
+from persistence.model.company import Company, CompanySchema
+from persistence.model.category import Category, CategorySchema
 
 
 class Batch(db.Model):
@@ -28,6 +30,11 @@ class Item(db.Model):
     code_item = db.Column(db.String(50), nullable=False)
     name = db.Column(db.String(50), nullable=False)
     batches = db.relationship("Batch", backref=db.backref("item"))
+
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
+    company = db.relationship("Company", backref=db.backref("item"))
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+    category = db.relationship("Category", backref=db.backref("item"))
     
     def __repr__(self):
         return '[Item]: {} (code: {})'.format(self.name, self.code_item)
@@ -37,6 +44,8 @@ class ItemSchema(ma.ModelSchema):
     class Meta:
         model = Item
     batches = ma.Nested(BatchSchema, many=True)
+    company = ma.Nested(CompanySchema)
+    category = ma.Nested(CategorySchema)
 
 item_schema = ItemSchema()
 items_schema = ItemSchema(many=True)
