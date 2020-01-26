@@ -18,10 +18,13 @@ export default class AddMovementBar extends React.Component {
         companies: [<option key={'empty_company'}>{'select'}</option>],
         selected_company: '',
         items_list: [<option key={'empty_item'}>{'select'}</option>],
+        selected_code_item: '',
         selected_item: '',
         batches: [<option key={'empty_batch'}>{'select'}</option>],
         selected_batch: '',
 
+        operator: 'Gino Pomicino', // Info to be retrieved from authentication tokens and session data
+        
         quantity: ''
     }
 
@@ -70,37 +73,41 @@ export default class AddMovementBar extends React.Component {
     handleSubmitNewMovement = e => {
         e.preventDefault();
 
-        var fempty = this.areEmpty({ 'Item code': this.state.code_item, 'Movement date': this.state.date_movement, 'Batch': this.state.batch, 'Quantity': this.state.quantity })
-        var fselect = this.areSelect({ 'Operator': this.state.operator, 'Item': this.state.item, 'Category': this.state.category, 'Company': this.state.company })
+        var fempty = this.areEmpty({ 'Quantity': this.state.quantity })
+        var fselect = this.areSelect({ 'Operator': this.state.operator, 'Item code': this.state.selected_code_item, 'Batch': this.state.selected_batch, 
+        'Category': this.state.selected_category, 'Company': this.state.selected_company })
 
         if (fempty.length !== 0) {
-            alert(fempty.toString() + " are missing field(s)");
+            alert(fempty.toString() + " is empty");
         } else if (isNaN(this.state.quantity)) {
             alert("The field 'Quantity' is not a number");
         } else if (fselect.length !== 0) {
             alert(fselect.toString() + " must be selected");
         }
         else {
-            const code_item = {
-                code_item: this.state.code_item
-            };
             const operator = {
                 operator: this.state.operator
             };
+
+            var today = new Date();
+            var date = today.getDate() + '/' + today.getMonth()+1 + '/' + today.getFullYear();
             const date_movement = {
-                date_movement: this.state.date_movement
+                date_movement: date
+            };
+            const code_item = {
+                code_item: this.state.selected_code_item
             };
             const item = {
-                item: this.state.item
+                item: this.state.selected_item
             };
             const category = {
-                category: this.state.category
+                category: this.state.selected_category
             };
             const batch = {
-                batch: this.state.batch
+                batch: this.state.selected_batch
             };
             const company = {
-                company: this.state.company
+                company: this.state.selected_company
             };
             const quantity = {
                 quantity: this.state.quantity
@@ -110,14 +117,13 @@ export default class AddMovementBar extends React.Component {
                 code_item,
                 operator,
                 date_movement,
-                item,
                 category,
                 batch,
                 company,
                 quantity
             }).then(response => {
                 //Add a new row in the table by a callback
-                this.props.onTableAdd(
+                this.props.onTableAddRequest(
                     code_item,
                     operator,
                     date_movement,
@@ -189,8 +195,8 @@ export default class AddMovementBar extends React.Component {
                                         axios.post("http://127.0.0.1:5000/items_per_category_and_company", { selectedCatCom })
                                             .then(response => {
                                                 let item_list = response.data['items'];
-                                                item_list = item_list.map(r => { return <option key={r}>{r}</option> })
-                                                item_list.unshift(<option key={'empty_item'}>{'select'}</option>)
+                                                item_list = item_list.map(r => { return <option code_item={r[0]} value_item={r[1]} key={r[0]}>{'('+r[0]+ ') ' + r[1]}</option> })
+                                                item_list.unshift(<option code_item={'empty_item'} value_item={'empty_item'} key={'empty_item'}>{'select'}</option>)
 
                                                 this.setState({ items_list: item_list });
                                             }).catch(err => {
@@ -213,10 +219,14 @@ export default class AddMovementBar extends React.Component {
                                     name="item"
                                     id="item"
                                     onChange={e => {
-                                        this.setState({ selected_item: e.target.value });
+                                        let selectedIndex = e.target.selectedIndex;
+                                        let v_item = e.target[selectedIndex].getAttribute('value_item');
+                                        this.setState({ selected_item: v_item });
 
+                                        let c_item = e.target[selectedIndex].getAttribute('code_item');
+                                        this.setState({ selected_code_item: c_item });
                                         const selectedItem = {
-                                            item: e.target.value
+                                            code_item: c_item
                                         };
                                         axios.post("http://127.0.0.1:5000/batches_per_item", { selectedItem })
                                             .then(response => {

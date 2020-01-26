@@ -20,6 +20,9 @@ class User(db.Model):
     password = db.Column(db.String(50), nullable=False)
     master = db.Column(db.Boolean, nullable=False, default=False)
 
+    def __repr__(self):
+        return '[User]: name={} surname={}'.format(self.name, self.surname)
+
 class UserSchema(ma.ModelSchema):
     class Meta:
         model = User

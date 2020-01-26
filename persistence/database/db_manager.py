@@ -107,37 +107,54 @@ def load_items_per_companies_and_category(category: str, company: str):
 
     for item in items:
         if item.category.name == category and item.company.name == company:
-            item_names.append(item.name)
+            item_names.append((item.code_item, item.name))
 
     return {'items': item_names}
 
 
-def load_batches_per_item(item: str):
+def load_batches_per_item(item_code: str):
     items = Item.query.all()
     batches = []
 
     for i in items:
-        if i.name == item:
+        if i.code_item == item_code:
             batches.extend([b.code for b in i.batches])
             break
 
     return {'batches': batches}
 
-def add_movement(code_item, operator, date_movement, item, category, batch, expiry_date_batch, company, quantity):
+
+def add_movement(code_item, operator, date_movement, category, batch, company, quantity):
+    oper = User.query.filter_by(name="Gino", surname="Pomicino").first()
+    item = Item.query.filter_by(code_item=code_item).first()
+    cate = item.category
+    comp = item.company
+    batc = Batch.query.filter_by(code=batch).first()
+    item.batches = [batc]
+    
     addedData = Movement(
-        code_item=code_item,
-        operator=operator,
         date_movement=date_movement,
+        quantity=quantity,
+        
+        operator=oper,
         item=item,
-        category=category,
-        batch=batch,
-        expiry_date_batch=expiry_date_batch,
-        company=company,
-        quantity=quantity
+        category=cate,
+        company=comp
     )
 
     return addedData
 
-
 def delete_movement(delete_id):
     Movement.query.filter_by(id=delete_id).delete()
+
+def edit_movement(movement_id, date, operator, quantity):
+    move = Movement.query.filter_by(id=movement_id).first()
+    move.date_movement = date
+    move.quantity = quantity
+
+    if move.operator != operator:
+        name_surname = operator.split(" ")
+        user = User.query.filter_by(name=name_surname[0], surname=name_surname[1]).first()
+        move.operator = user
+
+    return move

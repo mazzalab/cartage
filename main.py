@@ -1,4 +1,5 @@
-import argparse, datetime
+import argparse
+import datetime
 
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
@@ -28,7 +29,7 @@ cors = CORS(app)
 def retrieve_all_data():
     result = db_manager.load_whole_db()
     return jsonify(result)
-    
+
 
 @app.route('/categories')
 def retrieve_all_categories():
@@ -61,15 +62,16 @@ def retrieveItemsPerCompanyAndCategory():
     json_data = request.get_json()
     category = json_data.get('selectedCatCom')['category']
     company = json_data.get('selectedCatCom')['company']
-    result = db_manager.load_items_per_companies_and_category(category, company)
+    result = db_manager.load_items_per_companies_and_category(
+        category, company)
     return jsonify(result)
 
 
 @app.route('/batches_per_item', methods=['POST'])
 def retrieveBatchesPerItem():
     json_data = request.get_json()
-    item = json_data.get('selectedItem')['item']
-    result = db_manager.load_batches_per_item(item)
+    code_item = json_data.get('selectedItem')['code_item']
+    result = db_manager.load_batches_per_item(code_item)
     return jsonify(result)
 
 
@@ -80,8 +82,7 @@ def addMovement():
         json_data.get('code_item')['code_item'],
         json_data.get('operator')['operator'],
         datetime.datetime.strptime(json_data.get('date_movement')[
-                                   'date_movement'], "%Y-%m-%d"),
-        json_data.get('item')['item'],
+                                   'date_movement'], "%d/%m/%Y"),
         json_data.get('category')['category'],
         json_data.get('batch')['batch'],
         json_data.get('company')['company'],
@@ -90,7 +91,6 @@ def addMovement():
 
     db.session.add(addedData)
     db.session.commit()
-    addedData = db.session.refresh(addedData)
     return {'ID': addedData.id}
 
 
@@ -101,6 +101,19 @@ def deleteMovement():
     db_manager.delete_movement(delete_id)
     db.session.commit()
     return {'ID': delete_id}
+
+
+@app.route('/edit_movement', methods=['POST'])
+def editMovement():
+    json_data = request.get_json()
+    movement_id = json_data.get('movement_info')['id']
+    date = datetime.datetime.strptime(json_data.get('movement_info')['date_movement'], "%Y-%m-%d").date()
+    operator = json_data.get('movement_info')['operator']
+    quantity = json_data.get('movement_info')['quantity']
+
+    edited_move = db_manager.edit_movement(movement_id, date, operator, quantity)
+    db.session.commit()
+    return {'ID': movement_id}
 
 
 if __name__ == "__main__":
