@@ -98,7 +98,8 @@ export default class AddMovementBar extends React.Component {
             };
 
             var today = new Date();
-            var date = today.getDate() + "/" + today.getMonth() + 1 + "/" + today.getFullYear();
+            // var date = today.getDate() + "/" + today.getMonth() + 1 + "/" + today.getFullYear();
+            var date = today.today();
             const date_movement = {
                 date_movement: date
             };

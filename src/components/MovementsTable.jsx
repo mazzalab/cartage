@@ -115,9 +115,7 @@ class MovementsTable extends React.Component {
 
         // return `${('0' + dateObj.getUTCDate()).slice(-2)}/${('0' + (dateObj.getUTCMonth() + 1)).slice(-2)}/${dateObj.getUTCFullYear()} -
         // ${('0' + (dateObj.getUTCHours())).slice(-2)}:${('0' + (dateObj.getUTCMinutes())).slice(-2)}:${(dateObj.getUTCSeconds())}`;
-        return `${("0" + dateObj.getUTCDate()).slice(-2)}/${("0" + (dateObj.getUTCMonth() + 1)).slice(
-            -2
-        )}/${dateObj.getUTCFullYear()}`;
+        return `${("0" + dateObj.getUTCDate()).slice(-2)}/${("0" + (dateObj.getUTCMonth() + 1)).slice(-2)}/${dateObj.getUTCFullYear()}`;
     }
 
     // handleClick(e) {
@@ -214,7 +212,6 @@ class MovementsTable extends React.Component {
     };
 
     handleEditCell = (oldValue, newValue, row, column) => { 
-        alert("Tom")
         alert(column.quantty == 'quantity');
     }
 

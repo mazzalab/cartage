@@ -26,7 +26,7 @@ def create_empty_db():
     cat = Category(name="guanti")
     com1 = Company(name="Occhi spa")
     bat1 = Batch(code="batch1", date_expiry=datetime.strptime(
-        '13/02/2020', '%d/%m/%Y').date())
+        '13/02/2020', '%d/%m/%Y'))
     ite1 = Item(code_item='icode_1', name='siringhetta')
     ite1.batches = [bat1]
     ite1.category = cat
