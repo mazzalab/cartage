@@ -177,7 +177,9 @@ export default class AddMovementBar extends React.Component {
                                                 quantity: ""
                                             });
                                         } else {
-                                            this.setState({ selected_category: e.target.value });
+                                            this.setState({
+                                                selected_category: e.target.value
+                                            });
 
                                             const selectedCat = {
                                                 category: e.target.value
@@ -195,14 +197,18 @@ export default class AddMovementBar extends React.Component {
                                                         <option key={"empty_item"}>{"select"}</option>
                                                     );
 
-                                                    this.setState({ companies: company_list });
+                                                    this.setState({
+                                                        companies: company_list
+                                                    });
                                                 })
                                                 .catch(err => {
                                                     console.log(err);
                                                 });
                                         }
                                     }}
-                                    style={{ fontSize: this.barFontSize }}
+                                    style={{
+                                        fontSize: this.barFontSize
+                                    }}
                                 >
                                     {this.state.categories}
                                 </Input>
@@ -216,7 +222,9 @@ export default class AddMovementBar extends React.Component {
                                     name="company"
                                     id="company"
                                     value={this.state.selected_company}
-                                    style={{ fontSize: this.barFontSize }}
+                                    style={{
+                                        fontSize: this.barFontSize
+                                    }}
                                     onChange={e => {
                                         if (e.target.value === "select") {
                                             this.setState({
@@ -228,7 +236,9 @@ export default class AddMovementBar extends React.Component {
                                                 quantity: ""
                                             });
                                         } else {
-                                            this.setState({ selected_company: e.target.value });
+                                            this.setState({
+                                                selected_company: e.target.value
+                                            });
 
                                             const selectedCatCom = {
                                                 category: this.state.selected_category,
@@ -257,14 +267,18 @@ export default class AddMovementBar extends React.Component {
                                                         </option>
                                                     );
 
-                                                    this.setState({ items_list: item_list });
+                                                    this.setState({
+                                                        items_list: item_list
+                                                    });
                                                 })
                                                 .catch(err => {
                                                     console.log(err);
                                                 });
                                         }
                                     }}
-                                    style={{ fontSize: this.barFontSize }}
+                                    style={{
+                                        fontSize: this.barFontSize
+                                    }}
                                 >
                                     {this.state.companies}
                                 </Input>
@@ -280,15 +294,21 @@ export default class AddMovementBar extends React.Component {
                                     onChange={e => {
                                         let selectedIndex = e.target.selectedIndex;
                                         let v_item = e.target[selectedIndex].getAttribute("value_item");
-                                        this.setState({ selected_item: v_item });
+                                        this.setState({
+                                            selected_item: v_item
+                                        });
 
                                         let c_item = e.target[selectedIndex].getAttribute("code_item");
-                                        this.setState({ selected_code_item: c_item });
+                                        this.setState({
+                                            selected_code_item: c_item
+                                        });
                                         const selectedItem = {
                                             code_item: c_item
                                         };
                                         axios
-                                            .post("http://127.0.0.1:5000/batches_per_item", { selectedItem })
+                                            .post("http://127.0.0.1:5000/batches_per_item", {
+                                                selectedItem
+                                            })
                                             .then(response => {
                                                 let batch_list = response.data["batches"];
                                                 batch_list = batch_list.map(r => {
@@ -296,13 +316,17 @@ export default class AddMovementBar extends React.Component {
                                                 });
                                                 batch_list.unshift(<option key={"empty_batch"}>{"select"}</option>);
 
-                                                this.setState({ batches: batch_list });
+                                                this.setState({
+                                                    batches: batch_list
+                                                });
                                             })
                                             .catch(err => {
                                                 console.log(err);
                                             });
                                     }}
-                                    style={{ fontSize: this.barFontSize }}
+                                    style={{
+                                        fontSize: this.barFontSize
+                                    }}
                                 >
                                     {this.state.items_list}
                                 </Input>
@@ -323,10 +347,14 @@ export default class AddMovementBar extends React.Component {
                                                 quantity: ""
                                             });
                                         } else {
-                                            this.setState({ selected_batch: e.target.value });
+                                            this.setState({
+                                                selected_batch: e.target.value
+                                            });
                                         }
                                     }}
-                                    style={{ fontSize: this.barFontSize }}
+                                    style={{
+                                        fontSize: this.barFontSize
+                                    }}
                                 >
                                     {this.state.batches}
                                 </Input>
@@ -341,8 +369,14 @@ export default class AddMovementBar extends React.Component {
                                     id="quantity"
                                     placeholder="quantity"
                                     value={this.state.quantity}
-                                    onChange={e => this.setState({ quantity: e.target.value })}
-                                    style={{ fontSize: this.barFontSize }}
+                                    onChange={e =>
+                                        this.setState({
+                                            quantity: e.target.value
+                                        })
+                                    }
+                                    style={{
+                                        fontSize: this.barFontSize
+                                    }}
                                 />
                             </FormGroup>
                         </Col>
