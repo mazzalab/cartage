@@ -1,28 +1,28 @@
 // import 'bootstrap/dist/css/bootstrap.min.css';
 // import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 
-import React from "react";
-import axios from "axios";
+import React from 'react';
+import axios from 'axios';
 
-import CancelIcon from "@material-ui/icons/Cancel";
-import EditIcon from "@material-ui/icons/Edit";
-import DoneAllIcon from "@material-ui/icons/DoneAll";
-import ReplayIcon from "@material-ui/icons/Replay";
-import { green } from "@material-ui/core/colors";
+import CancelIcon from '@material-ui/icons/Cancel';
+import EditIcon from '@material-ui/icons/Edit';
+import DoneAllIcon from '@material-ui/icons/DoneAll';
+import ReplayIcon from '@material-ui/icons/Replay';
+import { green } from '@material-ui/core/colors';
 
-import BootstrapTable from "react-bootstrap-table-next";
-import filterFactory, { textFilter, dateFilter } from "react-bootstrap-table2-filter";
-import cellEditFactory, { Type } from "react-bootstrap-table2-editor";
-import paginationFactory from "react-bootstrap-table2-paginator";
+import BootstrapTable from 'react-bootstrap-table-next';
+import filterFactory, { textFilter, dateFilter } from 'react-bootstrap-table2-filter';
+import cellEditFactory, { Type } from 'react-bootstrap-table2-editor';
+import paginationFactory from 'react-bootstrap-table2-paginator';
 
 const CaptionElement = () => (
     <h3
         style={{
-            borderRadius: "0.25em",
-            textAlign: "center",
-            color: "purple",
-            border: "1px solid purple",
-            padding: "0.5em"
+            borderRadius: '0.25em',
+            textAlign: 'center',
+            color: 'purple',
+            border: '1px solid purple',
+            padding: '0.5em',
         }}
     >
         History
@@ -39,7 +39,7 @@ class MovementsTable extends React.Component {
     constructor(props) {
         super(props);
 
-        var old_movement_date = '';
+        var old_date_movement = '';
         var old_operator = '';
         var old_quantity = '';
 
@@ -47,41 +47,46 @@ class MovementsTable extends React.Component {
             rowCount: 10,
             bordered_row_id: -1,
 
-            cancel_color: "secondary",
-            edit_color: "primary",
-            done_color: "gray"
+            cancel_color: 'secondary',
+            edit_color: 'primary',
+            done_color: 'gray'
         };
     }
 
-    handleEscKeyPressed = (event) => {
+    handleEscKeyPressed = event => {
         if (event.keyCode === 27) {
-            alert("Esc key pressed");
+            alert('Esc key pressed');
             this.handleAbortMovementEdit();
         }
     };
 
-    handleAbortMovementEdit = (rowindex) => {
-        
+    handleAbortMovementEdit = row => {
+        row.date_movement = this.old_date_movement;
+        alert(row.date_movement)
+
+        // Maybe it suffices to trigger the parent to resend props
     };
 
     componentDidMount() {
-        document.addEventListener("keydown", this.handleEscKeyPressed, false);
+        document.addEventListener('keydown', this.handleEscKeyPressed, false);
     }
 
     componentWillUnmount() {
-        document.removeEventListener("keydown", this.handleEscKeyPressed, false);
+        document.removeEventListener('keydown', this.handleEscKeyPressed, false);
     }
 
     handleDataChange = ({ dataSize }) => {
-        this.setState({ rowCount: dataSize });
+        this.setState({
+            rowCount: dataSize
+        });
     };
 
     quantityFormatter(cell, row) {
-        let col = "black";
+        let col = 'black';
 
-        if (cell > 0) col = "#009e73";
+        if (cell > 0) col = '#009e73';
         // green
-        else if (cell < 0) col = "#DC3220"; // red
+        else if (cell < 0) col = '#DC3220'; // red
 
         return (
             <span>
@@ -93,14 +98,14 @@ class MovementsTable extends React.Component {
     itemFormatter(cell, row) {
         return (
             <span>
-                <strong style={{ color: "#0072b2" }}>{cell}</strong>
+                <strong style={{ color: '#0072b2' }}>{cell}</strong>
             </span>
         );
     }
 
     itemHeaderFormatter(column, colIndex, { sortElement, filterElement }) {
         return (
-            <div style={{ display: "flex", flexDirection: "row" }}>
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
                 {column.text} {sortElement}
                 {filterElement}
             </div>
@@ -109,13 +114,13 @@ class MovementsTable extends React.Component {
 
     dateFormatter(cell, row) {
         let dateObj = cell;
-        if (typeof cell !== "object") {
+        if (typeof cell !== 'object') {
             dateObj = new Date(cell);
         }
 
-        // return `${('0' + dateObj.getUTCDate()).slice(-2)}/${('0' + (dateObj.getUTCMonth() + 1)).slice(-2)}/${dateObj.getUTCFullYear()} -
-        // ${('0' + (dateObj.getUTCHours())).slice(-2)}:${('0' + (dateObj.getUTCMinutes())).slice(-2)}:${(dateObj.getUTCSeconds())}`;
-        return `${("0" + dateObj.getUTCDate()).slice(-2)}/${("0" + (dateObj.getUTCMonth() + 1)).slice(-2)}/${dateObj.getUTCFullYear()}`;
+        return `${('0' + dateObj.getUTCDate()).slice(-2)}/${('0' + (dateObj.getUTCMonth() + 1)).slice(
+            -2,
+        )}/${dateObj.getUTCFullYear()}`;
     }
 
     // handleClick(e) {
@@ -123,17 +128,17 @@ class MovementsTable extends React.Component {
     // }
 
     handleMovementDelete = (movement_id, rowIndex) => {
-        if (window.confirm("Are you sure you wish to delete this item?")) {
+        if (window.confirm('Are you sure you wish to delete this item?')) {
             const movement_id_obj = {
-                id: movement_id
+                id: movement_id,
             };
 
             axios
-                .post("http://127.0.0.1:5000/delete_movement", {
-                    movement_id_obj
+                .post('http://127.0.0.1:5000/delete_movement', {
+                    movement_id_obj,
                 })
                 .then(response => {
-                    alert("Removed movement with ID: " + response.data["ID"]);
+                    alert('Removed movement with ID: ' + response.data['ID']);
                 })
                 .catch(err => {
                     console.log(err);
@@ -147,9 +152,9 @@ class MovementsTable extends React.Component {
     handleMovementEdit = rowIndex => {
         this.setState({
             bordered_row_id: rowIndex,
-            edit_color: "disabled",
-            cancel_color: "disabled",
-            done_color: green[500]
+            edit_color: 'disabled',
+            cancel_color: 'disabled',
+            done_color: green[500],
         });
     };
 
@@ -157,7 +162,7 @@ class MovementsTable extends React.Component {
         const style = {};
         if (rowIndex === this.state.bordered_row_id) {
             // style.backgroundColor = '#c8e6c9';
-            style.border = "3px solid red";
+            style.border = '3px solid red';
         }
 
         return style;
@@ -166,11 +171,11 @@ class MovementsTable extends React.Component {
     setEditCellStyle = (cell, row, rowIndex, colIndex) => {
         if (rowIndex === this.state.bordered_row_id) {
             return {
-                backgroundColor: "#c8e6c9"
+                backgroundColor: '#c8e6c9',
             };
         }
         return {
-            backgroundColor: "#FFFFFF"
+            backgroundColor: '#FFFFFF',
         };
     };
 
@@ -182,13 +187,13 @@ class MovementsTable extends React.Component {
                 id: movement_id,
                 date_movement: date_movement,
                 operator: operator,
-                quantity: quantity
+                quantity: quantity,
             };
 
             axios
-                .post("http://127.0.0.1:5000/edit_movement", { movement_info })
+                .post('http://127.0.0.1:5000/edit_movement', { movement_info })
                 .then(response => {
-                    alert("Altered movement with ID: " + response.data["ID"]);
+                    alert('Altered movement with ID: ' + response.data['ID']);
                 })
                 .catch(err => {
                     console.log(err);
@@ -200,9 +205,9 @@ class MovementsTable extends React.Component {
             // buttons reset
             this.setState({
                 bordered_row_id: -1,
-                cancel_color: "secondary",
-                edit_color: "primary",
-                done_color: "gray"
+                cancel_color: 'secondary',
+                edit_color: 'primary',
+                done_color: 'gray',
             });
         }
     };
@@ -211,32 +216,36 @@ class MovementsTable extends React.Component {
         return rowIndex === this.state.bordered_row_id;
     };
 
-    handleEditCell = (oldValue, newValue, row, column) => { 
-        alert(column.quantty == 'quantity');
-    }
+    handleEditCell = (oldValue, newValue, row, column) => {
+        if(column.dataField === "date_movement"){
+            this.old_date_movement = oldValue;
+        }
+        alert(this.table.props.data)
+    };
 
     formatHeader = data => {
         const sorted_header = [
             {
-                dataField: "id",
-                text: "ID",
-                hidden: true
+                dataField: 'id',
+                text: 'ID',
+                sort: true,
+                hidden: true,
             },
             {
-                dataField: "date_movement",
-                text: "Movement date",
+                dataField: 'date_movement',
+                text: 'Movement date',
                 filter: dateFilter(),
                 formatter: this.dateFormatter,
                 editable: this.setEditableCell,
                 sort: true,
                 headerStyle: (column, colIndex) => {
-                    return { width: "220px" };
+                    return { width: '220px' };
                 },
-                style: this.setEditCellStyle
+                style: this.setEditCellStyle,
             },
             {
-                dataField: "operator",
-                text: "Operator",
+                dataField: 'operator',
+                text: 'Operator',
                 filter: textFilter(),
                 // style: {
                 //     fontStyle: 'italic',
@@ -245,31 +254,31 @@ class MovementsTable extends React.Component {
                 style: this.setEditCellStyle,
                 editor: {
                     type: Type.SELECT,
-                    options: this.state.operators_maintable
+                    options: this.state.operators_maintable,
                 },
                 editable: this.setEditableCell,
-                sort: true
+                sort: true,
             },
             {
-                dataField: "code_item",
-                text: "Item code",
+                dataField: 'code_item',
+                text: 'Item code',
                 sort: true,
                 filter: textFilter(),
-                editable: false
+                editable: false,
                 // onSort: (field, order) => {
                 //     console.log('....');
                 //   }
             },
             {
-                dataField: "category",
-                text: "Category",
+                dataField: 'category',
+                text: 'Category',
                 filter: textFilter(),
                 editable: false,
-                sort: true
+                sort: true,
             },
             {
-                dataField: "item",
-                text: "Item",
+                dataField: 'item',
+                text: 'Item',
                 filter: textFilter(),
                 formatter: this.itemFormatter,
                 headerFormatter: this.itemHeaderFormatter,
@@ -284,65 +293,65 @@ class MovementsTable extends React.Component {
                 //       alert('Click on Product ID field');
                 //     }
                 // },
-                sort: true
+                sort: true,
                 // headerStyle: (column, colIndex) => {
                 //     return { width: '400px' };
                 // }
             },
             {
-                dataField: "batches",
-                text: "Batch",
+                dataField: 'batches',
+                text: 'Batch',
                 filter: textFilter(),
                 editable: false,
-                sort: true
+                sort: true,
             },
             {
-                dataField: "company",
-                text: "Company",
+                dataField: 'company',
+                text: 'Company',
                 filter: textFilter(),
                 editable: false,
-                sort: true
+                sort: true,
             },
             {
-                dataField: "quantity",
-                text: "Quantity",
-                align: "center",
-                type: "number",
+                dataField: 'quantity',
+                text: 'Quantity',
+                align: 'center',
+                type: 'number',
                 // filter: textFilter(),
                 formatter: this.quantityFormatter,
                 editable: this.setEditableCell,
                 sort: true,
-                style: this.setEditCellStyle
+                style: this.setEditCellStyle,
             },
             {
-                dataField: "deleteIcon",
+                dataField: 'deleteIcon',
                 isDummyField: true,
-                text: "Actions",
+                text: 'Actions',
                 editable: false,
                 // headerStyle: (column, colIndex) => {
                 //     return { width: '70px' };
                 // },
                 formatter: (cell, row, rowIndex, extraData) => {
-                    if (row.operator !== "Tom" && this.state.bordered_row_id === -1) {
+                    if (row.operator !== 'Tom' && this.state.bordered_row_id === -1) {
                         return (
                             <div>
                                 <CancelIcon
                                     color={extraData[0]}
                                     onClick={e => {
-                                        extraData[0] === "disabled" ? "" : this.handleMovementDelete(row.id, rowIndex);
+                                        extraData[0] === 'disabled' ? '' : this.handleMovementDelete(row.id, rowIndex);
                                     }}
                                 />
                                 &nbsp;&nbsp;
                                 <EditIcon
                                     color={extraData[1]}
                                     onClick={e => {
-                                        extraData[0] === "disabled" ? "" : this.handleMovementEdit(rowIndex);
+                                        extraData[0] === 'disabled' ? '' : this.handleMovementEdit(rowIndex);
                                     }}
                                 />
                             </div>
                         );
                     } else if (
-                        row.operator !== "Tom" &&
+                        row.operator !== 'Tom' &&
                         this.state.bordered_row_id !== -1 &&
                         rowIndex === this.state.bordered_row_id
                     ) {
@@ -351,35 +360,37 @@ class MovementsTable extends React.Component {
                                 <CancelIcon
                                     color={extraData[0]}
                                     onClick={e => {
-                                        extraData[0] === "disabled" ? "" : this.handleMovementDelete(row.id, rowIndex);
+                                        extraData[0] === 'disabled' ? '' : this.handleMovementDelete(row.id, rowIndex);
                                     }}
                                 />
                                 &nbsp;&nbsp;
                                 <EditIcon
                                     color={extraData[1]}
                                     onClick={e => {
-                                        extraData[0] === "disabled" ? "" : this.handleMovementEdit(rowIndex);
+                                        extraData[0] === 'disabled' ? '' : this.handleMovementEdit(rowIndex);
                                     }}
                                 />
                                 &nbsp;&nbsp;
                                 <DoneAllIcon
                                     style={{ color: extraData[2] }}
                                     onClick={e =>
-                                        extraData[0] === "gray"
-                                            ? ""
+                                        extraData[0] === 'gray'
+                                            ? ''
                                             : this.handleCommitAllEditsForMovement(
                                                   row.id,
                                                   row.date_movement,
                                                   row.operator,
                                                   row.quantity,
-                                                  rowIndex
+                                                  rowIndex,
                                               )
                                     }
                                 />
                                 &nbsp;&nbsp;
                                 <ReplayIcon
                                     style={{ color: extraData[2] }}
-                                    onClick={e => (extraData[0] === "gray" ? "" : this.handleAbortMovementEdit(rowIndex))}
+                                    onClick={e =>
+                                        extraData[0] === 'gray' ? '' : this.handleAbortMovementEdit()
+                                    }
                                 />
                             </div>
                         );
@@ -393,8 +404,8 @@ class MovementsTable extends React.Component {
                         );
                     }
                 },
-                formatExtraData: [this.state.cancel_color, this.state.edit_color, this.state.done_color]
-            }
+                formatExtraData: [this.state.cancel_color, this.state.edit_color, this.state.done_color],
+            },
         ];
 
         return sorted_header;
@@ -416,6 +427,7 @@ class MovementsTable extends React.Component {
         return (
             <div>
                 <BootstrapTable
+                    ref={ n => this.table = n }
                     onDataSizeChange={this.handleDataChange}
                     keyField="id"
                     data={this.props.data}
@@ -423,9 +435,9 @@ class MovementsTable extends React.Component {
                     columns={this.formatHeader()}
                     rowStyle={this.setRowStyle}
                     cellEdit={cellEditFactory({
-                        mode: "dbclick",
+                        mode: 'dbclick',
                         blurToSave: true,
-                        afterSaveCell: this.handleEditCell
+                        afterSaveCell: this.handleEditCell,
                     })}
                     filter={filterFactory()}
                     filterPosition="top"

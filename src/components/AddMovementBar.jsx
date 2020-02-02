@@ -98,10 +98,9 @@ export default class AddMovementBar extends React.Component {
             };
 
             var today = new Date();
-            // var date = today.getDate() + "/" + today.getMonth() + 1 + "/" + today.getFullYear();
-            var date = today.today();
+            var today_temp = `${("0" + today.getUTCDate()).slice(-2)}/${("0" + (today.getUTCMonth() + 1)).slice(-2)}/${today.getUTCFullYear()}`;
             const date_movement = {
-                date_movement: date
+                date_movement: today_temp
             };
             const code_item = {
                 code_item: this.state.selected_code_item
@@ -134,6 +133,7 @@ export default class AddMovementBar extends React.Component {
                 })
                 .then(response => {
                     this.props.onTableAddRequest(
+                        response.data["ID"],
                         code_item,
                         operator,
                         date_movement,

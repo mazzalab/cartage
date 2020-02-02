@@ -30,10 +30,17 @@ class MainLayout extends React.Component {
             });
     }
 
-    handleTableAddRequest = (code_item, operator, date_movement, item, category, batch, company, quantity) => {
+    handleTableAddRequest = (movement_id, code_item, operator, date_movement, item, category, batch, company, quantity) => {
         var oldData = this.state.data;
-        oldData.push({
-            code_item: code_item['code_item'], operator: operator['operator'], date_movement: date_movement['date_movement'], item: item['item'],
+
+        // reformat date in yyyy-mm-dd
+        let date_temp = date_movement['date_movement']
+        let date_temp_tokens = date_temp.split("/");
+        let date_new = date_temp_tokens[2]+'-'+date_temp_tokens[1]+'-'+date_temp_tokens[0]
+
+        oldData.unshift({
+            id: movement_id,
+            code_item: code_item['code_item'], operator: operator['operator'], date_movement: date_new, item: item['item'],
             category: category['category'], batches: batch['batch'], company: company['company'], quantity: quantity['quantity']
         });
         this.setState({ data: oldData });
