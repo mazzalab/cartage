@@ -60,11 +60,15 @@ class MovementsTable extends React.Component {
         }
     };
 
-    handleAbortMovementEdit = row => {
-        row.date_movement = this.old_date_movement;
-        alert(row.date_movement)
+    handleAbortMovementEdit = () => {
+        // row.date_movement = this.old_date_movement;
+        // alert(row.date_movement)
 
-        // Maybe it suffices to trigger the parent to resend props
+        // Maybe it suffices to trigger re-render
+        // this.table.props.data =  this.props.data;
+        this.table.reset;
+        alert("HERE")
+        // this.forceUpdate();
     };
 
     componentDidMount() {
