@@ -66,9 +66,14 @@ class MovementsTable extends React.Component {
 
         // Maybe it suffices to trigger re-render
         // this.table.props.data =  this.props.data;
-        this.table.reset;
-        alert("HERE")
+        // this.table.state.forceUpdate();
         // this.forceUpdate();
+
+        // this.forceUpdate();
+        this.props.onTableReload();
+        this.table.cellEditContext.props.data[3]['batches']='TOM'
+        console.log(this.table.cellEditContext)
+        this.forceUpdate();
     };
 
     componentDidMount() {

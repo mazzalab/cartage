@@ -56,6 +56,11 @@ class MainLayout extends React.Component {
         // this.setState({ data: filteredData });
     }
 
+    handleTableReload = () => {
+        this.setState({ state: this.state });
+        alert("reload");
+    }
+
     render() {
         return (
             <div>
@@ -63,7 +68,7 @@ class MainLayout extends React.Component {
                 < AddMovementBar onTableAddRequest={this.handleTableAddRequest} />
                 {/* </div> */}
                 < h5 > Row Count: <span className="badge">{this.state.rowCount}</span></h5 >
-                < MovementsTable data={this.state.data} onTableDelete={this.handleTableDelete} onTableEdit={this.handleTableEdit}/>
+                < MovementsTable data={this.state.data} onTableDelete={this.handleTableDelete} onTableEdit={this.handleTableEdit} onTableReload={this.handleTableReload}/>
             </div>
         )
     }
