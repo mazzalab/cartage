@@ -49,31 +49,36 @@ class MovementsTable extends React.Component {
 
             cancel_color: 'secondary',
             edit_color: 'primary',
-            done_color: 'gray'
+            done_color: 'gray',
         };
     }
 
     handleEscKeyPressed = event => {
         if (event.keyCode === 27) {
             alert('Esc key pressed');
-            this.handleAbortMovementEdit();
+
+            let rowIndex = this.node.selectionContext.selected;
+            this.handleAbortMovementEdit(rowIndex);
         }
     };
 
-    handleAbortMovementEdit = () => {
-        // row.date_movement = this.old_date_movement;
-        // alert(row.date_movement)
+    handleAbortMovementEdit = rowIndex => {
+        let cellContext = this.table.cellEditContext;
+        let record_number = cellContext.props.data.length;
+        cellContext.props.data[record_number - rowIndex - 1]['date_movement'] = this.old_date_movement;
+        cellContext.props.data[record_number - rowIndex - 1]['operator'] = this.old_operator;
+        cellContext.props.data[record_number - rowIndex - 1]['quantity'] = this.old_quantity;
 
-        // Maybe it suffices to trigger re-render
-        // this.table.props.data =  this.props.data;
-        // this.table.state.forceUpdate();
-        // this.forceUpdate();
+        // Reset graphics
+        this.setState({
+            bordered_row_id: -1,
+            cancel_color: 'secondary',
+            edit_color: 'primary',
+            done_color: 'gray',
+        });
 
-        // this.forceUpdate();
-        this.props.onTableReload();
-        this.table.cellEditContext.props.data[3]['batches']='TOM'
-        console.log(this.table.cellEditContext)
-        this.forceUpdate();
+        // console.log(rowIndex)
+        // console.log(this.table.cellEditContext)
     };
 
     componentDidMount() {
@@ -86,7 +91,7 @@ class MovementsTable extends React.Component {
 
     handleDataChange = ({ dataSize }) => {
         this.setState({
-            rowCount: dataSize
+            rowCount: dataSize,
         });
     };
 
@@ -132,10 +137,6 @@ class MovementsTable extends React.Component {
         )}/${dateObj.getUTCFullYear()}`;
     }
 
-    // handleClick(e) {
-    //     this.refs.hot.hotInstance.setDataAtCell(0, 0, 'new value')
-    // }
-
     handleMovementDelete = (movement_id, rowIndex) => {
         if (window.confirm('Are you sure you wish to delete this item?')) {
             const movement_id_obj = {
@@ -158,7 +159,12 @@ class MovementsTable extends React.Component {
         }
     };
 
-    handleMovementEdit = rowIndex => {
+    handleMovementEdit = (row, rowIndex) => {
+        // Saving present values
+        this.old_date_movement = row.date_movement;
+        this.old_operator = row.operator;
+        this.old_quantity = row.quantity;
+        
         this.setState({
             bordered_row_id: rowIndex,
             edit_color: 'disabled',
@@ -226,10 +232,13 @@ class MovementsTable extends React.Component {
     };
 
     handleEditCell = (oldValue, newValue, row, column) => {
-        if(column.dataField === "date_movement"){
+        if (column.dataField === 'date_movement') {
             this.old_date_movement = oldValue;
+        } else if (column.dataField === 'operator') {
+            this.old_operator = oldValue;
+        } else if (column.dataField === 'quantity') {
+            this.old_quantity = oldValue;
         }
-        alert(this.table.props.data)
     };
 
     formatHeader = data => {
@@ -354,7 +363,7 @@ class MovementsTable extends React.Component {
                                 <EditIcon
                                     color={extraData[1]}
                                     onClick={e => {
-                                        extraData[0] === 'disabled' ? '' : this.handleMovementEdit(rowIndex);
+                                        extraData[0] === 'disabled' ? '' : this.handleMovementEdit(row, rowIndex);
                                     }}
                                 />
                             </div>
@@ -362,6 +371,7 @@ class MovementsTable extends React.Component {
                     } else if (
                         row.operator !== 'Tom' &&
                         this.state.bordered_row_id !== -1 &&
+                        rowIndex !== -1 &&
                         rowIndex === this.state.bordered_row_id
                     ) {
                         return (
@@ -376,7 +386,7 @@ class MovementsTable extends React.Component {
                                 <EditIcon
                                     color={extraData[1]}
                                     onClick={e => {
-                                        extraData[0] === 'disabled' ? '' : this.handleMovementEdit(rowIndex);
+                                        extraData[0] === 'disabled' ? '' : this.handleMovementEdit(row, rowIndex);
                                     }}
                                 />
                                 &nbsp;&nbsp;
@@ -398,7 +408,7 @@ class MovementsTable extends React.Component {
                                 <ReplayIcon
                                     style={{ color: extraData[2] }}
                                     onClick={e =>
-                                        extraData[0] === 'gray' ? '' : this.handleAbortMovementEdit()
+                                        extraData[0] === 'gray' ? '' : this.handleAbortMovementEdit(rowIndex)
                                     }
                                 />
                             </div>
@@ -436,7 +446,7 @@ class MovementsTable extends React.Component {
         return (
             <div>
                 <BootstrapTable
-                    ref={ n => this.table = n }
+                    ref={n => (this.table = n)}
                     onDataSizeChange={this.handleDataChange}
                     keyField="id"
                     data={this.props.data}
@@ -459,9 +469,9 @@ class MovementsTable extends React.Component {
                     // selectRow={{ mode: 'checkbox' }}
                     defaultSorted={[
                         {
-                            dataField: "id",
-                            order: "desc"
-                        }
+                            dataField: 'id',
+                            order: 'desc',
+                        },
                     ]}
                     bootstrap4
                 />
