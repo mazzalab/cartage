@@ -1,3 +1,4 @@
+from persistence.model.account_store import User
 import argparse
 import datetime
 
@@ -7,6 +8,8 @@ from flask_marshmallow import Marshmallow
 from flask_cors import CORS, cross_origin
 # from flask_bcrypt import Bcrypt
 
+from admin.admin_page import setup_admin_home
+
 from config import config_by_name
 from persistence.database import db_manager
 from persistence.model import db, ma
@@ -14,6 +17,7 @@ from persistence.model import db, ma
 
 app = Flask(__name__)
 app.config.from_object(config_by_name['dev'])
+app.config['FLASK_ADMIN_SWATCH'] = 'superhero'
 app.config['CORS_HEADERS'] = 'Content-Type'
 # flask_bcrypt = Bcrypt()
 
@@ -23,6 +27,9 @@ db.init_app(app)
 ma.init_app(app)
 cors = CORS(app)
 # flask_bcrypt.init_app(app)
+
+# Instantiate the Admin interface
+setup_admin_home(app)
 
 
 @app.route('/')
@@ -107,11 +114,13 @@ def deleteMovement():
 def editMovement():
     json_data = request.get_json()
     movement_id = json_data.get('movement_info')['id']
-    date = datetime.datetime.strptime(json_data.get('movement_info')['date_movement'], "%Y-%m-%d").date()
+    date = datetime.datetime.strptime(json_data.get('movement_info')[
+                                      'date_movement'], "%Y-%m-%d").date()
     operator = json_data.get('movement_info')['operator']
     quantity = json_data.get('movement_info')['quantity']
 
-    edited_move = db_manager.edit_movement(movement_id, date, operator, quantity)
+    edited_move = db_manager.edit_movement(
+        movement_id, date, operator, quantity)
     db.session.commit()
     return {'ID': movement_id}
 

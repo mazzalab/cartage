@@ -47,6 +47,7 @@ def load_whole_db():
     # dic_flattened = (flatten(d) for d in output)
     # print(list(dic_flattened))
 
+    # FIXME: Fix here the eventual problem of out of index for batches
     formatted_output = [
         {
             'id':d['id'], 

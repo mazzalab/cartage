@@ -50,15 +50,14 @@ class MovementsTable extends React.Component {
             cancel_color: 'secondary',
             edit_color: 'primary',
             done_color: 'gray',
+
+            operators_list: [],
         };
     }
 
     handleEscKeyPressed = event => {
         if (event.keyCode === 27) {
-            alert('Esc key pressed');
-
-            let rowIndex = this.node.selectionContext.selected;
-            this.handleAbortMovementEdit(rowIndex);
+            this.handleAbortMovementEdit(this.state.bordered_row_id);
         }
     };
 
@@ -87,6 +86,20 @@ class MovementsTable extends React.Component {
 
     componentWillUnmount() {
         document.removeEventListener('keydown', this.handleEscKeyPressed, false);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        // Get a unique list of operators
+        let operators = [...new Set(nextProps.data.map(value => value.operator))];
+        // Format this list as an array of label-value
+        let op_list = operators.map(function(op) {
+            return {
+                value: op, 
+                label: op
+            }
+        });
+
+        this.setState({ operators_list: op_list });
     }
 
     handleDataChange = ({ dataSize }) => {
@@ -164,7 +177,7 @@ class MovementsTable extends React.Component {
         this.old_date_movement = row.date_movement;
         this.old_operator = row.operator;
         this.old_quantity = row.quantity;
-        
+
         this.setState({
             bordered_row_id: rowIndex,
             edit_color: 'disabled',
@@ -272,7 +285,7 @@ class MovementsTable extends React.Component {
                 style: this.setEditCellStyle,
                 editor: {
                     type: Type.SELECT,
-                    options: this.state.operators_maintable,
+                    options: this.state.operators_list,
                 },
                 editable: this.setEditableCell,
                 sort: true,
