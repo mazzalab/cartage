@@ -31,7 +31,7 @@ def create_empty_db():
     ite1.batches = [bat1]
     ite1.category = cat
     ite1.company = com1
-    
+
     mov1 = Movement(item=ite1, date_movement=datetime.today(), quantity=2)
     mov1.operator = gino
     mov1.category = cat
@@ -50,7 +50,7 @@ def load_whole_db():
     # FIXME: Fix here the eventual problem of out of index for batches
     formatted_output = [
         {
-            'id':d['id'], 
+            'id': d['id'],
             'date_movement':d['date_movement'],
             'operator': d['operator']['name'] + " " + d['operator']['surname'],
             'code_item': d['item']['code_item'],
@@ -61,7 +61,7 @@ def load_whole_db():
             'item': d['item']['name'],
             'quantity': d['quantity']
         } for d in output]
-    
+
     return list(formatted_output)
 
 
@@ -101,7 +101,7 @@ def load_items_per_companies_and_category(category: str, company: str):
     # rs = Movement.query.filter_by(
     #     category=category).with_entities(Movement.item).distinct()
 
-    # rs = Movement.query.filter_by(category == 
+    # rs = Movement.query.filter_by(category ==
 
     items = Item.query.all()
     item_names = []
@@ -132,11 +132,11 @@ def add_movement(code_item, operator, date_movement, category, batch, company, q
     comp = item.company
     batc = Batch.query.filter_by(code=batch).first()
     item.batches = [batc]
-    
+
     addedData = Movement(
         date_movement=date_movement,
         quantity=quantity,
-        
+
         operator=oper,
         item=item,
         category=cate,
@@ -145,8 +145,10 @@ def add_movement(code_item, operator, date_movement, category, batch, company, q
 
     return addedData
 
+
 def delete_movement(delete_id):
     Movement.query.filter_by(id=delete_id).delete()
+
 
 def edit_movement(movement_id, date, operator, quantity):
     move = Movement.query.filter_by(id=movement_id).first()
@@ -155,7 +157,8 @@ def edit_movement(movement_id, date, operator, quantity):
 
     if move.operator != operator:
         name_surname = operator.split(" ")
-        user = User.query.filter_by(name=name_surname[0], surname=name_surname[1]).first()
+        user = User.query.filter_by(
+            name=name_surname[0], surname=name_surname[1]).first()
         move.operator = user
 
     return move

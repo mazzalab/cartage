@@ -1,4 +1,3 @@
-from persistence.model.account_store import User
 import argparse
 import datetime
 
@@ -12,21 +11,23 @@ from admin.admin_page import setup_admin_home
 
 from config import config_by_name
 from persistence.database import db_manager
-from persistence.model import db, ma
+from persistence.model import db, ma, login_manager
 
 
 app = Flask(__name__)
 app.config.from_object(config_by_name['dev'])
 app.config['FLASK_ADMIN_SWATCH'] = 'superhero'
+app.config['SECRET_KEY'] = 'agaTT@powE1'
 app.config['CORS_HEADERS'] = 'Content-Type'
 # flask_bcrypt = Bcrypt()
 
-# db = SQLAlchemy(app)
-# ma = Marshmallow(app)
 db.init_app(app)
 ma.init_app(app)
 cors = CORS(app)
+login_manager.init_app(app)
 # flask_bcrypt.init_app(app)
+
+
 
 # Instantiate the Admin interface
 setup_admin_home(app)

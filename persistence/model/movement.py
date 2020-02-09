@@ -5,6 +5,7 @@ from persistence.model.account_store import User, UserSchema
 from persistence.model.item import Item, ItemSchema
 
 
+# TODO: unlink and remove category and company since they are already included in item
 class Movement(db.Model):
     __tablename__ = "movement"
 

@@ -291,6 +291,20 @@ class MovementsTable extends React.Component {
                 sort: true,
             },
             {
+                dataField: 'category',
+                text: 'Category',
+                filter: textFilter(),
+                editable: false,
+                sort: true,
+            },
+            {
+                dataField: 'company',
+                text: 'Company',
+                filter: textFilter(),
+                editable: false,
+                sort: true,
+            },
+            {
                 dataField: 'code_item',
                 text: 'Item code',
                 sort: true,
@@ -299,13 +313,6 @@ class MovementsTable extends React.Component {
                 // onSort: (field, order) => {
                 //     console.log('....');
                 //   }
-            },
-            {
-                dataField: 'category',
-                text: 'Category',
-                filter: textFilter(),
-                editable: false,
-                sort: true,
             },
             {
                 dataField: 'item',
@@ -332,13 +339,6 @@ class MovementsTable extends React.Component {
             {
                 dataField: 'batches',
                 text: 'Batch',
-                filter: textFilter(),
-                editable: false,
-                sort: true,
-            },
-            {
-                dataField: 'company',
-                text: 'Company',
                 filter: textFilter(),
                 editable: false,
                 sort: true,
