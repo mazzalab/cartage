@@ -1,4 +1,5 @@
 from persistence.model import db, ma, login_manager
+from flask_login import UserMixin
 
 
 map_operator_table = db.Table('operator_store_map', db.metadata,
@@ -33,7 +34,7 @@ store_schema = StoreSchema()
 stores_schema = StoreSchema(many=True)
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = "user"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -42,9 +43,9 @@ class User(db.Model):
     email = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.String(50), nullable=False)
     # master = db.Column(db.Boolean, nullable=False, default=False)
-    operators = db.relationship(
+    operator_of = db.relationship(
         "Store", secondary=map_operator_table, backref="operator_stores")
-    administrators = db.relationship(
+    administrator_of = db.relationship(
         "Store", secondary=map_admin_table, backref="administrator_stores")
 
 

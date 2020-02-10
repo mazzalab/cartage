@@ -27,8 +27,6 @@ cors = CORS(app)
 login_manager.init_app(app)
 # flask_bcrypt.init_app(app)
 
-
-
 # Instantiate the Admin interface
 setup_admin_home(app)
 
@@ -36,6 +34,13 @@ setup_admin_home(app)
 @app.route('/')
 def retrieve_all_data():
     result = db_manager.load_whole_db()
+    return jsonify(result)
+
+
+@app.route('/<store_id>')
+def retrieve_data_of_store(store_id):
+    # result = db_manager.load_whole_db()
+    result = db_manager.load_db_for_store(store_id)
     return jsonify(result)
 
 

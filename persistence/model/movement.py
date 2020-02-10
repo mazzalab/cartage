@@ -1,11 +1,8 @@
 from persistence.model import db, ma
-from persistence.model.company import Company, CompanySchema
-from persistence.model.category import Category, CategorySchema
 from persistence.model.account_store import User, UserSchema
 from persistence.model.item import Item, ItemSchema
 
 
-# TODO: unlink and remove category and company since they are already included in item
 class Movement(db.Model):
     __tablename__ = "movement"
 
@@ -13,27 +10,22 @@ class Movement(db.Model):
     date_movement = db.Column(db.Date, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
-    item_id = db.Column(db.Integer, db.ForeignKey('item.id'))  # , uselist=False)
+    # , uselist=False)
+    item_id = db.Column(db.Integer, db.ForeignKey('item.id'))
     item = db.relationship("Item", backref=db.backref("movements"))
     operator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     operator = db.relationship("User", backref=db.backref("movements"))
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
-    company = db.relationship("Company", backref=db.backref("movements"))
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
-    category = db.relationship("Category", backref=db.backref("movements"))
 
     def __repr__(self):
-        return '[Movement]: {} (category: {})'.format(self.item, self.category)
+        return '[Movement]: id: {},  date: {}, quantity: {}'.format(self.item_id, self.date_movement, self.quantity)
 
 
 class MovementSchema(ma.ModelSchema):
     class Meta:
         model = Movement
-    
-    company = ma.Nested(CompanySchema)
+
     item = ma.Nested(ItemSchema)
     operator = ma.Nested(UserSchema)
-    category = ma.Nested(CategorySchema)
 
 
 movement_schema = MovementSchema()

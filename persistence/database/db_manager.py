@@ -17,11 +17,11 @@ def create_empty_db():
     mol2 = Store(name="Bio Mol 2", description="La desscrizione di mol2")
     mol3 = Store(name="Bio Mol 3", description="La desscrizione di mol3")
 
-    mol1.operators.append(gino)
-    mol1.administrators.append(tom)
-    mol2.administrators.append(tom)
-    mol2.operators.append(tom)
-    mol3.administrators.append(gino)
+    mol1.operator_of.append(gino)
+    mol1.administrator_of.append(tom)
+    mol2.administrator_of.append(tom)
+    mol2.operator_of.append(tom)
+    mol3.administrator:of.append(gino)
 
     cat = Category(name="guanti")
     com1 = Company(name="Occhi spa")
@@ -54,10 +54,10 @@ def load_whole_db():
             'date_movement':d['date_movement'],
             'operator': d['operator']['name'] + " " + d['operator']['surname'],
             'code_item': d['item']['code_item'],
-            'category': d['category']['name'],
+            'category': d['item']['category']['name'],
             'batches': d['item']['batches'][0]['code'],
             'batches_expiry': d['item']['batches'][0]['date_expiry'],
-            'company': d['company']['name'],
+            'company': d['item']['company']['name'],
             'item': d['item']['name'],
             'quantity': d['quantity']
         } for d in output]

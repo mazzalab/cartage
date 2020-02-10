@@ -12,7 +12,7 @@ from persistence.model.company import Company
 from persistence.model.item import Item, Batch
 
 
-class CartageModelView(ModelView):
+class CartageUserModelView(ModelView):
     # can_delete = False  # disable model deletion
     page_size = 50  # the number of entries to display on the list view
 
@@ -22,6 +22,8 @@ class CartageModelView(ModelView):
     # can_create = True
     # can_edit = False
     # can_delete = False
+    
+    form_excluded_columns = ['movements', ]
 
     def is_accessible(self):
         return not current_user.is_authenticated
@@ -34,12 +36,7 @@ class CartageModelView(ModelView):
 class CartageMovementModelView(ModelView):
     column_searchable_list = ['quantity']
     column_filters = ['quantity']
-    form_ajax_refs = {
-        'company': {
-            'fields': ['id', 'name'],
-            'page_size': 10
-        }
-    }
+    
 
 class CartageAdminIndexView(AdminIndexView):
     def is_accessible(self):
@@ -49,7 +46,7 @@ class CartageAdminIndexView(AdminIndexView):
 
 def setup_admin_home(app):
     admin = Admin(app, name='cartage', template_mode='bootstrap3', index_view=CartageAdminIndexView())
-    admin.add_view(CartageModelView(User, db.session, category="Profile"))
+    admin.add_view(CartageUserModelView(User, db.session, category="Profile"))
     admin.add_view(ModelView(Store, db.session, category="Profile"))
     # admin.add_view(CartageMovementModelView(Movement, db.session))
     admin.add_view(ModelView(Category, db.session))
