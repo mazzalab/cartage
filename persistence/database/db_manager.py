@@ -125,22 +125,17 @@ def load_batches_per_item(item_code: str):
     return {'batches': batches}
 
 
-def add_movement(code_item, operator, date_movement, category, batch, company, quantity):
+def add_movement(code_item, operator, date_movement, batch, quantity):
     oper = User.query.filter_by(name="Gino", surname="Pomicino").first()
     item = Item.query.filter_by(code_item=code_item).first()
-    cate = item.category
-    comp = item.company
     batc = Batch.query.filter_by(code=batch).first()
     item.batches = [batc]
 
     addedData = Movement(
         date_movement=date_movement,
         quantity=quantity,
-
         operator=oper,
-        item=item,
-        category=cate,
-        company=comp
+        item=item
     )
 
     return addedData

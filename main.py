@@ -37,7 +37,7 @@ def retrieve_all_data():
     return jsonify(result)
 
 
-@app.route('/<store_id>')
+@app.route('/store/<store_id>')
 def retrieve_data_of_store(store_id):
     # result = db_manager.load_whole_db()
     result = db_manager.load_db_for_store(store_id)
@@ -96,9 +96,7 @@ def addMovement():
         json_data.get('operator')['operator'],
         datetime.datetime.strptime(json_data.get('date_movement')[
                                    'date_movement'], "%d/%m/%Y"),
-        json_data.get('category')['category'],
         json_data.get('batch')['batch'],
-        json_data.get('company')['company'],
         int(json_data.get('quantity')['quantity'])
     )
 
