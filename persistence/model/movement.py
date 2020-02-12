@@ -1,6 +1,6 @@
 from persistence.model import db, ma
 from persistence.model.account_store import User, UserSchema
-from persistence.model.item import Item, ItemSchema
+from persistence.model.item import Item, ItemSchema, Batch, BatchSchema
 
 
 class Movement(db.Model):
@@ -13,11 +13,13 @@ class Movement(db.Model):
     # , uselist=False)
     item_id = db.Column(db.Integer, db.ForeignKey('item.id'))
     item = db.relationship("Item", backref=db.backref("movements"))
+    batch_id = db.Column(db.Integer, db.ForeignKey('batch.id'))
+    batch = db.relationship("Batch", backref=db.backref("movements"))
     operator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     operator = db.relationship("User", backref=db.backref("movements"))
 
     def __repr__(self):
-        return '[Movement]: id: {},  date: {}, quantity: {}'.format(self.item_id, self.date_movement, self.quantity)
+        return '[Movement]: id: {}, batch; {}, date: {}, quantity: {}'.format(self.item_id, self.batch_id, self.date_movement, self.quantity)
 
 
 class MovementSchema(ma.ModelSchema):
@@ -25,6 +27,7 @@ class MovementSchema(ma.ModelSchema):
         model = Movement
 
     item = ma.Nested(ItemSchema)
+    batch = ma.Nested(BatchSchema)
     operator = ma.Nested(UserSchema)
 
 

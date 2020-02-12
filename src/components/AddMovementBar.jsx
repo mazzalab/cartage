@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Col, Row, Button, Form, FormGroup, Label, Input } from 'reactstrap';
 import axios from 'axios';
-import {axioscall_categories_4combo} from "./../axios_manager.jsx";
+import { axioscall_categories_4combo, axioscall_addMovement } from './../axios_manager.jsx';
 
 import '../styles.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -31,12 +31,14 @@ export default class AddMovementBar extends React.Component {
     componentDidMount() {
         this._isMounted = true;
 
-        let items_category = axioscall_categories_4combo();
-        if (this._isMounted) {
-            this.setState({
-                categories: items_category,
-            });
-        }
+        axioscall_categories_4combo()
+        .then((items_category) =>{
+            if (this._isMounted) {
+                this.setState({
+                    categories: items_category,
+                });
+            }    
+        })
     }
 
     componentWillUnmount() {
@@ -101,40 +103,17 @@ export default class AddMovementBar extends React.Component {
             const quantity = {
                 quantity: this.state.quantity,
             };
+            const category = {
+                category: this.state.selected_category,
+            };
+            const company = {
+                company: this.state.selected_company,
+            };
 
-            axios
-                .post('http://127.0.0.1:5000/add_movement', {
-                    code_item,
-                    operator,
-                    date_movement,
-                    batch,
-                    quantity,
-                })
-                .then(response => {
-                    const category = {
-                        category: this.state.selected_category,
-                    };
-                    const company = {
-                        company: this.state.selected_company,
-                    };
-
-                    this.props.onTableAddRequest(
-                        response.data['ID'],
-                        code_item,
-                        operator,
-                        date_movement,
-                        item,
-                        category,
-                        batch,
-                        company,
-                        quantity,
-                    );
-
-                    alert('Inserted item with ID: ' + response.data['ID']);
-                })
-                .catch(err => {
-                    console.log(err);
-                });
+            axioscall_addMovement(code_item, operator, date_movement, batch, quantity, item, category, company, this.props.onTableAddRequest)
+            .then((insert_msg) => {
+                alert(insert_msg);
+            });
         }
     };
 

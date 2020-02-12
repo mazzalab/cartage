@@ -9,19 +9,19 @@ from persistence.model.item import Item, items_schema, Batch
 
 def create_empty_db():
     tom = User(name="Tom", surname="Maz", email="t.maz@mend.it",
-               password="sticaz", master=True)
+               password="sticaz")
     gino = User(name="Gino", surname="Pomicino",
-                email="g.pom@oper.it", password="gauz", master=False)
+                email="g.pom@oper.it", password="gauz")
 
     mol1 = Store(name="Bio Mol 1", description="La desscrizione di mol1")
     mol2 = Store(name="Bio Mol 2", description="La desscrizione di mol2")
     mol3 = Store(name="Bio Mol 3", description="La desscrizione di mol3")
 
-    mol1.operator_of.append(gino)
-    mol1.administrator_of.append(tom)
-    mol2.administrator_of.append(tom)
-    mol2.operator_of.append(tom)
-    mol3.administrator:of.append(gino)
+    gino.operator_of.append(mol1)
+    tom.administrator_of.append(mol1)
+    tom.administrator_of.append(mol2)
+    tom.operator_of.append(mol2)
+    gino.administrator:of.append(mol3)
 
     cat = Category(name="guanti")
     com1 = Company(name="Occhi spa")
@@ -36,6 +36,7 @@ def create_empty_db():
     mov1.operator = gino
     mov1.category = cat
     mov1.company = com1
+    mov1.batch = bat1
 
     return [mol1, mol2, mol3, mov1, ite1]
 
@@ -47,7 +48,6 @@ def load_whole_db():
     # dic_flattened = (flatten(d) for d in output)
     # print(list(dic_flattened))
 
-    # FIXME: Fix here the eventual problem of out of index for batches
     formatted_output = [
         {
             'id': d['id'],
@@ -55,8 +55,8 @@ def load_whole_db():
             'operator': d['operator']['name'] + " " + d['operator']['surname'],
             'code_item': d['item']['code_item'],
             'category': d['item']['category']['name'],
-            'batches': d['item']['batches'][0]['code'],
-            'batches_expiry': d['item']['batches'][0]['date_expiry'],
+            'batches': d['batch']['code'],
+            'batches_expiry': d['batch']['date_expiry'],
             'company': d['item']['company']['name'],
             'item': d['item']['name'],
             'quantity': d['quantity']
@@ -129,13 +129,14 @@ def add_movement(code_item, operator, date_movement, batch, quantity):
     oper = User.query.filter_by(name="Gino", surname="Pomicino").first()
     item = Item.query.filter_by(code_item=code_item).first()
     batc = Batch.query.filter_by(code=batch).first()
-    item.batches = [batc]
-
+    print(batch)
+    
     addedData = Movement(
         date_movement=date_movement,
         quantity=quantity,
         operator=oper,
-        item=item
+        item=item,
+        batch=batc
     )
 
     return addedData
