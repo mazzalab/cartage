@@ -20,6 +20,7 @@ dependencies:
   - flask-login=0.4.1=py37_0
   - flask-marshmallow=0.9.0=py_0
   - flask-sqlalchemy=2.4.0=py_0
+  - flask-wtf=0.14.2=py37_1
   - isort=4.3.21=py37_0
   - itsdangerous=1.1.0=py37_0
   - jinja2=2.10.3=py_0
@@ -29,7 +30,7 @@ dependencies:
   - marshmallow-sqlalchemy=0.14.1=py_0
   - mccabe=0.6.1=py37_1
   - nodejs=10.13.0=0
-  - openssl=1.1.1d=he774522_3
+  - openssl=1.1.1d=he774522_4
   - pip=19.3.1=py37_0
   - pycodestyle=2.5.0=py37_0
   - pycparser=2.19=py37_0
