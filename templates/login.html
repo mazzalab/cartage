@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Login - Cartage</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome-free-5.12.1-web/css/all.min.css') }}" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap_4_3_1.min.css') }}" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}" />
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}" />
+    </head>
+    <body>
+        <!-- Popup flashing error messages on login validation -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+           {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{category}} alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <!-- <strong>Title</strong> --> {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Bootstrap login form -->
+        <div class="container h-100">
+            <div class="d-flex justify-content-center h-100">
+                <div class="user_card">
+                    <div class="d-flex justify-content-center">
+                        <div class="brand_logo_container">
+                            <img src="{{ url_for('static', filename='cartage_logo.png') }}" class="brand_logo" alt="Logo" />
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center form_container">
+                        <form method="POST" action="/login">
+                            {{ form.hidden_tag() }}
+                            <div class="input-group mb-3">
+                                <div class="input-group-append">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                </div>
+                                <div>{{ form.username(size=20, class_='form-control input_user') }}</div>
+                            </div>
+                            <div class="input-group mb-2">
+                                <div class="input-group-append">
+                                    <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                </div>
+                                <div>{{ form.password(size=20, class_='form-control input_pass', type="password") }}</div>
+                            </div>
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <div>{{form.remember(class_="checkmark")}}</div>
+                                    <div>&nbsp;{{form.remember.label}}</div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-center mt-3 login_container">
+                                {{ form.submit(class_="btn login_btn") }}
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-center links">Don't have an account? <a href="#" class="ml-2">Sign Up</a></div>
+                        <div class="d-flex justify-content-center links">
+                            <a href="#">Forgot your password?</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top-left Navbar menu  -->
+        <div class="parent2">
+            <div class="test1"><i class="fas fa-at fa-2x"></i></div>
+            <div class="test2"><i class="fas fa-users fa-2x"></i></div>
+            <div class="test3"><i class="fas fa-chart-bar fa-2x"></i></div>
+            <div class="test4">
+                <a href="/"><i class="fas fa-table fa-2x"></i></a>
+            </div>
+            <div class="mask2"><i class="fa fa-home fa-3x"></i></div>
+        </div>
+
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="{{ url_for('static', filename='bootstrap_4_3_1.min.js') }}"></script>
+        <script id="rendered-js">
+            $(document).ready(function() {
+                var active1 = false;
+                var active2 = false;
+                var active3 = false;
+                var active4 = false;
+
+                $('.parent2').on('mousedown touchstart', function() {
+                    if (!active1)
+                        $(this)
+                            .find('.test1')
+                            .css({ 'background-color': 'gray', transform: 'translate(0px,125px)' });
+                    else
+                        $(this)
+                            .find('.test1')
+                            .css({ 'background-color': 'dimGray', transform: 'none' });
+                    if (!active2)
+                        $(this)
+                            .find('.test2')
+                            .css({ 'background-color': 'gray', transform: 'translate(60px,105px)' });
+                    else
+                        $(this)
+                            .find('.test2')
+                            .css({ 'background-color': 'darkGray', transform: 'none' });
+                    if (!active3)
+                        $(this)
+                            .find('.test3')
+                            .css({ 'background-color': 'gray', transform: 'translate(105px,60px)' });
+                    else
+                        $(this)
+                            .find('.test3')
+                            .css({ 'background-color': 'silver', transform: 'none' });
+                    if (!active4)
+                        $(this)
+                            .find('.test4')
+                            .css({ 'background-color': 'gray', transform: 'translate(125px,0px)' });
+                    else
+                        $(this)
+                            .find('.test4')
+                            .css({ 'background-color': 'silver', transform: 'none' });
+                    active1 = !active1;
+                    active2 = !active2;
+                    active3 = !active3;
+                    active4 = !active4;
+                });
+            });
+        </script>
+    </body>
+</html>

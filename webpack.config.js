@@ -7,7 +7,7 @@ module.exports = {
     output: {
         filename: 'build.js',
         //path: path.join(__dirname, '/dist')
-        path: path.resolve(__dirname, './templates')
+        path: path.resolve(__dirname, './static')
     },
     module: {
         rules: [
@@ -26,7 +26,7 @@ module.exports = {
     },
     plugins: [
         new HWP(
-            { template: path.resolve(__dirname, './templates/index.html'), inject: false }
+            { template: path.resolve(__dirname, './templates/home.html'), inject: false }
         )
     ],
     devtool: 'cheap-module-eval-source-map',
