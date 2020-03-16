@@ -1,175 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <!-- <link
-            rel="apple-touch-icon"
-            type="image/png"
-            href="https://static.codepen.io/assets/favicon/apple-touch-icon-5ae1a0698dcc2402e9712f7d01ed509a57814f994c660df9f7a952f3060705ee.png"
-        />
-        <meta name="apple-mobile-web-app-title" content="CodePen" />
-        <link
-            rel="shortcut icon"
-            type="image/x-icon"
-            href="https://static.codepen.io/assets/favicon/favicon-aec34940fbc1a6e787974dcd360f2c6b63348d4b1f4e06c77743096d55480f33.ico"
-        />
-        <link rel="mask-icon" type="" href="https://static.codepen.io/assets/favicon/logo-pin-8f3771b1072e3c38bd662872f6b673a722f4b3ca2421637d5596661b4e2132cc.svg" color="#111" /> -->
 
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}" />
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome-free-5.12.1-web/css/all.min.css') }}" />
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon"
+    type="image/png"
+    href="{{ url_for('static', filename='cartage_logo_nobg.svg') }}" />
 
-        <title>CodePen - Menu jQuery</title>
-        <!-- <style>
-            body {
-                background: -webkit-linear-gradient(90deg, #16222a 10%, #3a6073 90%); /* Chrome 10+, Saf5.1+ */
-                background: -moz-linear-gradient(90deg, #16222a 10%, #3a6073 90%); /* FF3.6+ */
-                background: -ms-linear-gradient(90deg, #16222a 10%, #3a6073 90%); /* IE10 */
-                background: -o-linear-gradient(90deg, #16222a 10%, #3a6073 90%); /* Opera 11.10+ */
-                background: linear-gradient(90deg, #16222a 10%, #3a6073 90%); /* W3C */
-            }
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sidemenu.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome-free-5.12.1-web/css/all.min.css') }}" />
 
-            .parent2 {
-                top: 15px;
-                left: 15px;
-                position: fixed;
-                display: block;
-                width: 100px;
-                height: 100px;
-                background-color: transparent;
-                border-radius: 50%;
-                z-index: 20;
-                -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.75);
-                -moz-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.75);
-                box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.75);
-            }
-            .test1 {
-                width: 60%;
-                height: 60%;
-                background-color: dimGray;
-                border-radius: 50%;
-                position: absolute;
-                color: white;
-                text-align: center;
-                line-height: 70px;
-                top: 25%;
-                left: 25%;
-                z-index: 19;
-                transition: all 500ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
-                position: absolute;
-            }
-            .test2 {
-                width: 60%;
-                height: 60%;
-                background-color: dimGray;
-                border-radius: 50%;
-                position: absolute;
-                color: white;
-                text-align: center;
-                line-height: 70px;
-                top: 25%;
-                left: 25%;
-                z-index: 19;
-                transition: all 500ms cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.2s;
-            }
-            .test3 {
-                width: 60%;
-                height: 60%;
-                background-color: dimGray;
-                border-radius: 50%;
-                position: absolute;
-                color: white;
-                text-align: center;
-                line-height: 70px;
-                top: 25%;
-                left: 25%;
-                transition: all 500ms cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.4s;
-            }
-            .test4 {
-                width: 60%;
-                height: 60%;
-                background-color: dimGray;
-                border-radius: 50%;
-                position: absolute;
-                color: white;
-                text-align: center;
-                line-height: 70px;
-                top: 25%;
-                left: 25%;
-                transition: all 500ms cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.6s;
-            }
-            .mask2 {
-                top: 15px;
-                left: 15px;
-                width: 100px;
-                height: 100px;
-                background: darkSlateGray;
-                border-radius: 50%;
-                position: absolute;
-                z-index: 21;
-                color: white;
-                text-align: center;
-                line-height: 120px;
-                cursor: pointer;
-                position: fixed;
-            }
-        </style> -->
-    </head>
+    <title>Cartage - CSS Lab management system</title>
+</head>
 
-    <body translate="no">
-        <div class="parent2">
+<body translate="no">
+    {% if current_user.is_authenticated %} Hi {{ current_user.name }}! {% endif %}
+
+    <!-- <div class="parent2">
             <div class="test1"><i class="fas fa-at fa-2x"></i></div>
             <div class="test2"><i class="fas fa-users fa-2x"></i></div>
             <div class="test3"><i class="fas fa-chart-bar fa-2x"></i></div>
-            <div class="test4"><a href="/"><i class="fas fa-table fa-2x"></i></a></div>
+            <div class="test4">
+                <a href="/"><i class="fas fa-table fa-2x"></i></a>
+            </div>
             <div class="mask2"><i class="fa fa-home fa-3x"></i></div>
-        </div>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-        <script id="rendered-js">
-            $(document).ready(function() {
-                var active1 = false;
-                var active2 = false;
-                var active3 = false;
-                var active4 = false;
+        </div> -->
+    <!-- about -->
+    <div class="about">
+        <a class="bg_links social portfolio" href="https://www.rafaelalucas.com" target="_blank">
+            <span class="icon"></span>
+        </a>
+        <a class="bg_links social dribbble" href="https://dribbble.com/rafaelalucas" target="_blank">
+            <span class="icon"></span>
+        </a>
+        <a class="bg_links social linkedin" href="https://www.linkedin.com/in/tommasomazza/" target="_blank">
+            <span class="icon"></span>
+        </a>
+        <a class="bg_links logo"></a>
+    </div>
+    <!-- end about -->
 
-                $('.parent2').on('mousedown touchstart', function() {
-                    if (!active1)
-                        $(this)
-                            .find('.test1')
-                            .css({ 'background-color': 'gray', transform: 'translate(0px,125px)' });
-                    else
-                        $(this)
-                            .find('.test1')
-                            .css({ 'background-color': 'dimGray', transform: 'none' });
-                    if (!active2)
-                        $(this)
-                            .find('.test2')
-                            .css({ 'background-color': 'gray', transform: 'translate(60px,105px)' });
-                    else
-                        $(this)
-                            .find('.test2')
-                            .css({ 'background-color': 'darkGray', transform: 'none' });
-                    if (!active3)
-                        $(this)
-                            .find('.test3')
-                            .css({ 'background-color': 'gray', transform: 'translate(105px,60px)' });
-                    else
-                        $(this)
-                            .find('.test3')
-                            .css({ 'background-color': 'silver', transform: 'none' });
-                    if (!active4)
-                        $(this)
-                            .find('.test4')
-                            .css({ 'background-color': 'gray', transform: 'translate(125px,0px)' });
-                    else
-                        $(this)
-                            .find('.test4')
-                            .css({ 'background-color': 'silver', transform: 'none' });
-                    active1 = !active1;
-                    active2 = !active2;
-                    active3 = !active3;
-                    active4 = !active4;
-                });
+    </div>
+    <nav class="main-menu">
+        <div>
+            <li>
+                <a>
+                    <i href="#" class="logo"></i>
+                    <span class="nav-text">Cartage</span>
+                </a>
+            </li>
+
+        </div>
+        <div class="settings"></div>
+        <div class="scrollbar" id="style-1">
+            <ul>
+                <li>
+                    <a href="/home">
+                        <i class="fa fa-home fa-lg"></i>
+                        <span class="nav-text">Home</span>
+                    </a>
+                </li>
+
+                <li >
+                    <a href="/login">
+                        <i class="fa fa-user fa-lg"></i>
+                        <span class="nav-text">Login</span>
+                    </a>
+                </li>
+
+                </li>
+                <li class="darkerlishadow">
+                    <a href="/">
+                        <i class="fa fa-table fa-lg"></i>
+                        <span class="nav-text">Lab store</span>
+                    </a>
+                </li>
+
+                <li class="darkerlishadowdown">
+                    <a href="/">
+                        <i class="fa fa-chart-line fa-lg"></i>
+                        <span class="nav-text">Analytics</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/logout">
+                        <i class="fa fa-sign-out-alt fa-lg"></i>
+                        <span class="nav-text">Logout</span>
+                    </a>
+                </li>
+
+
+                <iframe scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:35px;" allowTransparency="true"></iframe>
+
+                <!-- </li>
+                <li class="darkerlishadow">
+                <a href="http://startific.com">
+                <i class="fa fa-clock-o fa-lg"></i>
+                <span class="nav-text">News</span>
+                </a>
+                </li>
+                    
+                <li class="darkerli">
+                <a href="http://startific.com">
+                <i class="fa fa-desktop fa-lg"></i>
+                <span class="nav-text">Technology</span>
+                </a>
+                </li>
+                    
+                <li class="darkerlishadowdown">
+                <a href="http://startific.com">
+                <i class="fa fa-rocket fa-lg"></i>
+                <span class="nav-text">Fun</span>
+                </a>
+                </li> -->
+
+                <li>
+                    <a href="/user_settings">
+                        <i class="fa fa-sliders-h fa-lg"></i>
+                        <span class="nav-text">Settings</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/contact">
+                        <i class="fa fa-user-lock fa-lg"></i>
+                        <span class="nav-text">Admin</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="http://startific.com">
+                        <i class="fa fa-question-circle fa-lg"></i>
+                        <span class="nav-text">Help</span>
+                    </a>
+                </li>
+    </nav>
+
+    <script id="rendered-js">
+        $(document).ready(function () {
+            var active1 = false;
+            var active2 = false;
+            var active3 = false;
+            var active4 = false;
+
+            $('.parent2').on('mousedown touchstart', function () {
+                if (!active1)
+                    $(this)
+                        .find('.test1')
+                        .css({ 'background-color': 'gray', transform: 'translate(0px,125px)' });
+                else
+                    $(this)
+                        .find('.test1')
+                        .css({ 'background-color': 'dimGray', transform: 'none' });
+                if (!active2)
+                    $(this)
+                        .find('.test2')
+                        .css({ 'background-color': 'gray', transform: 'translate(60px,105px)' });
+                else
+                    $(this)
+                        .find('.test2')
+                        .css({ 'background-color': 'darkGray', transform: 'none' });
+                if (!active3)
+                    $(this)
+                        .find('.test3')
+                        .css({ 'background-color': 'gray', transform: 'translate(105px,60px)' });
+                else
+                    $(this)
+                        .find('.test3')
+                        .css({ 'background-color': 'silver', transform: 'none' });
+                if (!active4)
+                    $(this)
+                        .find('.test4')
+                        .css({ 'background-color': 'gray', transform: 'translate(125px,0px)' });
+                else
+                    $(this)
+                        .find('.test4')
+                        .css({ 'background-color': 'silver', transform: 'none' });
+                active1 = !active1;
+                active2 = !active2;
+                active3 = !active3;
+                active4 = !active4;
             });
-        </script>
-    </body>
+        });
+    </script>
+    <script>
+        var iconMenu = document.querySelector('.icon-menu'),
+            menu = document.querySelector('.menu'),
+            menuLink = document.querySelectorAll('.menu-link.sub');
+
+        iconMenu.addEventListener('click', openMenu);
+
+        menuLink.forEach(function (el) {
+            el.addEventListener('click', openSubmenu);
+        });
+
+        function openMenu() {
+            if (menu.classList.contains('open')) {
+                menu.classList.add('close');
+                iconMenu.classList.remove('icon-closed');
+
+                setTimeout(function () {
+                    menu.classList.remove('open');
+                }, 1300);
+            } else {
+                menu.classList.remove('close');
+                menu.classList.add('open');
+                iconMenu.classList.add('icon-closed');
+            }
+        }
+
+        function openSubmenu(event) {
+            if (event.currentTarget.classList.contains('active')) {
+                event.currentTarget.classList.remove('active');
+            } else {
+                event.currentTarget.classList.add('active');
+            }
+        }
+    </script>
+</body>
 </html>

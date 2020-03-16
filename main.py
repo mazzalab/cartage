@@ -1,9 +1,9 @@
 import argparse
 import datetime
 
-from flask import Flask, jsonify, render_template, request, flash
+from flask import Flask, jsonify, render_template, request, flash, redirect, url_for
 from flask_cors import CORS  # , cross_origin
-from flask_login import login_required
+from flask_login import login_required, login_user, logout_user
 # from flask_marshmallow import Marshmallow
 # from flask_sqlalchemy import SQLAlchemy
 
@@ -15,7 +15,7 @@ from admin.admin_page import setup_admin_home
 
 from config import config_by_name
 from persistence.database import db_manager
-from persistence.model import db, login_manager, ma
+from persistence.model import db, ma, login_manager
 
 # from flask_bcrypt import Bcrypt
 
@@ -40,47 +40,43 @@ setup_admin_home(app)
 
 
 class LoginForm(FlaskForm):
-    username = StringField('username', validators=[InputRequired(), Length(min=4, max=15, message="Min/Max username lengths are 4 and 15")])
-    password = StringField('password', validators=[InputRequired(), Length(min=4, max=80, message="Min/Max password lengths are 4 and 80")])
+    email = StringField('email', validators=[InputRequired(message="E-mail is a required field"), Email(message="Wrong email format")])
+    password = StringField('password', validators=[InputRequired(), Length(min=4, max=80, message="Passwork length min 4 and max 80")])
     remember = BooleanField('remember me')
     submit = SubmitField('Submit')
 
 
 @app.route('/home')
+@login_required
 def homepage():
     return render_template('index.html') # , name=name)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # Here we use a class of some kind to represent and validate our
-    # client-side form data. For example, WTForms is a library that will
-    # handle this for us, and we use a custom LoginForm to validate.
     form = LoginForm()
 
     if form.validate_on_submit():
-    #     # Login and validate the user.
-    #     # user should be an instance of your `User` class
-    #     login_user(user)
-        # user = User(form.username.data, form.email.data,
-        #             form.password.data)
-        # db_session.add(user)
-        flash('Thanks for registering', 'success')
-        # return redirect(url_for('login'))
-
-    #     next = flask.request.args.get('next')
-    #     # is_safe_url should check if the url is safe for redirects.
-    #     # See http://flask.pocoo.org/snippets/62/ for an example.
-    #     if not is_safe_url(next):
-    #         return flask.abort(400)
-
-    #     return flask.redirect(next or flask.url_for('index'))
+        user = db_manager.do_login(form.email.data, form.password.data)
+        if user:
+            login_user(user)
+            return redirect(url_for('homepage'))
+        else:
+            flash("Not logged in", 'warning')        
     else:
         if form.errors:
-            print(form.errors.values())
-            flash(form.errors.values().toList(), 'warning')
+            for errs in form.errors.values():
+                for err in errs:
+                    flash(err, 'warning')
 
     return render_template('login.html', form=form)
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    flash('Succesful logout', 'success')
+    return redirect(url_for('login'))
 
 
 @app.route('/')
@@ -92,7 +88,6 @@ def retrieve_all_data():
 
 @app.route('/store/<store_id>')
 def retrieve_data_of_store(store_id):
-    # result = db_manager.load_whole_db()
     result = db_manager.load_db_for_store(store_id)
     return jsonify(result)
 

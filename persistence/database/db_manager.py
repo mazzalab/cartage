@@ -158,3 +158,8 @@ def edit_movement(movement_id, date, operator, quantity):
         move.operator = user
 
     return move
+
+
+def do_login(email, password):
+    return User.query.filter_by(email=email, password=password).first()
+   
