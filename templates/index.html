@@ -7,8 +7,8 @@
     type="image/png"
     href="{{ url_for('static', filename='cartage_logo_nobg.svg') }}" />
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/sidemenu.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome-free-5.12.1-web/css/all.min.css') }}" />
 
     <title>Cartage - CSS Lab management system</title>
@@ -71,16 +71,22 @@
 
                 </li>
                 <li class="darkerlishadow">
-                    <a href="/">
+                    <a href="/labstore">
                         <i class="fa fa-table fa-lg"></i>
                         <span class="nav-text">Lab store</span>
                     </a>
                 </li>
 
-                <li class="darkerlishadowdown">
-                    <a href="/">
+                <li class="darkerli">
+                    <a href="/analytics">
                         <i class="fa fa-chart-line fa-lg"></i>
                         <span class="nav-text">Analytics</span>
+                    </a>
+                </li>
+                <li class="darkerlishadowdown">
+                    <a href="/settings">
+                        <i class="fa fa-sliders-h fa-lg"></i>
+                        <span class="nav-text">Settings</span>
                     </a>
                 </li>
                 <li>
@@ -93,44 +99,15 @@
 
                 <iframe scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:35px;" allowTransparency="true"></iframe>
 
-                <!-- </li>
-                <li class="darkerlishadow">
-                <a href="http://startific.com">
-                <i class="fa fa-clock-o fa-lg"></i>
-                <span class="nav-text">News</span>
-                </a>
-                </li>
-                    
-                <li class="darkerli">
-                <a href="http://startific.com">
-                <i class="fa fa-desktop fa-lg"></i>
-                <span class="nav-text">Technology</span>
-                </a>
-                </li>
-                    
-                <li class="darkerlishadowdown">
-                <a href="http://startific.com">
-                <i class="fa fa-rocket fa-lg"></i>
-                <span class="nav-text">Fun</span>
-                </a>
-                </li> -->
-
                 <li>
-                    <a href="/user_settings">
-                        <i class="fa fa-sliders-h fa-lg"></i>
-                        <span class="nav-text">Settings</span>
+                    <a href="/contacts">
+                        <i class="fa fa-id-card fa-lg"></i>
+                        <span class="nav-text">Contacts</span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="/contact">
-                        <i class="fa fa-user-lock fa-lg"></i>
-                        <span class="nav-text">Admin</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="http://startific.com">
+                    <a href="/help">
                         <i class="fa fa-question-circle fa-lg"></i>
                         <span class="nav-text">Help</span>
                     </a>

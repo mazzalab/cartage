@@ -46,10 +46,14 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
-@app.route('/home')
-@login_required
+@app.route('/')
 def homepage():
     return render_template('index.html') # , name=name)
+
+@app.route('/labstore')
+@login_required
+def labstorepage():
+    return render_template('labstore.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -60,7 +64,7 @@ def login():
         user = db_manager.do_login(form.email.data, form.password.data)
         if user:
             login_user(user)
-            return redirect(url_for('homepage'))
+            return redirect(url_for('labstorepage'))
         else:
             flash("Not logged in", 'warning')        
     else:
@@ -79,8 +83,8 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/')
-# @login_required
+# Routes to supprot methods
+@app.route('/all_records')
 def retrieve_all_data():
     result = db_manager.load_whole_db()
     return jsonify(result)

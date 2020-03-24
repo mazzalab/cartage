@@ -29,12 +29,6 @@ const CaptionElement = () => (
     </h3>
 );
 
-// export const axiosInstance = axios.create({
-//     baseURL: 'https://iamsourabhh.com/',
-//     timeout: 1000,
-//     responseType: "json"
-//   });
-
 class MovementsTable extends React.Component {
     constructor(props) {
         super(props);
@@ -193,6 +187,10 @@ class MovementsTable extends React.Component {
             style.border = '3px solid red';
         }
 
+        style.height = '0px'
+        style.fontSize = 13;
+        style.padding = '0px 0'
+
         return style;
     };
 
@@ -202,9 +200,9 @@ class MovementsTable extends React.Component {
                 backgroundColor: '#c8e6c9',
             };
         }
-        return {
-            backgroundColor: '#FFFFFF',
-        };
+        // return {
+        //     backgroundColor: '#FFFFFF'
+        // };
     };
 
     handleCommitAllEditsForMovement = (movement_id, date_movement, operator, quantity, rowIndex) => {
@@ -265,24 +263,35 @@ class MovementsTable extends React.Component {
             {
                 dataField: 'date_movement',
                 text: 'Movement date',
-                filter: dateFilter(),
+                // filter: dateFilter(
+                //     {
+                //         // dateStyle: { fontSize: 10, height: '39px', width: '130px',  valign:"top", margin: '5px' },
+                //         style: { fontSize: 8, width: '150px'}
+                //     }
+                // ),
+                filter: textFilter({
+                    style: {fontSize: 11, width: '110px'},  //     fontStyle: 'italic',
+                    placeholder: 'Filter by date'
+                }),
                 formatter: this.dateFormatter,
                 editable: this.setEditableCell,
                 sort: true,
                 headerStyle: (column, colIndex) => {
-                    return { width: '220px' };
+                    return { width: '140px', height: '0px' , fontSize: 13};
                 },
                 style: this.setEditCellStyle,
             },
             {
                 dataField: 'operator',
-                text: 'Operator',
-                filter: textFilter(),
-                // style: {
-                //     fontStyle: 'italic',
-                //     // fontSize: '18px'
-                // },
+                text: 'User',
+                filter: textFilter({
+                    style: {fontSize: 11, width: '110px'},
+                    placeholder: 'Filter by user'
+                }),
                 style: this.setEditCellStyle,
+                headerStyle: (column, colIndex) => {
+                    return { width: '140px', height: '0px' , fontSize: 13};
+                },
                 editor: {
                     type: Type.SELECT,
                     options: this.state.operators_list,
@@ -293,14 +302,26 @@ class MovementsTable extends React.Component {
             {
                 dataField: 'category',
                 text: 'Category',
-                filter: textFilter(),
+                filter: textFilter({
+                    style: {fontSize: 11, width: '110px'},
+                    placeholder: 'Filter by category'
+                }),
+                headerStyle: (column, colIndex) => {
+                    return { width: '140px', height: '0px' , fontSize: 13};
+                },
                 editable: false,
                 sort: true,
             },
             {
                 dataField: 'company',
                 text: 'Company',
-                filter: textFilter(),
+                filter: textFilter({
+                    style: {fontSize: 11, width: '120px'},
+                    placeholder: 'Filter by company'
+                }),
+                headerStyle: (column, colIndex) => {
+                    return { width: '140px', height: '0px' , fontSize: 13};
+                },
                 editable: false,
                 sort: true,
             },
@@ -308,38 +329,40 @@ class MovementsTable extends React.Component {
                 dataField: 'code_item',
                 text: 'Item code',
                 sort: true,
-                filter: textFilter(),
+                filter: textFilter({
+                    style: {fontSize: 11, width: '110px'},
+                    placeholder: 'Filter by code'
+                }),
                 editable: false,
-                // onSort: (field, order) => {
-                //     console.log('....');
-                //   }
+                headerStyle: (column, colIndex) => {
+                    return { width: '140px', height: '0px' , fontSize: 13};
+                }
             },
             {
                 dataField: 'item',
                 text: 'Item',
-                filter: textFilter(),
+                filter: textFilter({
+                    style: {fontSize: 11},  // , width: '110px'
+                    placeholder: 'Filter by item'
+                }),
                 formatter: this.itemFormatter,
                 headerFormatter: this.itemHeaderFormatter,
+                headerStyle: (column, colIndex) => {
+                    return { height: '0px' , fontSize: 13};  // width: '250px', 
+                },
                 editable: false,
-                // events: {
-                //     onDoubleClick: (e, column, columnIndex, row, rowIndex) => {
-                //       console.log(e);
-                //       console.log(column);
-                //       console.log(columnIndex);
-                //       console.log(row);
-                //       console.log(rowIndex);
-                //       alert('Click on Product ID field');
-                //     }
-                // },
                 sort: true,
-                // headerStyle: (column, colIndex) => {
-                //     return { width: '400px' };
-                // }
             },
             {
                 dataField: 'batches',
                 text: 'Batch',
-                filter: textFilter(),
+                filter: textFilter({
+                    style: {fontSize: 11, width: '95px'},
+                    placeholder: 'Filter by batch'
+                }),
+                headerStyle: (column, colIndex) => {
+                    return { width: '100px', height: '0px' , fontSize: 13};
+                },
                 editable: false,
                 sort: true,
             },
@@ -353,15 +376,18 @@ class MovementsTable extends React.Component {
                 editable: this.setEditableCell,
                 sort: true,
                 style: this.setEditCellStyle,
+                headerStyle: (column, colIndex) => {
+                    return { width: '80px', height: '0px' , fontSize: 13};
+                },
             },
             {
                 dataField: 'deleteIcon',
                 isDummyField: true,
                 text: 'Actions',
                 editable: false,
-                // headerStyle: (column, colIndex) => {
-                //     return { width: '70px' };
-                // },
+                headerStyle: (column, colIndex) => {
+                    return { width: '130px', height: '0px' , fontSize: 13};
+                },
                 formatter: (cell, row, rowIndex, extraData) => {
                     if (row.operator !== 'Tom' && this.state.bordered_row_id === -1) {
                         return (
@@ -463,7 +489,6 @@ class MovementsTable extends React.Component {
                     onDataSizeChange={this.handleDataChange}
                     keyField="id"
                     data={this.props.data}
-                    //columns={this.state.columns}
                     columns={this.formatHeader()}
                     rowStyle={this.setRowStyle}
                     cellEdit={cellEditFactory({
@@ -474,12 +499,15 @@ class MovementsTable extends React.Component {
                     filter={filterFactory()}
                     filterPosition="top"
                     pagination={paginationFactory()}
-                    bordered={true}
                     noDataIndication="Empty table"
                     // caption="Caption here"
-                    caption={<CaptionElement />}
+                    // caption={<CaptionElement />}
                     // tabIndexCell
                     // selectRow={{ mode: 'checkbox' }}
+                    bordered={false}
+                    striped
+                    hover
+                    condensed
                     defaultSorted={[
                         {
                             dataField: 'id',

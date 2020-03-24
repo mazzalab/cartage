@@ -2,12 +2,10 @@ const path = require('path');
 const HWP = require('html-webpack-plugin');
 
 module.exports = {
-    // entry: path.join(__dirname, '/src/index.js'),
-    entry: './src/index.js',
+    entry: './src/datastore.js',
     output: {
         filename: 'build.js',
-        //path: path.join(__dirname, '/dist')
-        path: path.resolve(__dirname, './static')
+        path: path.resolve(__dirname, './static/js')
     },
     module: {
         rules: [
@@ -26,7 +24,7 @@ module.exports = {
     },
     plugins: [
         new HWP(
-            { template: path.resolve(__dirname, './templates/home.html'), inject: false }
+            { template: path.resolve(__dirname, './templates/labstore.html'), inject: false }
         )
     ],
     devtool: 'cheap-module-eval-source-map',

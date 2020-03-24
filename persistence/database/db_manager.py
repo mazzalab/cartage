@@ -67,7 +67,6 @@ def load_whole_db():
 
 def load_all_categories():
     rs = Category.query.all()
-    # rs = Movement.query.with_entities(Movement.category).distinct()
     output = categories_schema.dump(rs)
     return output
 
