@@ -4,22 +4,29 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 
+import InfoPaper from './components/InfoPaper';
 import AddMovementBar from './components/AddMovementBar';
 import MovementsTable from './components/MovementsTable';
 
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
+import Paper from '@material-ui/core/Paper';
 
 import '../static/css/bootstrap_4_3_1.min.css';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 
 const styles = {
-    root: {
-        minWidth: 275,
-        margin: '5px',
-    }
+    userInfoStyle: {
+        marginTop: '9px',
+        padding: '9px',
+        backgroundColor: '#bc9460',
+        margin: '3px',
+    },
+    paperStyle: {
+        marginTop: '9px',
+        padding: '9px',
+        margin: '3px',
+    },
 };
 
 class MainLayout extends React.Component {
@@ -27,33 +34,41 @@ class MainLayout extends React.Component {
         super(props);
 
         this.state = {
-            data: [{ id: 1 }],
+            stores: [],
+            current_storeid: '',
+            user_info: '',
+            movements: [],
             all_categories: [],
         };
     }
 
     componentDidMount() {
-        let all_movs = 'http://127.0.0.1:5000/all_records';
-        let all_categories = 'http://127.0.0.1:5000/categories';
+        // Get here user information for which loading related information to be rendered into the table
+        // const uid = this.props.uid
+        const uid = 1;
 
-        const requestAllMovs = axios.get(all_movs);
-        const requestAllCats = axios.get(all_categories);
+        // Get stores related to this user
+        let all_stores = 'http://127.0.0.1:5000/stores/uid/' + uid;
+        let user_info = 'http://127.0.0.1:5000/users/uid/' + uid;
+
+        const request_stores = axios.get(all_stores);
+        const request_userinfo = axios.get(user_info);
 
         axios
-            .all([requestAllMovs, requestAllCats])
+            .all([request_stores, request_userinfo])
             .then(
                 axios.spread((...responses) => {
-                    const responseAllMovs = responses[0];
-                    const responseAllCats = responses[1];
+                    const response_stores = responses[0];
+                    const response_userinfo = responses[1];
 
                     this.setState({
-                        data: responseAllMovs.data,
-                        all_categories: responseAllCats.data,
+                        stores: response_stores.data,
+                        user_info: response_userinfo.data,
                     });
                 }),
             )
-            .catch(errors => {
-                console.log(errors);
+            .catch(err => {
+                console.log(err);
             });
     }
 
@@ -89,42 +104,61 @@ class MainLayout extends React.Component {
         // this.setState({ data: filteredData });
     };
 
+    handleStoreSelect = (storeid) => {
+        let categories_url = 'http://127.0.0.1:5000/categories/store/' + storeid;
+        let movements_url = 'http://127.0.0.1:5000/movements/store/' + storeid;
+
+        const request_categories = axios.get(categories_url);
+        const request_movements = axios.get(movements_url);
+
+        axios
+            .all([request_categories, request_movements])
+            .then(
+                axios.spread((...responses) => {
+                    const response_categories = responses[0];
+                    const response_movements = responses[1];
+
+                    this.setState({
+                        all_categories: response_categories.data,
+                        movements: response_movements.data,
+                        current_storeid: storeid
+                    });
+                }),
+            )
+            .catch(err => {
+                console.log(err);
+            });
+    };
+
     render() {
         const { classes } = this.props;
 
         return (
             <div>
                 <Grid container spacing={0}>
-                    <Grid container item xs={8} spacing={0} padding={10}>
-                        <Card className={classes.root}>
-                            <CardContent>
-                                <AddMovementBar all_categories={this.state.all_categories} onTableAddRequest={this.handleTableAddRequest} />
-                            </CardContent>
-                        </Card>
+                    <Grid item xs={12} md={2} padding={10}>
+                        <Paper elevation={5} className={classes.userInfoStyle}>
+                            <InfoPaper stores={this.state.stores} userinfo={this.state.user_info} onStoreSelect={this.handleStoreSelect}/>
+                        </Paper>
                     </Grid>
-                    <Grid container item xs={12} spacing={0} padding={10}>
-                        <Card className={classes.root}>
-                            <CardContent>
-                                <MovementsTable data={this.state.data} onTableDelete={this.handleTableDelete} onTableEdit={this.handleTableEdit} />
-                            </CardContent>
-                        </Card>
+                    <Grid item xs={12} md={9} padding={10}>
+                        <Paper className={classes.paperStyle}>
+                            <AddMovementBar sid={this.state.current_storeid} all_categories={this.state.all_categories} onTableAddRequest={this.handleTableAddRequest} />
+                        </Paper>
+                    </Grid>
+                    <Grid container item xs={12} md={12} padding={10}>
+                        <Paper className={classes.root} elevation={5} style={{ padding: 10, backgroundColor: '#fafafa' }}>
+                            {/*TODO: maybe sid is not useful here */}
+                            <MovementsTable sid={this.state.current_storeid} data={this.state.movements} onTableDelete={this.handleTableDelete} onTableEdit={this.handleTableEdit} />
+                        </Paper>
                     </Grid>
                 </Grid>
-
-                {/* <div style={{ borderRadius: '0.25em', textAlign: 'center', color: 'purple', border: '1px solid purple', padding: '0.5em' }}> */}
-                {/* <AddMovementBar all_categories={this.state.all_categories} onTableAddRequest={this.handleTableAddRequest} /> */}
-                {/* </div> */}
-                {/* <h5>
-                    {' '}
-                    Row Count: <span className="badge">{this.state.rowCount}</span>
-                </h5> */}
-                {/* <div style={{ borderRadius: '0.25em', textAlign: 'center', color: 'purple', border: '1px solid purple', padding: '0.5em' }}> */}
-                {/* <MovementsTable data={this.state.data} onTableDelete={this.handleTableDelete} onTableEdit={this.handleTableEdit} /> */}
-                {/* </div> */}
             </div>
         );
     }
 }
 
+const rootElement = document.getElementById('root');
+const uid = rootElement.getAttribute('uid');
 const StyledMainLayout = withStyles(styles)(MainLayout);
-ReactDOM.render(<StyledMainLayout />, document.getElementById('root'));
+ReactDOM.render(<StyledMainLayout uid={uid} />, rootElement);

@@ -44,9 +44,9 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(50), nullable=False)
     # master = db.Column(db.Boolean, nullable=False, default=False)
     operator_of = db.relationship(
-        "Store", secondary=map_operator_table, backref="operator_stores")
+        "Store", secondary=map_operator_table, backref="Users")
     administrator_of = db.relationship(
-        "Store", secondary=map_admin_table, backref="administrator_stores")
+        "Store", secondary=map_admin_table, backref="Administrators")
 
 
     def __repr__(self):
@@ -65,6 +65,3 @@ def load_user(user_id):
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
-
-
-

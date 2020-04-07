@@ -19,7 +19,7 @@ class Movement(db.Model):
     operator = db.relationship("User", backref=db.backref("movements"))
 
     def __repr__(self):
-        return '[Movement]: id: {}, batch; {}, date: {}, quantity: {}'.format(self.item_id, self.batch_id, self.date_movement, self.quantity)
+        return '[Movement]: item: {}, batch; {}, date: {}, quantity: {}'.format(self.item_id, self.batch_id, self.date_movement, self.quantity)
 
 
 class MovementSchema(ma.ModelSchema):

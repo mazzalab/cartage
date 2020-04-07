@@ -2,8 +2,8 @@ import argparse
 import datetime
 
 from flask import Flask, jsonify, render_template, request, flash, redirect, url_for
-from flask_cors import CORS  # , cross_origin
-from flask_login import login_required, login_user, logout_user
+from flask_cors import CORS, cross_origin
+from flask_login import login_required, login_user, logout_user  #, current_user
 # from flask_marshmallow import Marshmallow
 # from flask_sqlalchemy import SQLAlchemy
 
@@ -18,8 +18,6 @@ from persistence.database import db_manager
 from persistence.model import db, ma, login_manager
 
 # from flask_bcrypt import Bcrypt
-
-
 
 
 app = Flask(__name__)
@@ -53,7 +51,7 @@ def homepage():
 @app.route('/labstore')
 @login_required
 def labstorepage():
-    return render_template('labstore.html')
+    return render_template('labstore.html')  # , user=current_user
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -63,7 +61,7 @@ def login():
     if form.validate_on_submit():
         user = db_manager.do_login(form.email.data, form.password.data)
         if user:
-            login_user(user)
+            login_user(user, remember=True)
             return redirect(url_for('labstorepage'))
         else:
             flash("Not logged in", 'warning')        
@@ -75,37 +73,72 @@ def login():
 
     return render_template('login.html', form=form)
 
-
 @app.route('/logout')
 def logout():
     logout_user()
     flash('Succesful logout', 'success')
     return redirect(url_for('login'))
 
+@app.route('/stores/uid/<uid>')
+# @login_required
+def retrieve_stores_by_user(uid:int):
+    result = db_manager.load_stores(uid)
+    return jsonify(result)
 
-# Routes to supprot methods
-@app.route('/all_records')
-def retrieve_all_data():
-    result = db_manager.load_whole_db()
+@app.route('/users/uid/<uid>')
+# @login_required
+def retrieve_users_info(uid:int):
+    result = db_manager.load_user_info(uid)
+    return jsonify(result)
+
+@app.route('/categories/store/<storeid>')
+# @login_required
+def retrieve_categories_by_store(storeid:int):
+    result = db_manager.load_categories(storeid)
+    return jsonify(result)
+
+@app.route('/companies/<categoryid>/<storeid>')
+# @login_required
+def retrieve_companies_by_category(categoryid:int, storeid:int):
+    result = db_manager.load_companies(categoryid, storeid)
+    return jsonify(result)
+
+@app.route('/items/category/<categoryid>/company/<companyid>/store/<storeid>', methods=['POST','OPTIONS'])
+# @login_required
+@cross_origin()
+def retrieveItemsPerCompanyAndCategory(categoryid:int, companyid:int, storeid:int):
+    result = db_manager.load_items(categoryid, companyid, storeid)
+    return jsonify(result)
+
+@app.route('/batches/item/<itemid>/store/<storeid>', methods=['POST','GET'])
+# @login_required
+def retrieveBatchesPerItem(itemid:id, storeid:int):
+    result = db_manager.load_batches_per_item(itemid, storeid)
     return jsonify(result)
 
 
-@app.route('/store/<store_id>')
-def retrieve_data_of_store(store_id):
-    result = db_manager.load_db_for_store(store_id)
+
+
+
+@app.route('/movements/store/<storeid>')
+# @login_required
+def retrieve_movements_by_store(storeid:int):
+    result = db_manager.load_movements(storeid)
     return jsonify(result)
 
 
-@app.route('/categories')
-def retrieve_all_categories():
-    result = db_manager.load_all_categories()
-    return jsonify(result)
 
 
-@app.route('/companies')
-def retrieve_all_companies():
-    result = db_manager.load_all_companies()
-    return jsonify(result)
+# @app.route('/store/<store_id>')
+# def retrieve_data_of_store(store_id:int):
+#     result = db_manager.load_db_for_store(store_id)
+#     return jsonify(result)
+
+
+
+
+
+
 
 
 @app.route('/operators')
@@ -122,22 +155,10 @@ def retrieveCompaniesPerCategory():
     return jsonify(result)
 
 
-@app.route('/items_per_category_and_company', methods=['POST'])
-def retrieveItemsPerCompanyAndCategory():
-    json_data = request.get_json()
-    category = json_data.get('selectedCatCom')['category']
-    company = json_data.get('selectedCatCom')['company']
-    result = db_manager.load_items_per_companies_and_category(
-        category, company)
-    return jsonify(result)
 
 
-@app.route('/batches_per_item', methods=['POST'])
-def retrieveBatchesPerItem():
-    json_data = request.get_json()
-    code_item = json_data.get('selectedItem')['code_item']
-    result = db_manager.load_batches_per_item(code_item)
-    return jsonify(result)
+
+
 
 
 @app.route('/add_movement', methods=['POST'])

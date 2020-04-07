@@ -1,6 +1,15 @@
 from persistence.model import db, ma
+from persistence.model.account_store import Store, StoreSchema
 from persistence.model.company import Company, CompanySchema
 from persistence.model.category import Category, CategorySchema
+
+
+map_item_table = db.Table('item_store_map', db.metadata,
+                              db.Column('item_id', db.Integer,
+                                        db.ForeignKey('item.id')),
+                              db.Column('store_id', db.Integer,
+                                        db.ForeignKey('store.id'))
+                              )
 
 
 class Batch(db.Model):
@@ -35,9 +44,13 @@ class Item(db.Model):
     company = db.relationship("Company", backref=db.backref("item"))
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     category = db.relationship("Category", backref=db.backref("item"))
+
+    stored_in = db.relationship(
+        "Store", secondary=map_item_table, backref="item_stores")
     
     def __repr__(self):
-        return '[Item]: {} (code: {})'.format(self.name, self.code_item)
+        return '[Item]: {} (code: {}, company: {}, category: {}, batches: {}, stores: {})'.format(
+            self.name, self.code_item, self.company.name, self.category.name, self.batches, self.stored_in)
 
 
 class ItemSchema(ma.ModelSchema):
@@ -46,6 +59,7 @@ class ItemSchema(ma.ModelSchema):
     batches = ma.Nested(BatchSchema, many=True)
     company = ma.Nested(CompanySchema)
     category = ma.Nested(CategorySchema)
+    store = ma.Nested(StoreSchema, many=True)
 
 item_schema = ItemSchema()
 items_schema = ItemSchema(many=True)
