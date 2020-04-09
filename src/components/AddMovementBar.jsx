@@ -32,7 +32,9 @@ const styles = {
         paddingRight: '5px',
     },
     buttonStyle: {
-        marginLeft: '10px'
+        marginLeft: '15px',
+        marginTop: '10px',
+        fontSize: 12,
     }
 };
 
@@ -45,7 +47,7 @@ class AddMovementBar extends React.Component {
             company: 'select',
             item: 'select',
             batch: 'select',
-            quantity: 1,
+            quantity: 0
         },
 
         categories: [],
@@ -74,11 +76,24 @@ class AddMovementBar extends React.Component {
             // Update state only if props changed
             if (cat_list.join('') !== prevState.categories.join('')) {
                 return {
-                    categories: cat_list,
-                };
+                    categories: cat_list
+                }
             } else return null;
         } else {
-            return null;
+            // If all_categories is empty or null, it means that 'select' was chosen in the lab selection combobox
+            let newState = prevState;
+            // newState.categories = [];
+            // newState.companies = [];
+            // newState.items = [];
+            newState.batches = [];
+            newState.current_selection.batch='select';
+            // newState.disabled_company=true;
+            // newState.disabled_item=true;
+            // newState.disabled_batch=true;
+            // newState.disabled_quantity=true;
+            // newState.disabled_button=true;
+
+            return newState;
         }
     }
 
@@ -153,17 +168,22 @@ class AddMovementBar extends React.Component {
 
     handleCategoryChange = event => {
         let newValue = event.target.value;
+        let new_current_selection = this.state.current_selection;
+        new_current_selection.category = newValue;
 
         if (newValue === 'select') {
-            let new_current_selection = this.state.current_selection;
             new_current_selection.company = 'select';
             new_current_selection.item = 'select';
-            // new_current_selection.item_code = null;
             new_current_selection.batch = 'select';
-            new_current_selection.quantity = null;
+            new_current_selection.quantity = 0;
+            this.input_name.value = 0;
 
             this.setState({
                 disabled_company: true,
+                disabled_item: true,
+                disabled_batch: true,
+                disabled_quantity: true,
+                disabled_button: true,
                 current_selection: new_current_selection,
             });
         } else {
@@ -180,10 +200,6 @@ class AddMovementBar extends React.Component {
                         );
                     });
 
-                    // Update current_selection with the selected Category
-                    let new_current_selection = this.state.current_selection;
-                    new_current_selection.category = newValue;
-
                     this.setState(
                         {
                             current_selection: new_current_selection,
@@ -191,12 +207,10 @@ class AddMovementBar extends React.Component {
                         },
                         () => {
                             if (company_list.length == 0) {
-                                // If the query did not get any result -> disable company
                                 this.setState({
                                     disabled_company: true,
                                 });
                             } else {
-                                // Enable company combobox only after having filled the company list and updated the UI
                                 this.setState({
                                     disabled_company: false,
                                 });
@@ -212,17 +226,21 @@ class AddMovementBar extends React.Component {
 
     handleCompanyChange = event => {
         let newValue = event.target.value;
-
+        let new_current_selection = this.state.current_selection;
+        new_current_selection.company = newValue;
+            
         if (newValue === 'select') {
-            let new_current_selection = this.state.current_selection;
             new_current_selection.item = 'select';
-            // new_current_selection.item_code = null;
             new_current_selection.batch = 'select';
-            new_current_selection.quantity = null;
+            new_current_selection.quantity = 0;
+            this.input_name.value = 0;
 
             this.setState({
                 disabled_item: true,
-                current_selection: new_current_selection,
+                disabled_batch: true,
+                disabled_quantity: true,
+                disabled_button: true,
+                current_selection: new_current_selection
             });
         } else {
             axios
@@ -238,11 +256,6 @@ class AddMovementBar extends React.Component {
                         );
                     });
 
-                    // Update current_selection with the selected Category
-                    let new_current_selection = this.state.current_selection;
-                    new_current_selection.company = newValue;
-
-                    // Update the state
                     this.setState(
                         {
                             current_selection: new_current_selection,
@@ -250,12 +263,10 @@ class AddMovementBar extends React.Component {
                         },
                         () => {
                             if (item_list.length == 0) {
-                                // If the query did not get any result -> disable company
                                 this.setState({
                                     disabled_item: true,
                                 });
                             } else {
-                                // Enable company combobox only after having filled the company list and updated the UI
                                 this.setState({
                                     disabled_item: false,
                                 });
@@ -271,14 +282,18 @@ class AddMovementBar extends React.Component {
 
     handleItemChange = event => {
         let newValue = event.target.value;
+        let new_current_selection = this.state.current_selection;
+        new_current_selection.item = newValue;
 
         if (newValue === 'select') {
-            let new_current_selection = this.state.current_selection;
             new_current_selection.batch = 'select';
-            new_current_selection.quantity = null;
+            new_current_selection.quantity = 0;
+            this.input_name.value = 0;
 
             this.setState({
                 disabled_batch: true,
+                disabled_quantity: true,
+                disabled_button: true,
                 current_selection: new_current_selection,
             });
         } else {
@@ -295,11 +310,6 @@ class AddMovementBar extends React.Component {
                         );
                     });
 
-                    // Update current_selection with the selected Item
-                    let new_current_selection = this.state.current_selection;
-                    new_current_selection.item = newValue;
-
-                    // Update the state
                     this.setState(
                         {
                             current_selection: new_current_selection,
@@ -326,39 +336,40 @@ class AddMovementBar extends React.Component {
 
     handleBatchChange = event => {
         let newValue = event.target.value;
+        let new_current_selection = this.state.current_selection;
+        new_current_selection.batch = newValue;
 
         if (newValue === 'select') {
-            let new_current_selection = this.state.current_selection;
             new_current_selection.quantity = 0;
+            this.input_name.value = 0;
 
             this.setState({
                 disabled_quantity: true,
+                disabled_button: true,
                 current_selection: new_current_selection,
             });
         } else {
-            let new_current_selection = this.state.current_selection;
-            new_current_selection.batch = newValue;
-
             this.setState({
                 current_selection: new_current_selection,
-                disabled_quantity: false
+                disabled_quantity: false,
+                disabled_button: false
             });
         }
     };
 
     handleQuantityChange = event => {
         let newValue = event.target.value;
+        let new_current_selection = this.state.current_selection;
+        new_current_selection.quantity = newValue;
         
         if(isNaN(newValue) || newValue == 0){
             this.setState({
                 error_quantity: true,
-                disabled_button: true
+                disabled_button: true,
+                current_selection: new_current_selection
             })
             alert("Quantity must be a non zero number")
         } else{
-            let new_current_selection = this.state.current_selection;
-            new_current_selection.quantity = newValue;
-
             this.setState({
                 error_quantity: false,
                 disabled_button: false,
@@ -422,6 +433,7 @@ class AddMovementBar extends React.Component {
                         defaultValue={0}
                         disabled={this.state.disabled_quantity}
                         onBlur={this.handleQuantityChange}
+                        inputRef={el => this.input_name = el}
                     />
                 </FormControl>
                 <Button variant="contained" color="primary" disabled={this.state.disabled_button} className={classes.buttonStyle} onSubmit={this.handleSubmitNewMovement}>
