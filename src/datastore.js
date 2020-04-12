@@ -8,7 +8,7 @@ import InfoPaper from './components/InfoPaper';
 import AddMovementBar from './components/AddMovementBar';
 import MovementsTable from './components/MovementsTable';
 
-import { withStyles, makeStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 
@@ -43,7 +43,7 @@ class MainLayout extends React.Component {
     }
 
     componentDidMount() {
-        // Get here user information for which loading related information to be rendered into the table
+        //TODO: Get here user information for which loading related information to be rendered into the table
         // const uid = this.props.uid
         const uid = 1;
 
@@ -72,26 +72,62 @@ class MainLayout extends React.Component {
             });
     }
 
-    handleTableAddRequest = (movement_id, code_item, operator, date_movement, item, category, batch, company, quantity) => {
-        var oldData = this.state.data;
+    handleTableAddRequest = (current_selection) => {
+        //TODO: Get here user information for which loading related information to be rendered into the table
+        // const uid = this.props.uid
+        const uid = 1;
+        
+        var today = new Date();
+        var today_temp = `${('0' + today.getUTCDate()).slice(-2)}/${('0' + (today.getUTCMonth() + 1)).slice(-2)}/${today.getUTCFullYear()}`;
+        const date_movement = {
+            date_movement: today_temp,
+        };
+        const quantity = {
+            quantity: current_selection.quantity,
+        };
 
-        // reformat date in yyyy-mm-dd
-        let date_temp = date_movement['date_movement'];
-        let date_temp_tokens = date_temp.split('/');
-        let date_new = date_temp_tokens[2] + '-' + date_temp_tokens[1] + '-' + date_temp_tokens[0];
+        const item = {
+            item: current_selection.itemId
+        };
+        const batch = {
+            batch: current_selection.batchId,
+        };
+        const operator = {
+            operator: uid,
+        };
 
-        oldData.unshift({
-            id: movement_id,
-            code_item: code_item['code_item'],
-            operator: operator['operator'],
-            date_movement: date_new,
-            item: item['item'],
-            category: category['category'],
-            batches: batch['batch'],
-            company: company['company'],
-            quantity: quantity['quantity'],
-        });
-        this.setState({ data: oldData });
+        
+        axios.post('http://127.0.0.1:5000/add_movement', {
+            date_movement,
+            quantity,
+            item,
+            batch,
+            operator
+        })
+        .then(response => {
+            // TODO: check if response is OK
+            let res = response.data;
+            var newMovements = this.state.movements;
+            newMovements.unshift({
+                id: res['movement_id'],
+                code_item: res['item_code'],
+                operator: res['operator_name'] + " " + res['operator_surname'],
+                date_movement: today_temp,
+                item: res['item_name'],
+                category: current_selection.categoryName,
+                batches: res['batch_code'],
+                company: current_selection.companyName,
+                quantity: current_selection.quantity,
+            });
+            
+            this.setState({ movements: newMovements }, ()=>{
+                alert('Inserted item');
+                // return 'Inserted item with ID: ' + res['ID'];
+            });
+        })
+        .catch(err => {
+            alert('Insert error.\nMessage: ' + err);
+        });       
     };
 
     handleTableDelete = movement_id => {

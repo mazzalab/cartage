@@ -94,6 +94,27 @@ def load_batches_per_item(itemid, storeid):
     return output
 
 
+# ADD % delete movements
+def add_movement(date_movement, quantity, operator, item_id, batch_id):
+    oper = User.query.filter_by(id=operator).first()
+    item = Item.query.filter_by(id=item_id).first()
+    batch = Batch.query.filter_by(id=batch_id).first()
+    
+    addedMovement = Movement(
+        date_movement=date_movement,
+        quantity=quantity,
+        operator=oper,
+        item=item,
+        batch=batch
+    )
+
+    return addedMovement
+
+
+
+
+
+
 
 
 
@@ -141,22 +162,6 @@ def load_companies_per_category(category):
 
 
 
-
-def add_movement(code_item, operator, date_movement, batch, quantity):
-    oper = User.query.filter_by(name="Gino", surname="Pomicino").first()
-    item = Item.query.filter_by(code_item=code_item).first()
-    batc = Batch.query.filter_by(code=batch).first()
-    print(batch)
-
-    addedData = Movement(
-        date_movement=date_movement,
-        quantity=quantity,
-        operator=oper,
-        item=item,
-        batch=batc
-    )
-
-    return addedData
 
 
 def delete_movement(delete_id):

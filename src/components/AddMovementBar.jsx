@@ -1,6 +1,5 @@
 import React from 'react';
 import axios from 'axios';
-import { axioscall_categories_4combo, axioscall_addMovement } from './../axios_manager.jsx';
 
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
@@ -35,7 +34,7 @@ const styles = {
         marginLeft: '15px',
         marginTop: '10px',
         fontSize: 12,
-    }
+    },
 };
 
 class AddMovementBar extends React.Component {
@@ -43,11 +42,13 @@ class AddMovementBar extends React.Component {
 
     state = {
         current_selection: {
-            category: 'select',
-            company: 'select',
-            item: 'select',
-            batch: 'select',
-            quantity: 0
+            categoryId: 'select',
+            categoryName: 'select',
+            companyId: 'select',
+            companyName: 'select',
+            itemId: 'select',
+            batchId: 'select',
+            quantity: 0,
         },
 
         categories: [],
@@ -59,15 +60,15 @@ class AddMovementBar extends React.Component {
         disabled_batch: true,
         disabled_quantity: true,
         error_quantity: false,
-        disabled_button: true
+        disabled_button: true,
     };
 
     static getDerivedStateFromProps(nextProps, prevState) {
         if (nextProps.all_categories.length > 0) {
             const { classes } = nextProps;
-            const cat_list = nextProps.all_categories.map(cat => {
+            const cat_list = nextProps.all_categories.map((cat) => {
                 return (
-                    <MenuItem className={classes.menuitem} value={cat.id} key={cat.id}>
+                    <MenuItem className={classes.menuitem} value={cat.id} data-category-name={cat.name} key={cat.id}>
                         {cat.name}
                     </MenuItem>
                 );
@@ -76,305 +77,275 @@ class AddMovementBar extends React.Component {
             // Update state only if props changed
             if (cat_list.join('') !== prevState.categories.join('')) {
                 return {
-                    categories: cat_list
-                }
+                    categories: cat_list,
+                };
             } else return null;
         } else {
-            // If all_categories is empty or null, it means that 'select' was chosen in the lab selection combobox
+            // If all_categories is empty or null, then 'select' was chosen in the lab selection combobox
             let newState = prevState;
-            // newState.categories = [];
-            // newState.companies = [];
-            // newState.items = [];
+            newState.categories = [];
+            newState.current_selection.categoryId = 'select';
+            newState.current_selection.categoryName = 'select';
+            newState.companies = [];
+            newState.current_selection.companyId = 'select';
+            newState.current_selection.companyName = 'select';
+            newState.items = [];
+            newState.current_selection.itemId = 'select';
             newState.batches = [];
-            newState.current_selection.batch='select';
-            // newState.disabled_company=true;
-            // newState.disabled_item=true;
-            // newState.disabled_batch=true;
-            // newState.disabled_quantity=true;
-            // newState.disabled_button=true;
+            newState.current_selection.batchId = 'select';
+
+            newState.disabled_company = true;
+            newState.disabled_item = true;
+            newState.disabled_batch = true;
+            newState.disabled_quantity = true;
+            newState.disabled_button = true;
+
+            // TODO: Reset the quantity field to zero
 
             return newState;
         }
     }
 
-    areEmpty = fields => {
-        let fempty = Object.keys(fields).filter(function(key) {
-            return fields[key].trim() === '';
-        });
-
-        return fempty;
-    };
-
-    areSelect = fields => {
-        let fselect = Object.keys(fields).filter(function(key) {
-            return fields[key] === 'select';
-        });
-
-        return fselect;
-    };
-
-    handleSubmitNewMovement = e => {
+    handleSubmitNewMovement = (e) => {
         e.preventDefault();
-
-        var fempty = this.areEmpty({ Quantity: this.state.quantity });
-        var fselect = this.areSelect({
-            Operator: this.state.operator,
-            'Item code': this.state.selected_code_item,
-            Batch: this.state.selected_batch,
-            Category: this.state.selected_category,
-            Company: this.state.selected_company,
-        });
-
-        if (fempty.length !== 0) {
-            alert(fempty.toString() + ' is empty');
-        } else if (isNaN(this.state.quantity)) {
-            alert("The field 'Quantity' is not a number");
-        } else if (fselect.length !== 0) {
-            alert(fselect.toString() + ' must be selected');
-        } else {
-            const operator = {
-                operator: this.state.operator,
-            };
-
-            var today = new Date();
-            var today_temp = `${('0' + today.getUTCDate()).slice(-2)}/${('0' + (today.getUTCMonth() + 1)).slice(-2)}/${today.getUTCFullYear()}`;
-            const date_movement = {
-                date_movement: today_temp,
-            };
-            const code_item = {
-                code_item: this.state.selected_code_item,
-            };
-            const item = {
-                item: this.state.selected_item,
-            };
-            const batch = {
-                batch: this.state.selected_batch,
-            };
-            const quantity = {
-                quantity: this.state.quantity,
-            };
-            const category = {
-                category: this.state.selected_category,
-            };
-            const company = {
-                company: this.state.selected_company,
-            };
-
-            axioscall_addMovement(code_item, operator, date_movement, batch, quantity, item, category, company, this.props.onTableAddRequest).then(insert_msg => {
-                alert(insert_msg);
-            });
-        }
+        this.props.onTableAddRequest(this.state.current_selection);
     };
 
-    handleCategoryChange = event => {
-        let newValue = event.target.value;
-        let new_current_selection = this.state.current_selection;
-        new_current_selection.category = newValue;
+    handleCategoryChange = (event) => {
+        let categoryId = event.target.value;
+        let { categoryName } = event.currentTarget.dataset;
 
-        if (newValue === 'select') {
-            new_current_selection.company = 'select';
-            new_current_selection.item = 'select';
-            new_current_selection.batch = 'select';
+        if (categoryId === this.state.current_selection.itemId) {
+            return;
+        } else {
+            let new_current_selection = Object.assign({}, this.state.current_selection);
+            new_current_selection.categoryId = categoryId;
+            new_current_selection.categoryName = categoryName;
+
+            new_current_selection.companyId = 'select';
+            new_current_selection.companyName = 'select'
+            new_current_selection.itemId = 'select';
+            new_current_selection.batchId = 'select';
             new_current_selection.quantity = 0;
             this.input_name.value = 0;
 
-            this.setState({
-                disabled_company: true,
-                disabled_item: true,
-                disabled_batch: true,
-                disabled_quantity: true,
-                disabled_button: true,
-                current_selection: new_current_selection,
-            });
-        } else {
-            axios
-                .get('http://127.0.0.1:5000/companies/' + newValue + '/' + this.props.sid)
-                .then(response => {
-                    let company_list = response.data;
-                    const { classes } = this.props;
-                    company_list = company_list.map(r => {
-                        return (
-                            <MenuItem className={classes.menuitem} value={r.id} key={r.id}>
-                                {r.name}
-                            </MenuItem>
-                        );
-                    });
-
-                    this.setState(
-                        {
-                            current_selection: new_current_selection,
-                            companies: company_list,
-                        },
-                        () => {
-                            if (company_list.length == 0) {
-                                this.setState({
-                                    disabled_company: true,
-                                });
-                            } else {
-                                this.setState({
-                                    disabled_company: false,
-                                });
-                            }
-                        },
-                    );
-                })
-                .catch(err => {
-                    console.log(err);
+            if (categoryId === 'select') {
+                this.setState({
+                    disabled_company: true,
+                    disabled_item: true,
+                    disabled_batch: true,
+                    disabled_quantity: true,
+                    disabled_button: true,
+                    current_selection: new_current_selection,
+                    items: [],
+                    batches: [],
+                    companies: []
                 });
-        }
-    };
+            } else {
+                axios
+                    .get('http://127.0.0.1:5000/companies/' + categoryId + '/' + this.props.sid)
+                    .then((response) => {
+                        let company_list = response.data;
+                        const { classes } = this.props;
+                        company_list = company_list.map((r) => {
+                            return (
+                                <MenuItem className={classes.menuitem} value={r.id} data-company-name={r.name} key={r.id}>
+                                    {r.name}
+                                </MenuItem>
+                            );
+                        });
 
-    handleCompanyChange = event => {
-        let newValue = event.target.value;
-        let new_current_selection = this.state.current_selection;
-        new_current_selection.company = newValue;
-            
-        if (newValue === 'select') {
-            new_current_selection.item = 'select';
-            new_current_selection.batch = 'select';
-            new_current_selection.quantity = 0;
-            this.input_name.value = 0;
-
-            this.setState({
-                disabled_item: true,
-                disabled_batch: true,
-                disabled_quantity: true,
-                disabled_button: true,
-                current_selection: new_current_selection
-            });
-        } else {
-            axios
-                .post('http://127.0.0.1:5000/items/category/' + this.state.current_selection.category + '/company/' + newValue + '/store/' + this.props.sid)
-                .then(response => {
-                    let item_list = response.data;
-                    const { classes } = this.props;
-                    item_list = item_list.map(r => {
-                        return (
-                            <MenuItem className={classes.menuitem} value={r.id} key={r.id}>
-                                {r.name}
-                            </MenuItem>
+                        this.setState(
+                            {
+                                current_selection: new_current_selection,
+                                companies: company_list,
+                            },
+                            () => {
+                                if (company_list.length == 0) {
+                                    this.setState({
+                                        disabled_company: true,
+                                    });
+                                } else {
+                                    this.setState({
+                                        disabled_company: false,
+                                    });
+                                }
+                            },
                         );
+                    })
+                    .catch((err) => {
+                        console.log(err);
                     });
-
-                    this.setState(
-                        {
-                            current_selection: new_current_selection,
-                            items: item_list,
-                        },
-                        () => {
-                            if (item_list.length == 0) {
-                                this.setState({
-                                    disabled_item: true,
-                                });
-                            } else {
-                                this.setState({
-                                    disabled_item: false,
-                                });
-                            }
-                        },
-                    );
-                })
-                .catch(err => {
-                    console.log(err);
-                });
+            }
         }
     };
 
-    handleItemChange = event => {
-        let newValue = event.target.value;
-        let new_current_selection = this.state.current_selection;
-        new_current_selection.item = newValue;
+    handleCompanyChange = (event) => {
+        let companyId = event.target.value;
+        let { companyName } = event.currentTarget.dataset;
+        if (companyId === this.state.current_selection.itemId) {
+            return;
+        } else {
+            let new_current_selection = Object.assign({}, this.state.current_selection);
+            new_current_selection.companyId = companyId;
+            new_current_selection.companyName = companyName;
 
-        if (newValue === 'select') {
-            new_current_selection.batch = 'select';
+            new_current_selection.itemId = 'select';
+            new_current_selection.batchId = 'select';
             new_current_selection.quantity = 0;
             this.input_name.value = 0;
 
-            this.setState({
-                disabled_batch: true,
-                disabled_quantity: true,
-                disabled_button: true,
-                current_selection: new_current_selection,
-            });
-        } else {
-            axios
-                .post('http://127.0.0.1:5000/batches/item/' + newValue + '/store/' + this.props.sid)
-                .then(response => {
-                    let batch_list = response.data;
-                    const { classes } = this.props;
-                    batch_list = batch_list.map(r => {
-                        return (
-                            <MenuItem className={classes.menuitem} value={r.id} key={r.id}>
-                                {r.code}
-                            </MenuItem>
+            if (companyId === 'select') {
+                this.setState({
+                    disabled_item: true,
+                    disabled_batch: true,
+                    disabled_quantity: true,
+                    disabled_button: true,
+                    current_selection: new_current_selection,
+                    items: [],
+                    batches: [],
+                });
+            } else {
+                axios
+                    .post('http://127.0.0.1:5000/items/category/' + this.state.current_selection.categoryId + '/company/' + companyId + '/store/' + this.props.sid)
+                    .then((response) => {
+                        let item_list = response.data;
+                        const { classes } = this.props;
+                        item_list = item_list.map((r) => {
+                            return (
+                                <MenuItem className={classes.menuitem} value={r.id} key={r.id}>
+                                    {r.name}
+                                </MenuItem>
+                            );
+                        });
+
+                        this.setState(
+                            {
+                                current_selection: new_current_selection,
+                                items: item_list,
+                            },
+                            () => {
+                                if (item_list.length == 0) {
+                                    this.setState({
+                                        disabled_item: true,
+                                    });
+                                } else {
+                                    this.setState({
+                                        disabled_item: false,
+                                    });
+                                }
+                            },
                         );
+                    })
+                    .catch((err) => {
+                        console.log(err);
                     });
-
-                    this.setState(
-                        {
-                            current_selection: new_current_selection,
-                            batches: batch_list,
-                        },
-                        () => {
-                            if (batch_list.length == 0) {
-                                this.setState({
-                                    disabled_batch: true,
-                                });
-                            } else {
-                                this.setState({
-                                    disabled_batch: false,
-                                });
-                            }
-                        },
-                    );
-                })
-                .catch(err => {
-                    console.log(err);
-                });
+            }
         }
     };
 
-    handleBatchChange = event => {
-        let newValue = event.target.value;
-        let new_current_selection = this.state.current_selection;
-        new_current_selection.batch = newValue;
-
-        if (newValue === 'select') {
+    handleItemChange = (event) => {
+        let itemId = event.target.value;
+        if (itemId === this.state.current_selection.itemId) {
+            return;
+        } else {
+            let new_current_selection = Object.assign({}, this.state.current_selection);
+            new_current_selection.itemId = itemId;
+            new_current_selection.batchId = 'select';
             new_current_selection.quantity = 0;
             this.input_name.value = 0;
 
-            this.setState({
-                disabled_quantity: true,
-                disabled_button: true,
-                current_selection: new_current_selection,
-            });
-        } else {
-            this.setState({
-                current_selection: new_current_selection,
-                disabled_quantity: false,
-                disabled_button: false
-            });
+            if (itemId === 'select') {
+                this.setState({
+                    disabled_batch: true,
+                    disabled_quantity: true,
+                    disabled_button: true,
+                    current_selection: new_current_selection,
+                    batches: [],
+                });
+            } else {
+                axios
+                    .post('http://127.0.0.1:5000/batches/item/' + itemId + '/store/' + this.props.sid)
+                    .then((response) => {
+                        let batch_list = response.data;
+                        const { classes } = this.props;
+                        batch_list = batch_list.map((r) => {
+                            return (
+                                <MenuItem className={classes.menuitem} value={r.id} key={r.id}>
+                                    {r.code}
+                                </MenuItem>
+                            );
+                        });
+
+                        this.setState(
+                            {
+                                current_selection: new_current_selection,
+                                batches: batch_list,
+                            },
+                            () => {
+                                if (batch_list.length == 0) {
+                                    this.setState({
+                                        disabled_batch: true,
+                                    });
+                                } else {
+                                    this.setState({
+                                        disabled_batch: false,
+                                    });
+                                }
+                            },
+                        );
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            }
         }
     };
 
-    handleQuantityChange = event => {
-        let newValue = event.target.value;
-        let new_current_selection = this.state.current_selection;
-        new_current_selection.quantity = newValue;
-        
-        if(isNaN(newValue) || newValue == 0){
+    handleBatchChange = (event) => {
+        let batchId = event.target.value;
+        if (batchId === this.state.current_selection.itemId) {
+            return;
+        } else {
+            let new_current_selection = Object.assign({}, this.state.current_selection);
+            new_current_selection.batchId = batchId;
+            new_current_selection.quantity = 0;
+            this.input_name.value = 0;
+
+            if (batchId === 'select') {
+                this.setState({
+                    disabled_quantity: true,
+                    disabled_button: true,
+                    current_selection: new_current_selection,
+                });
+            } else {
+                this.setState({
+                    current_selection: new_current_selection,
+                    disabled_quantity: false,
+                    disabled_button: false,
+                });
+            }
+        }
+    };
+
+    handleQuantityChange = (event) => {
+        let quantityValue = event.target.value;
+        let new_current_selection = Object.assign({}, this.state.current_selection);
+        new_current_selection.quantity = quantityValue;
+
+        if (isNaN(quantityValue) || quantityValue == 0) {
             this.setState({
                 error_quantity: true,
                 disabled_button: true,
-                current_selection: new_current_selection
-            })
-            alert("Quantity must be a non zero number")
-        } else{
+                current_selection: new_current_selection,
+            });
+            alert('Quantity must be a non zero number');
+        } else {
             this.setState({
                 error_quantity: false,
                 disabled_button: false,
-                current_selection: new_current_selection
-            })
+                current_selection: new_current_selection,
+            });
         }
     };
 
@@ -388,7 +359,7 @@ class AddMovementBar extends React.Component {
             <div>
                 <FormControl className={classes.formControl}>
                     <InputLabel className={classes.userInfo}>Category</InputLabel>
-                    <Select value={this.state.current_selection.category} className={classes.selectEmpty} onChange={this.handleCategoryChange}>
+                    <Select value={this.state.current_selection.categoryId} className={classes.selectEmpty} onChange={this.handleCategoryChange}>
                         <MenuItem className={classes.menuitem} value="select">
                             <em>select</em>
                         </MenuItem>
@@ -397,7 +368,12 @@ class AddMovementBar extends React.Component {
                 </FormControl>
                 <FormControl className={classes.formControl}>
                     <InputLabel className={classes.userInfo}>Company</InputLabel>
-                    <Select value={this.state.current_selection.company} className={classes.selectEmpty} onChange={this.handleCompanyChange} disabled={this.state.disabled_company}>
+                    <Select
+                        value={this.state.current_selection.companyId}
+                        className={classes.selectEmpty}
+                        onChange={this.handleCompanyChange}
+                        disabled={this.state.disabled_company}
+                    >
                         <MenuItem className={classes.menuitem} value="select">
                             <em>select</em>
                         </MenuItem>
@@ -406,7 +382,7 @@ class AddMovementBar extends React.Component {
                 </FormControl>
                 <FormControl className={classes.formControl}>
                     <InputLabel className={classes.userInfo}>Item</InputLabel>
-                    <Select value={this.state.current_selection.item} className={classes.selectEmpty} onChange={this.handleItemChange} disabled={this.state.disabled_item}>
+                    <Select value={this.state.current_selection.itemId} className={classes.selectEmpty} onChange={this.handleItemChange} disabled={this.state.disabled_item}>
                         <MenuItem className={classes.menuitem} value="select">
                             <em>select</em>
                         </MenuItem>
@@ -415,7 +391,7 @@ class AddMovementBar extends React.Component {
                 </FormControl>
                 <FormControl className={classes.formControl}>
                     <InputLabel className={classes.userInfo}>Batch</InputLabel>
-                    <Select value={this.state.current_selection.batch} className={classes.selectEmpty} disabled={this.state.disabled_batch} onChange={this.handleBatchChange}>
+                    <Select value={this.state.current_selection.batchId} className={classes.selectEmpty} disabled={this.state.disabled_batch} onChange={this.handleBatchChange}>
                         <MenuItem className={classes.menuitem} value="select">
                             <em>select</em>
                         </MenuItem>
@@ -433,12 +409,12 @@ class AddMovementBar extends React.Component {
                         defaultValue={0}
                         disabled={this.state.disabled_quantity}
                         onBlur={this.handleQuantityChange}
-                        inputRef={el => this.input_name = el}
+                        inputRef={(el) => (this.input_name = el)}
                     />
                 </FormControl>
-                <Button variant="contained" color="primary" disabled={this.state.disabled_button} className={classes.buttonStyle} onSubmit={this.handleSubmitNewMovement}>
-                     Add
-                 </Button>
+                <Button variant="contained" color="primary" disabled={this.state.disabled_button} className={classes.buttonStyle} onClick={this.handleSubmitNewMovement}>
+                    Add
+                </Button>
             </div>
         );
     }

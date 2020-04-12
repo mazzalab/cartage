@@ -53,7 +53,6 @@ def homepage():
 def labstorepage():
     return render_template('labstore.html')  # , user=current_user
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -116,6 +115,34 @@ def retrieveBatchesPerItem(itemid:id, storeid:int):
     result = db_manager.load_batches_per_item(itemid, storeid)
     return jsonify(result)
 
+## Add % Delete movements
+@app.route('/add_movement', methods=['POST'])
+# @login_required
+def addMovement():
+    json_data = request.get_json()
+    addedMovement = db_manager.add_movement(
+        datetime.datetime.strptime(json_data.get('date_movement')[
+                                   'date_movement'], "%d/%m/%Y"),
+        int(json_data.get('quantity')['quantity']),
+        json_data.get('operator')['operator'],
+        json_data.get('item')['item'],
+        json_data.get('batch')['batch'],
+    )
+
+    db.session.add(addedMovement)
+    db.session.commit()
+
+    newmov_dict = {}
+    newmov_dict['movement_id'] = addedMovement.id
+    newmov_dict['item_code'] = addedMovement.item.code_item
+    newmov_dict['item_name'] = addedMovement.item.name
+    newmov_dict['batch_code'] = addedMovement.batch.code
+    # newmov_dict['batch_expiry_date'] = addedMovement.batch.date_expiry  TODO: handle this when suggesting closest expiring items
+    newmov_dict['operator_name'] = addedMovement.operator.name
+    newmov_dict['operator_surname'] = addedMovement.operator.surname
+
+    return jsonify(newmov_dict)
+
 
 
 
@@ -161,21 +188,7 @@ def retrieveCompaniesPerCategory():
 
 
 
-@app.route('/add_movement', methods=['POST'])
-def addMovement():
-    json_data = request.get_json()
-    addedData = db_manager.add_movement(
-        json_data.get('code_item')['code_item'],
-        json_data.get('operator')['operator'],
-        datetime.datetime.strptime(json_data.get('date_movement')[
-                                   'date_movement'], "%d/%m/%Y"),
-        json_data.get('batch')['batch'],
-        int(json_data.get('quantity')['quantity'])
-    )
 
-    db.session.add(addedData)
-    db.session.commit()
-    return {'ID': addedData.id}
 
 
 @app.route('/delete_movement', methods=['POST'])

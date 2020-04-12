@@ -45,6 +45,8 @@ class MovementsTable extends React.Component {
             edit_color: 'primary',
             done_color: 'gray',
 
+            window_size: null,
+
             operators_list: [],
         };
     }
@@ -74,8 +76,20 @@ class MovementsTable extends React.Component {
         // console.log(this.table.cellEditContext)
     };
 
+    handleWindowResize = () => {
+        let wsize = window.innerWidth - (87+120+120+120+85+90+80+130);
+        if(wsize < 100)
+            wsize = 100;
+        
+        this.setState({
+            window_size: wsize
+        })
+    }
+
     componentDidMount() {
         document.addEventListener('keydown', this.handleEscKeyPressed, false);
+        window.addEventListener("resize", this.handleWindowResize, false);
+        this.handleWindowResize();
     }
 
     componentWillUnmount() {
@@ -262,7 +276,7 @@ class MovementsTable extends React.Component {
             },
             {
                 dataField: 'date_movement',
-                text: 'Movement date',
+                text: 'Date',
                 // filter: dateFilter(
                 //     {
                 //         // dateStyle: { fontSize: 10, height: '39px', width: '130px',  valign:"top", margin: '5px' },
@@ -270,14 +284,14 @@ class MovementsTable extends React.Component {
                 //     }
                 // ),
                 filter: textFilter({
-                    style: {fontSize: 11, width: '110px'},  //     fontStyle: 'italic',
-                    placeholder: 'Filter by date'
+                    style: {fontSize: 9, width: '77px'},  //     fontStyle: 'italic',
+                    placeholder: 'yyyy-mm-dd'
                 }),
                 formatter: this.dateFormatter,
                 editable: this.setEditableCell,
                 sort: true,
                 headerStyle: (column, colIndex) => {
-                    return { width: '140px', height: '0px' , fontSize: 13};
+                    return { width: '87px', height: '0px' , fontSize: 12};
                 },
                 style: this.setEditCellStyle,
             },
@@ -285,12 +299,12 @@ class MovementsTable extends React.Component {
                 dataField: 'operator',
                 text: 'User',
                 filter: textFilter({
-                    style: {fontSize: 11, width: '110px'},
-                    placeholder: 'Filter by user'
+                    style: {fontSize: 9, width: '110px'},
+                    placeholder: 'Name Surname'
                 }),
                 style: this.setEditCellStyle,
                 headerStyle: (column, colIndex) => {
-                    return { width: '140px', height: '0px' , fontSize: 13};
+                    return { width: '120px', height: '0px' , fontSize: 12};
                 },
                 editor: {
                     type: Type.SELECT,
@@ -303,11 +317,11 @@ class MovementsTable extends React.Component {
                 dataField: 'category',
                 text: 'Category',
                 filter: textFilter({
-                    style: {fontSize: 11, width: '110px'},
-                    placeholder: 'Filter by category'
+                    style: {fontSize: 9, width: '110px'},
+                    placeholder: 'category name'
                 }),
                 headerStyle: (column, colIndex) => {
-                    return { width: '140px', height: '0px' , fontSize: 13};
+                    return { width: '120px', height: '0px' , fontSize: 12};
                 },
                 editable: false,
                 sort: true,
@@ -316,52 +330,53 @@ class MovementsTable extends React.Component {
                 dataField: 'company',
                 text: 'Company',
                 filter: textFilter({
-                    style: {fontSize: 11, width: '120px'},
-                    placeholder: 'Filter by company'
+                    style: {fontSize: 9, width: '110px'},
+                    placeholder: 'company name'
                 }),
                 headerStyle: (column, colIndex) => {
-                    return { width: '140px', height: '0px' , fontSize: 13};
+                    return { width: '120px', height: '0px' , fontSize: 12};
                 },
                 editable: false,
-                sort: true,
+                sort: true
             },
             {
                 dataField: 'code_item',
                 text: 'Item code',
                 sort: true,
                 filter: textFilter({
-                    style: {fontSize: 11, width: '110px'},
-                    placeholder: 'Filter by code'
+                    style: {fontSize: 9, width: '70px'},
+                    placeholder: 'code'
                 }),
                 editable: false,
                 headerStyle: (column, colIndex) => {
-                    return { width: '140px', height: '0px' , fontSize: 13};
+                    return { width: '85px', height: '0px' , fontSize: 12};
                 }
             },
             {
                 dataField: 'item',
                 text: 'Item',
                 filter: textFilter({
-                    style: {fontSize: 11},  // , width: '110px'
-                    placeholder: 'Filter by item'
+                    style: {fontSize: 9, width: this.state.window_size},
+                    placeholder: 'item name'
                 }),
                 formatter: this.itemFormatter,
                 headerFormatter: this.itemHeaderFormatter,
                 headerStyle: (column, colIndex) => {
-                    return { height: '0px' , fontSize: 13};  // width: '250px', 
+                    return { height: '0px', fontSize: 12, width: (this.state.window_size+10)};  
                 },
+                style: {'whiteSpace': 'wrap', overflowX: 'auto'},
                 editable: false,
-                sort: true,
+                sort: true
             },
             {
                 dataField: 'batches',
                 text: 'Batch',
                 filter: textFilter({
-                    style: {fontSize: 11, width: '95px'},
-                    placeholder: 'Filter by batch'
+                    style: {fontSize: 9, width: '77px'},
+                    placeholder: 'batch code'
                 }),
                 headerStyle: (column, colIndex) => {
-                    return { width: '100px', height: '0px' , fontSize: 13};
+                    return { height: '0px' , fontSize: 12, display:'table-cell', width:'90px'};
                 },
                 editable: false,
                 sort: true,
@@ -377,7 +392,7 @@ class MovementsTable extends React.Component {
                 sort: true,
                 style: this.setEditCellStyle,
                 headerStyle: (column, colIndex) => {
-                    return { width: '80px', height: '0px' , fontSize: 13};
+                    return { height: '0px', fontSize: 12, display:'table-cell', width: '80px'};
                 },
             },
             {
@@ -386,7 +401,7 @@ class MovementsTable extends React.Component {
                 text: 'Actions',
                 editable: false,
                 headerStyle: (column, colIndex) => {
-                    return { width: '130px', height: '0px' , fontSize: 13};
+                    return { width: '130px', height: '0px' , fontSize: 12};
                 },
                 formatter: (cell, row, rowIndex, extraData) => {
                     if (row.operator !== 'Tom' && this.state.bordered_row_id === -1) {
@@ -514,9 +529,9 @@ class MovementsTable extends React.Component {
                             order: 'desc',
                         },
                     ]}
+                    table-responsive
                     bootstrap4
                 />
-                <button onClick={e => this.handleClick(e)}>Click Me</button>
             </div>
         );
     }
