@@ -34,6 +34,7 @@ batches_schema = BatchSchema(many=True)
 
 class Item(db.Model):
     __tablename__ = "item"
+    __table_args__ = tuple(db.UniqueConstraint('name', 'stored_in'), )
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     code_item = db.Column(db.String(50), nullable=False)

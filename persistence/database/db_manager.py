@@ -88,13 +88,20 @@ def load_items(categoryid: int, companyid: int, storeid: int):
     return output
 
 
-def load_batches_per_item(itemid, storeid):
+def load_batches_per_item(itemid:int, storeid:int):
     rs = Item.query.filter_by(id=itemid).join(Store, Item.stored_in).filter(Store.id==storeid).join(Batch, Item.batches).with_entities(Batch.id, Batch.code)
     output = batches_schema.dump(rs)
     return output
 
 
-# ADD % delete movements
+def load_batches_per_movement(movementid:int):
+    mov = Movement.query.filter_by(id=movementid).first()
+    rs = Item.query.filter_by(id=mov.item_id).first().batches
+    output = batches_schema.dump(rs)
+    return output
+
+
+# Add, edit and delete movements
 def add_movement(date_movement, quantity, operator, item_id, batch_id):
     oper = User.query.filter_by(id=operator).first()
     item = Item.query.filter_by(id=item_id).first()
@@ -110,6 +117,18 @@ def add_movement(date_movement, quantity, operator, item_id, batch_id):
 
     return addedMovement
 
+def edit_movement(movement_id, date, batch, quantity):
+    b = Batch.query.filter_by(code=batch).first()
+    
+    move = Movement.query.filter_by(id=movement_id).first()
+    move.date_movement = date
+    move.quantity = quantity
+    move.batch = b
+
+    return move
+
+def delete_movement(delete_id):
+    Movement.query.filter_by(id=delete_id).delete()
 
 
 
@@ -164,22 +183,8 @@ def load_companies_per_category(category):
 
 
 
-def delete_movement(delete_id):
-    Movement.query.filter_by(id=delete_id).delete()
 
 
-def edit_movement(movement_id, date, operator, quantity):
-    move = Movement.query.filter_by(id=movement_id).first()
-    move.date_movement = date
-    move.quantity = quantity
-
-    if move.operator != operator:
-        name_surname = operator.split(" ")
-        user = User.query.filter_by(
-            name=name_surname[0], surname=name_surname[1]).first()
-        move.operator = user
-
-    return move
 
 
 def do_login(email, password):

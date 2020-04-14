@@ -5,7 +5,7 @@ from persistence.model.item import Item, ItemSchema, Batch, BatchSchema
 
 class Movement(db.Model):
     __tablename__ = "movement"
-
+    
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     date_movement = db.Column(db.Date, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
@@ -18,7 +18,7 @@ class Movement(db.Model):
     operator = db.relationship("User", backref=db.backref("movement"), uselist=False)
 
     def __repr__(self):
-        return '[Movement]: item: {}, batch; {}, date: {}, quantity: {}'.format(self.item_id, self.batch_id, self.date_movement, self.quantity)
+        return '[Movement]: item: {}, batch: {}, date: {}, quantity: {}'.format(self.item_id, self.batch_id, self.date_movement, self.quantity)
 
 
 class MovementSchema(ma.ModelSchema):

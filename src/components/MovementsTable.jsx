@@ -15,26 +15,26 @@ import filterFactory, { textFilter, dateFilter } from 'react-bootstrap-table2-fi
 import cellEditFactory, { Type } from 'react-bootstrap-table2-editor';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 
-const CaptionElement = () => (
-    <h3
-        style={{
-            borderRadius: '0.25em',
-            textAlign: 'center',
-            color: 'purple',
-            border: '1px solid purple',
-            padding: '0.5em',
-        }}
-    >
-        History
-    </h3>
-);
+// const CaptionElement = () => (
+//     <h3
+//         style={{
+//             borderRadius: '0.25em',
+//             textAlign: 'center',
+//             color: 'purple',
+//             border: '1px solid purple',
+//             padding: '0.5em',
+//         }}
+//     >
+//         History
+//     </h3>
+// );
 
 class MovementsTable extends React.Component {
     constructor(props) {
         super(props);
 
         var old_date_movement = '';
-        var old_operator = '';
+        var old_batch = '';
         var old_quantity = '';
 
         this.state = {
@@ -46,18 +46,17 @@ class MovementsTable extends React.Component {
             done_color: 'gray',
 
             window_size: null,
-
-            operators_list: [],
+            batches_select: [],
         };
     }
 
-    handleEscKeyPressed = event => {
+    handleEscKeyPressed = (event) => {
         if (event.keyCode === 27) {
             this.handleAbortMovementEdit(this.state.bordered_row_id);
         }
     };
 
-    handleAbortMovementEdit = rowIndex => {
+    handleAbortMovementEdit = (rowIndex) => {
         let cellContext = this.table.cellEditContext;
         let record_number = cellContext.props.data.length;
         cellContext.props.data[record_number - rowIndex - 1]['date_movement'] = this.old_date_movement;
@@ -77,37 +76,22 @@ class MovementsTable extends React.Component {
     };
 
     handleWindowResize = () => {
-        let wsize = window.innerWidth - (87+120+120+120+85+90+80+130);
-        if(wsize < 100)
-            wsize = 100;
-        
+        let wsize = window.innerWidth - (87 + 120 + 120 + 120 + 85 + 90 + 80 + 130);
+        if (wsize < 100) wsize = 100;
+
         this.setState({
-            window_size: wsize
-        })
-    }
+            window_size: wsize,
+        });
+    };
 
     componentDidMount() {
         document.addEventListener('keydown', this.handleEscKeyPressed, false);
-        window.addEventListener("resize", this.handleWindowResize, false);
+        window.addEventListener('resize', this.handleWindowResize, false);
         this.handleWindowResize();
     }
 
     componentWillUnmount() {
         document.removeEventListener('keydown', this.handleEscKeyPressed, false);
-    }
-
-    componentWillReceiveProps(nextProps) {
-        // Get a unique list of operators
-        let operators = [...new Set(nextProps.data.map(value => value.operator))];
-        // Format this list as an array of label-value
-        let op_list = operators.map(function(op) {
-            return {
-                value: op, 
-                label: op
-            }
-        });
-
-        this.setState({ operators_list: op_list });
     }
 
     handleDataChange = ({ dataSize }) => {
@@ -153,9 +137,7 @@ class MovementsTable extends React.Component {
             dateObj = new Date(cell);
         }
 
-        return `${('0' + dateObj.getUTCDate()).slice(-2)}/${('0' + (dateObj.getUTCMonth() + 1)).slice(
-            -2,
-        )}/${dateObj.getUTCFullYear()}`;
+        return `${('0' + dateObj.getUTCDate()).slice(-2)}/${('0' + (dateObj.getUTCMonth() + 1)).slice(-2)}/${dateObj.getUTCFullYear()}`;
     }
 
     handleMovementDelete = (movement_id, rowIndex) => {
@@ -163,15 +145,14 @@ class MovementsTable extends React.Component {
             const movement_id_obj = {
                 id: movement_id,
             };
-
             axios
                 .post('http://127.0.0.1:5000/delete_movement', {
                     movement_id_obj,
                 })
-                .then(response => {
-                    alert('Removed movement with ID: ' + response.data['ID']);
+                .then((response) => {
+                    alert('The item with ID: ' + response.data['ID'] + ' was removed');
                 })
-                .catch(err => {
+                .catch((err) => {
                     console.log(err);
                 });
 
@@ -192,6 +173,24 @@ class MovementsTable extends React.Component {
             cancel_color: 'disabled',
             done_color: green[500],
         });
+
+        let mov_id = row.id;
+        axios
+            .get('http://127.0.0.1:5000/batches/movement/' + mov_id, {})
+            .then((response) => {
+                let temp_batches = response.data.map((r) => {
+                    return {
+                        value: r.code,
+                        label: r.code,
+                    };
+                });
+                this.setState({
+                    batches_select: temp_batches,
+                });
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     };
 
     setRowStyle = (row, rowIndex) => {
@@ -201,9 +200,9 @@ class MovementsTable extends React.Component {
             style.border = '3px solid red';
         }
 
-        style.height = '0px'
+        style.height = '0px';
         style.fontSize = 13;
-        style.padding = '0px 0'
+        style.padding = '0px 0';
 
         return style;
     };
@@ -219,28 +218,28 @@ class MovementsTable extends React.Component {
         // };
     };
 
-    handleCommitAllEditsForMovement = (movement_id, date_movement, operator, quantity, rowIndex) => {
+    handleCommitAllEditsForMovement = (movement_id, date_movement, batch, quantity, rowIndex) => {
         if (rowIndex === this.state.bordered_row_id) {
             // Handle here the commit of changes to database
 
             const movement_info = {
                 id: movement_id,
                 date_movement: date_movement,
-                operator: operator,
+                batch: batch,
                 quantity: quantity,
             };
 
             axios
                 .post('http://127.0.0.1:5000/edit_movement', { movement_info })
-                .then(response => {
-                    alert('Altered movement with ID: ' + response.data['ID']);
+                .then((response) => {
+                    alert('Item with ID: ' + response.data['ID'] + ' was altered');
                 })
-                .catch(err => {
+                .catch((err) => {
                     console.log(err);
                 });
 
-            // remove event_id from the table
-            this.props.onTableEdit(movement_id);
+            // alter movement from the original table
+            this.props.onTableEdit(movement_info);
 
             // buttons reset
             this.setState({
@@ -259,14 +258,14 @@ class MovementsTable extends React.Component {
     handleEditCell = (oldValue, newValue, row, column) => {
         if (column.dataField === 'date_movement') {
             this.old_date_movement = oldValue;
-        } else if (column.dataField === 'operator') {
-            this.old_operator = oldValue;
+        } else if (column.dataField === 'batches') {
+            this.old_batch = oldValue;
         } else if (column.dataField === 'quantity') {
             this.old_quantity = oldValue;
         }
     };
 
-    formatHeader = data => {
+    formatHeader = () => {
         const sorted_header = [
             {
                 dataField: 'id',
@@ -284,14 +283,19 @@ class MovementsTable extends React.Component {
                 //     }
                 // ),
                 filter: textFilter({
-                    style: {fontSize: 9, width: '77px'},  //     fontStyle: 'italic',
-                    placeholder: 'yyyy-mm-dd'
+                    style: { fontSize: 9, width: '77px' }, //     fontStyle: 'italic',
+                    placeholder: 'dd-mm-yyyy',
                 }),
                 formatter: this.dateFormatter,
+                editor: {
+                    // type: Type.DATE,
+                    type: Type.TEXT,
+                    style: { fontSize: 10 },
+                },
                 editable: this.setEditableCell,
                 sort: true,
                 headerStyle: (column, colIndex) => {
-                    return { width: '87px', height: '0px' , fontSize: 12};
+                    return { width: '88px', height: '0px', fontSize: 12 };
                 },
                 style: this.setEditCellStyle,
             },
@@ -299,29 +303,24 @@ class MovementsTable extends React.Component {
                 dataField: 'operator',
                 text: 'User',
                 filter: textFilter({
-                    style: {fontSize: 9, width: '110px'},
-                    placeholder: 'Name Surname'
+                    style: { fontSize: 9, width: '110px' },
+                    placeholder: 'Name Surname',
                 }),
-                style: this.setEditCellStyle,
                 headerStyle: (column, colIndex) => {
-                    return { width: '120px', height: '0px' , fontSize: 12};
+                    return { width: '120px', height: '0px', fontSize: 12 };
                 },
-                editor: {
-                    type: Type.SELECT,
-                    options: this.state.operators_list,
-                },
-                editable: this.setEditableCell,
+                editable: false,
                 sort: true,
             },
             {
                 dataField: 'category',
                 text: 'Category',
                 filter: textFilter({
-                    style: {fontSize: 9, width: '110px'},
-                    placeholder: 'category name'
+                    style: { fontSize: 9, width: '110px' },
+                    placeholder: 'category name',
                 }),
                 headerStyle: (column, colIndex) => {
-                    return { width: '120px', height: '0px' , fontSize: 12};
+                    return { width: '120px', height: '0px', fontSize: 12 };
                 },
                 editable: false,
                 sort: true,
@@ -330,55 +329,61 @@ class MovementsTable extends React.Component {
                 dataField: 'company',
                 text: 'Company',
                 filter: textFilter({
-                    style: {fontSize: 9, width: '110px'},
-                    placeholder: 'company name'
+                    style: { fontSize: 9, width: '110px' },
+                    placeholder: 'company name',
                 }),
                 headerStyle: (column, colIndex) => {
-                    return { width: '120px', height: '0px' , fontSize: 12};
+                    return { width: '120px', height: '0px', fontSize: 12 };
                 },
                 editable: false,
-                sort: true
+                sort: true,
             },
             {
                 dataField: 'code_item',
-                text: 'Item code',
+                text: 'Code',
                 sort: true,
                 filter: textFilter({
-                    style: {fontSize: 9, width: '70px'},
-                    placeholder: 'code'
+                    style: { fontSize: 9, width: '55px' },
+                    placeholder: 'code',
                 }),
                 editable: false,
                 headerStyle: (column, colIndex) => {
-                    return { width: '85px', height: '0px' , fontSize: 12};
-                }
+                    return { width: '70px', height: '0px', fontSize: 12 };
+                },
             },
             {
                 dataField: 'item',
                 text: 'Item',
                 filter: textFilter({
-                    style: {fontSize: 9, width: this.state.window_size},
-                    placeholder: 'item name'
+                    style: { fontSize: 9, width: this.state.window_size },
+                    placeholder: 'item description',
                 }),
                 formatter: this.itemFormatter,
                 headerFormatter: this.itemHeaderFormatter,
                 headerStyle: (column, colIndex) => {
-                    return { height: '0px', fontSize: 12, width: (this.state.window_size+10)};  
+                    return { height: '0px', fontSize: 12, width: this.state.window_size + 10 };
                 },
-                style: {'whiteSpace': 'wrap', overflowX: 'auto'},
+                style: { whiteSpace: 'wrap', overflowX: 'auto' },
                 editable: false,
-                sort: true
+                sort: true,
             },
             {
                 dataField: 'batches',
                 text: 'Batch',
                 filter: textFilter({
-                    style: {fontSize: 9, width: '77px'},
-                    placeholder: 'batch code'
+                    style: { fontSize: 9, width: '77px' },
+                    placeholder: 'batch code',
                 }),
+                style: this.setEditCellStyle,
                 headerStyle: (column, colIndex) => {
-                    return { height: '0px' , fontSize: 12, display:'table-cell', width:'90px'};
+                    return { height: '0px', fontSize: 12, display: 'table-cell', width: '90px' };
                 },
-                editable: false,
+                editor: {
+                    type: Type.SELECT,
+                    options: this.state.batches_select,
+                    style: { fontSize: 10 },
+                },
+                editable: this.setEditableCell,
                 sort: true,
             },
             {
@@ -392,7 +397,7 @@ class MovementsTable extends React.Component {
                 sort: true,
                 style: this.setEditCellStyle,
                 headerStyle: (column, colIndex) => {
-                    return { height: '0px', fontSize: 12, display:'table-cell', width: '80px'};
+                    return { height: '0px', fontSize: 12, display: 'table-cell', width: '80px' };
                 },
             },
             {
@@ -401,7 +406,7 @@ class MovementsTable extends React.Component {
                 text: 'Actions',
                 editable: false,
                 headerStyle: (column, colIndex) => {
-                    return { width: '130px', height: '0px' , fontSize: 12};
+                    return { width: '130px', height: '0px', fontSize: 12 };
                 },
                 formatter: (cell, row, rowIndex, extraData) => {
                     if (row.operator !== 'Tom' && this.state.bordered_row_id === -1) {
@@ -409,62 +414,44 @@ class MovementsTable extends React.Component {
                             <div>
                                 <CancelIcon
                                     color={extraData[0]}
-                                    onClick={e => {
+                                    onClick={(e) => {
                                         extraData[0] === 'disabled' ? '' : this.handleMovementDelete(row.id, rowIndex);
                                     }}
                                 />
                                 &nbsp;&nbsp;
                                 <EditIcon
                                     color={extraData[1]}
-                                    onClick={e => {
+                                    onClick={(e) => {
                                         extraData[0] === 'disabled' ? '' : this.handleMovementEdit(row, rowIndex);
                                     }}
                                 />
                             </div>
                         );
-                    } else if (
-                        row.operator !== 'Tom' &&
-                        this.state.bordered_row_id !== -1 &&
-                        rowIndex !== -1 &&
-                        rowIndex === this.state.bordered_row_id
-                    ) {
+                    } else if (row.operator !== 'Tom' && this.state.bordered_row_id !== -1 && rowIndex !== -1 && rowIndex === this.state.bordered_row_id) {
                         return (
                             <div>
                                 <CancelIcon
                                     color={extraData[0]}
-                                    onClick={e => {
+                                    onClick={(e) => {
                                         extraData[0] === 'disabled' ? '' : this.handleMovementDelete(row.id, rowIndex);
                                     }}
                                 />
                                 &nbsp;&nbsp;
                                 <EditIcon
                                     color={extraData[1]}
-                                    onClick={e => {
+                                    onClick={(e) => {
                                         extraData[0] === 'disabled' ? '' : this.handleMovementEdit(row, rowIndex);
                                     }}
                                 />
                                 &nbsp;&nbsp;
                                 <DoneAllIcon
                                     style={{ color: extraData[2] }}
-                                    onClick={e =>
-                                        extraData[0] === 'gray'
-                                            ? ''
-                                            : this.handleCommitAllEditsForMovement(
-                                                  row.id,
-                                                  row.date_movement,
-                                                  row.operator,
-                                                  row.quantity,
-                                                  rowIndex,
-                                              )
+                                    onClick={(e) =>
+                                        extraData[0] === 'gray' ? '' : this.handleCommitAllEditsForMovement(row.id, row.date_movement, row.batches, row.quantity, rowIndex)
                                     }
                                 />
                                 &nbsp;&nbsp;
-                                <ReplayIcon
-                                    style={{ color: extraData[2] }}
-                                    onClick={e =>
-                                        extraData[0] === 'gray' ? '' : this.handleAbortMovementEdit(rowIndex)
-                                    }
-                                />
+                                <ReplayIcon style={{ color: extraData[2] }} onClick={(e) => (extraData[0] === 'gray' ? '' : this.handleAbortMovementEdit(rowIndex))} />
                             </div>
                         );
                     } else {
@@ -482,16 +469,6 @@ class MovementsTable extends React.Component {
         ];
 
         return sorted_header;
-
-        // const keys = (data[0] && Object.keys(data[0])) || [];
-        // if (sorted_header.every(sh => keys.indexOf(sh.dataField) > -1)) {
-        //     return sorted_header;
-        // } else {
-        //     return [{
-        //         dataField: 'error',
-        //         text: 'Database and Schema do not match'
-        //     }]
-        // }
     };
 
     render() {
@@ -500,14 +477,14 @@ class MovementsTable extends React.Component {
         return (
             <div>
                 <BootstrapTable
-                    ref={n => (this.table = n)}
+                    ref={(n) => (this.table = n)}
                     onDataSizeChange={this.handleDataChange}
                     keyField="id"
                     data={this.props.data}
                     columns={this.formatHeader()}
                     rowStyle={this.setRowStyle}
                     cellEdit={cellEditFactory({
-                        mode: 'dbclick',
+                        mode: 'click',
                         blurToSave: true,
                         afterSaveCell: this.handleEditCell,
                     })}

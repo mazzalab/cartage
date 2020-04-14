@@ -115,7 +115,13 @@ def retrieveBatchesPerItem(itemid:id, storeid:int):
     result = db_manager.load_batches_per_item(itemid, storeid)
     return jsonify(result)
 
-## Add % Delete movements
+@app.route('/batches/movement/<movementid>', methods=['GET'])
+# @login_required
+def retrieveBatchesPerMovement(movementid:int):
+    result = db_manager.load_batches_per_movement(movementid)
+    return jsonify(result)
+
+## Add, Edit and Delete movements
 @app.route('/add_movement', methods=['POST'])
 # @login_required
 def addMovement():
@@ -142,6 +148,31 @@ def addMovement():
     newmov_dict['operator_surname'] = addedMovement.operator.surname
 
     return jsonify(newmov_dict)
+
+@app.route('/edit_movement', methods=['POST'])
+# @login_required
+def editMovement():
+    json_data = request.get_json()
+    movement_id = json_data.get('movement_info')['id']
+    date = datetime.datetime.strptime(json_data.get('movement_info')[
+                                      'date_movement'], "%Y-%m-%d").date()
+    batch = json_data.get('movement_info')['batch']
+    quantity = json_data.get('movement_info')['quantity']
+
+    edited_move = db_manager.edit_movement(
+        movement_id, date, batch, quantity)
+    db.session.commit()
+    return {'ID': movement_id}
+
+@app.route('/delete_movement', methods=['POST'])
+# @login_required
+def deleteMovement():
+    json_data = request.get_json()
+    delete_id = json_data.get('movement_id_obj')['id']
+    db_manager.delete_movement(delete_id)
+    db.session.commit()
+    return {'ID': delete_id}
+
 
 
 
@@ -191,28 +222,8 @@ def retrieveCompaniesPerCategory():
 
 
 
-@app.route('/delete_movement', methods=['POST'])
-def deleteMovement():
-    json_data = request.get_json()
-    delete_id = json_data.get('movement_id_obj')['id']
-    db_manager.delete_movement(delete_id)
-    db.session.commit()
-    return {'ID': delete_id}
 
 
-@app.route('/edit_movement', methods=['POST'])
-def editMovement():
-    json_data = request.get_json()
-    movement_id = json_data.get('movement_info')['id']
-    date = datetime.datetime.strptime(json_data.get('movement_info')[
-                                      'date_movement'], "%Y-%m-%d").date()
-    operator = json_data.get('movement_info')['operator']
-    quantity = json_data.get('movement_info')['quantity']
-
-    edited_move = db_manager.edit_movement(
-        movement_id, date, operator, quantity)
-    db.session.commit()
-    return {'ID': movement_id}
 
 
 if __name__ == "__main__":

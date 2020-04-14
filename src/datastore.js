@@ -131,13 +131,24 @@ class MainLayout extends React.Component {
     };
 
     handleTableDelete = movement_id => {
-        var filteredData = this.state.data.filter(el => el.id !== movement_id);
-        this.setState({ data: filteredData });
+        var filteredData = this.state.movements.filter(el => el.id !== movement_id);
+        this.setState({ movements: filteredData });
     };
 
-    handleTableEdit = movement_id => {
-        // var filteredData = this.state.data.filter(el => el.id !== movement_id);
-        // this.setState({ data: filteredData });
+    handleTableEdit = movement_info => {
+        let new_mov_table = JSON.parse(JSON.stringify(this.state.movements));
+        for (let mov in new_mov_table){
+            if(mov.id === movement_info.id){
+                new_mov_table.date_movement = movement_info.date_movement;
+                new_mov_table.batches = movement_info.batch;
+                new_mov_table.quantity = movement_info.quantity;
+                break;
+            }
+        }
+
+        this.setState({
+            movements: new_mov_table
+        })
     };
 
     handleStoreSelect = (storeid) => {
@@ -184,8 +195,7 @@ class MainLayout extends React.Component {
                     </Grid>
                     <Grid container item xs={12} md={12} padding={10}>
                         <Paper className={classes.root} elevation={5} style={{ padding: 10, backgroundColor: '#fafafa' }}>
-                            {/*TODO: maybe sid is not useful here */}
-                            <MovementsTable sid={this.state.current_storeid} data={this.state.movements} onTableDelete={this.handleTableDelete} onTableEdit={this.handleTableEdit} />
+                            <MovementsTable data={this.state.movements} onTableDelete={this.handleTableDelete} onTableEdit={this.handleTableEdit} /> {/* sid={this.state.current_storeid} */}
                         </Paper>
                     </Grid>
                 </Grid>
