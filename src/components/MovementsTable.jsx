@@ -60,7 +60,7 @@ class MovementsTable extends React.Component {
         let cellContext = this.table.cellEditContext;
         let record_number = cellContext.props.data.length;
         cellContext.props.data[record_number - rowIndex - 1]['date_movement'] = this.old_date_movement;
-        cellContext.props.data[record_number - rowIndex - 1]['operator'] = this.old_operator;
+        cellContext.props.data[record_number - rowIndex - 1]['batches'] = this.old_batch;
         cellContext.props.data[record_number - rowIndex - 1]['quantity'] = this.old_quantity;
 
         // Reset graphics
@@ -71,8 +71,8 @@ class MovementsTable extends React.Component {
             done_color: 'gray',
         });
 
-        // console.log(rowIndex)
-        // console.log(this.table.cellEditContext)
+        console.log(rowIndex)
+        console.log(cellContext.props.data[record_number - rowIndex - 1])
     };
 
     handleWindowResize = () => {
@@ -164,7 +164,7 @@ class MovementsTable extends React.Component {
     handleMovementEdit = (row, rowIndex) => {
         // Saving present values
         this.old_date_movement = row.date_movement;
-        this.old_operator = row.operator;
+        this.old_batch = row.batches;
         this.old_quantity = row.quantity;
 
         this.setState({

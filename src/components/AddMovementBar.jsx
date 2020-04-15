@@ -9,6 +9,12 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Input from '@material-ui/core/Input';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import WarningIcon from '@material-ui/icons/Warning';
+import HighlightOffIcon from '@material-ui/icons/HighlightOff';
+import CheckIcon from '@material-ui/icons/Check';
+import TextField from '@material-ui/core/TextField';
 
 const styles = {
     menuitem: {
@@ -48,6 +54,7 @@ class AddMovementBar extends React.Component {
             companyName: 'select',
             itemId: 'select',
             batchId: 'select',
+            batchCode: 'select',
             quantity: 0,
         },
 
@@ -92,6 +99,7 @@ class AddMovementBar extends React.Component {
             newState.items = [];
             newState.current_selection.itemId = 'select';
             newState.batches = [];
+            newState.current_selection.batchCode = 'select';
             newState.current_selection.batchId = 'select';
 
             newState.disabled_company = true;
@@ -115,7 +123,7 @@ class AddMovementBar extends React.Component {
         let categoryId = event.target.value;
         let { categoryName } = event.currentTarget.dataset;
 
-        if (categoryId === this.state.current_selection.itemId) {
+        if (categoryId === this.state.current_selection.categoryId) {
             return;
         } else {
             let new_current_selection = Object.assign({}, this.state.current_selection);
@@ -123,9 +131,10 @@ class AddMovementBar extends React.Component {
             new_current_selection.categoryName = categoryName;
 
             new_current_selection.companyId = 'select';
-            new_current_selection.companyName = 'select'
+            new_current_selection.companyName = 'select';
             new_current_selection.itemId = 'select';
             new_current_selection.batchId = 'select';
+            new_current_selection.batchCode = 'select';
             new_current_selection.quantity = 0;
             this.input_name.value = 0;
 
@@ -139,7 +148,7 @@ class AddMovementBar extends React.Component {
                     current_selection: new_current_selection,
                     items: [],
                     batches: [],
-                    companies: []
+                    companies: [],
                 });
             } else {
                 axios
@@ -183,7 +192,7 @@ class AddMovementBar extends React.Component {
     handleCompanyChange = (event) => {
         let companyId = event.target.value;
         let { companyName } = event.currentTarget.dataset;
-        if (companyId === this.state.current_selection.itemId) {
+        if (companyId === this.state.current_selection.companyId) {
             return;
         } else {
             let new_current_selection = Object.assign({}, this.state.current_selection);
@@ -192,6 +201,7 @@ class AddMovementBar extends React.Component {
 
             new_current_selection.itemId = 'select';
             new_current_selection.batchId = 'select';
+            new_current_selection.batchCode = 'select';
             new_current_selection.quantity = 0;
             this.input_name.value = 0;
 
@@ -252,6 +262,7 @@ class AddMovementBar extends React.Component {
             let new_current_selection = Object.assign({}, this.state.current_selection);
             new_current_selection.itemId = itemId;
             new_current_selection.batchId = 'select';
+            new_current_selection.batchCode = 'select';
             new_current_selection.quantity = 0;
             this.input_name.value = 0;
 
@@ -269,12 +280,52 @@ class AddMovementBar extends React.Component {
                     .then((response) => {
                         let batch_list = response.data;
                         const { classes } = this.props;
+
                         batch_list = batch_list.map((r) => {
-                            return (
-                                <MenuItem className={classes.menuitem} value={r.id} key={r.id}>
-                                    {r.code}
-                                </MenuItem>
-                            );
+                            let notification = r.notification;
+                            let date_expiry = new Date(r.date_expiry);
+                            var today = new Date();
+                            let threshold_date = new Date(r.date_expiry);
+                            threshold_date.setDate(threshold_date + notification);
+
+                            let batch_color = 'black';
+                            // let batch_backg = "white";
+                            let batch_fontW = 'plain';
+                            let bacth_strike = 'none';
+                            let batch_icon = <CheckIcon />;
+                            if (date_expiry < today <= threshold_date) {
+                                batch_color = 'c46210'; // orange
+                                batch_icon = <WarningIcon />;
+                            } else if (date_expiry < today) {
+                                batch_color = '#8b0000'; // dark red
+                                // batch_backg = "black";
+                                batch_fontW = 'bold';
+                                bacth_strike = 'line-through';
+                                batch_icon = <HighlightOffIcon style={{ color: '#8b0000' }} />;
+                            }
+
+                            var mm = date_expiry.getMonth() + 1; // getMonth() is zero-based
+                            var dd = date_expiry.getDate();
+                            let date2string = [(dd > 9 ? '' : '0') + dd, (mm > 9 ? '' : '0') + mm, date_expiry.getFullYear()].join('/');
+
+                            return {
+                                id: r.id,
+                                code: r.code,
+                                date_expiry: date2string,
+                                icon: batch_icon,
+                                color: batch_color,
+                                decoration: bacth_strike,
+                                fontWeight: batch_fontW,
+                            };
+                        });
+                        batch_list.unshift({
+                            id: -1, // reserved id number for 'select' option
+                            code: <em>select</em>,
+                            date_expiry: false,
+                            icon: false,
+                            color: false,
+                            decoration: false,
+                            fontWeight: false,
                         });
 
                         this.setState(
@@ -303,16 +354,17 @@ class AddMovementBar extends React.Component {
     };
 
     handleBatchChange = (event) => {
-        let batchId = event.target.value;
-        if (batchId === this.state.current_selection.itemId) {
+        let batch = event.target.value;
+        if (batch.code === this.state.current_selection.batchCode) {
             return;
         } else {
             let new_current_selection = Object.assign({}, this.state.current_selection);
-            new_current_selection.batchId = batchId;
+            new_current_selection.batchId = batch.id;
+            new_current_selection.batchCode = batch.code;
             new_current_selection.quantity = 0;
             this.input_name.value = 0;
 
-            if (batchId === 'select') {
+            if (batch.id === 0) {
                 this.setState({
                     disabled_quantity: true,
                     disabled_button: true,
@@ -320,9 +372,9 @@ class AddMovementBar extends React.Component {
                 });
             } else {
                 this.setState({
-                    current_selection: new_current_selection,
                     disabled_quantity: false,
                     disabled_button: false,
+                    current_selection: new_current_selection,
                 });
             }
         }
@@ -390,13 +442,32 @@ class AddMovementBar extends React.Component {
                     </Select>
                 </FormControl>
                 <FormControl className={classes.formControl}>
-                    <InputLabel className={classes.userInfo}>Batch</InputLabel>
-                    <Select value={this.state.current_selection.batchId} className={classes.selectEmpty} disabled={this.state.disabled_batch} onChange={this.handleBatchChange}>
-                        <MenuItem className={classes.menuitem} value="select">
-                            <em>select</em>
-                        </MenuItem>
-                        {this.state.batches}
-                    </Select>
+                    <TextField
+                        id="standard-select-batch"
+                        select
+                        label="Batch"
+                        // className={classes.selectEmpty2}
+                        value={this.state.current_selection.batchCode}
+                        disabled={this.state.disabled_batch}
+                        onChange={this.handleBatchChange}
+                        SelectProps={{
+                            style: { fontSize: 11 },
+                            renderValue: (selected) => selected,
+                        }}
+                    >
+                        {this.state.batches.map((b) =>
+                            b.id === -1 ? (
+                                <MenuItem className={classes.menuitem} value={b} key={b.id}>
+                                    <ListItemText classes={{ primary: classes.menuitem }} primary={b.code} />
+                                </MenuItem>
+                            ) : (
+                                <MenuItem className={classes.menuitem} value={b} key={b.id} style={{ color: b.color, textDecoration: b.decoration, fontWeight: b.fontWeight }}>
+                                    <ListItemIcon>{b.icon}</ListItemIcon>
+                                    <ListItemText classes={{ primary: classes.menuitem }} primary={b.code} secondary={b.date_expiry} />
+                                </MenuItem>
+                            ),
+                        )}
+                    </TextField>
                 </FormControl>
                 <FormControl>
                     <InputLabel className={classes.userInfo} htmlFor="standard-error">

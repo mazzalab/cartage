@@ -69,7 +69,8 @@ def load_user_info(userid: int):
 
 
 def load_categories(storeid: int):
-    rs = Store.query.filter_by(id=storeid).join(Item, Store.item_stores).join(Category, Category.id==Item.category_id).with_entities(Category.id, Category.name).distinct()
+    rs = Store.query.filter_by(id=storeid).join(Item, Store.item_stores).join(
+        Category, Category.id == Item.category_id).with_entities(Category.id, Category.name).distinct()
     output = categories_schema.dump(rs)
     return output
 
@@ -88,13 +89,24 @@ def load_items(categoryid: int, companyid: int, storeid: int):
     return output
 
 
-def load_batches_per_item(itemid:int, storeid:int):
-    rs = Item.query.filter_by(id=itemid).join(Store, Item.stored_in).filter(Store.id==storeid).join(Batch, Item.batches).with_entities(Batch.id, Batch.code)
-    output = batches_schema.dump(rs)
+def load_batches_per_item(itemid: int, storeid: int):
+    rs = Item.query.filter_by(id=itemid).join(Store, Item.stored_in).filter(
+        Store.id == storeid).join(Batch, Item.batches).first()
+
+    output = []
+    for b in rs.batches:
+        output.append(
+            {
+                'id': b.id,
+                'code': b.code,
+                'date_expiry': b.date_expiry,
+                'notification': rs.notification
+            }
+        )
     return output
 
 
-def load_batches_per_movement(movementid:int):
+def load_batches_per_movement(movementid: int):
     mov = Movement.query.filter_by(id=movementid).first()
     rs = Item.query.filter_by(id=mov.item_id).first().batches
     output = batches_schema.dump(rs)
@@ -106,7 +118,7 @@ def add_movement(date_movement, quantity, operator, item_id, batch_id):
     oper = User.query.filter_by(id=operator).first()
     item = Item.query.filter_by(id=item_id).first()
     batch = Batch.query.filter_by(id=batch_id).first()
-    
+
     addedMovement = Movement(
         date_movement=date_movement,
         quantity=quantity,
@@ -117,9 +129,10 @@ def add_movement(date_movement, quantity, operator, item_id, batch_id):
 
     return addedMovement
 
+
 def edit_movement(movement_id, date, batch, quantity):
     b = Batch.query.filter_by(code=batch).first()
-    
+
     move = Movement.query.filter_by(id=movement_id).first()
     move.date_movement = date
     move.quantity = quantity
@@ -127,15 +140,9 @@ def edit_movement(movement_id, date, batch, quantity):
 
     return move
 
+
 def delete_movement(delete_id):
     Movement.query.filter_by(id=delete_id).delete()
-
-
-
-
-
-
-
 
 
 def load_movements(storeid: int):
@@ -160,7 +167,6 @@ def load_movements(storeid: int):
     return list(formatted_output)
 
 
-
 def load_all_operators():
     # rs = Movement.query.with_entities(Movement.operator).distinct()
     rs = User.query.with_entities(User.id, User.name, User.surname)
@@ -177,14 +183,6 @@ def load_companies_per_category(category):
             company_names.append(item.company.name)
 
     return {'companies': list(set(company_names))}
-
-
-
-
-
-
-
-
 
 
 def do_login(email, password):

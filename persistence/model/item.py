@@ -39,8 +39,9 @@ class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     code_item = db.Column(db.String(50), nullable=False)
     name = db.Column(db.String(50), nullable=False)
-    batches = db.relationship("Batch", backref=db.backref("item"))
+    notification = db.Column(db.Integer, nullable=False)
 
+    batches = db.relationship("Batch", backref=db.backref("item"))
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
     company = db.relationship("Company", backref=db.backref("item"))
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))

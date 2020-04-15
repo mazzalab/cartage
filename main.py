@@ -131,8 +131,8 @@ def addMovement():
                                    'date_movement'], "%d/%m/%Y"),
         int(json_data.get('quantity')['quantity']),
         json_data.get('operator')['operator'],
-        json_data.get('item')['item'],
-        json_data.get('batch')['batch'],
+        json_data.get('item')['itemId'],
+        json_data.get('batch')['batchId'],
     )
 
     db.session.add(addedMovement)

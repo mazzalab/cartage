@@ -76,7 +76,7 @@ class MainLayout extends React.Component {
         //TODO: Get here user information for which loading related information to be rendered into the table
         // const uid = this.props.uid
         const uid = 1;
-        
+
         var today = new Date();
         var today_temp = `${('0' + today.getUTCDate()).slice(-2)}/${('0' + (today.getUTCMonth() + 1)).slice(-2)}/${today.getUTCFullYear()}`;
         const date_movement = {
@@ -87,10 +87,10 @@ class MainLayout extends React.Component {
         };
 
         const item = {
-            item: current_selection.itemId
+            itemId: current_selection.itemId
         };
         const batch = {
-            batch: current_selection.batchId,
+            batchId: current_selection.batchId,
         };
         const operator = {
             operator: uid,
@@ -115,14 +115,13 @@ class MainLayout extends React.Component {
                 date_movement: today_temp,
                 item: res['item_name'],
                 category: current_selection.categoryName,
-                batches: res['batch_code'],
+                batches: current_selection.batchCode, //res['batch_code'],
                 company: current_selection.companyName,
                 quantity: current_selection.quantity,
             });
             
             this.setState({ movements: newMovements }, ()=>{
                 alert('Inserted item');
-                // return 'Inserted item with ID: ' + res['ID'];
             });
         })
         .catch(err => {
