@@ -76,8 +76,8 @@ class MovementsTable extends React.Component {
     };
 
     handleWindowResize = () => {
-        let wsize = window.innerWidth - (87 + 120 + 120 + 120 + 85 + 90 + 80 + 130);
-        if (wsize < 100) wsize = 100;
+        let wsize = window.innerWidth - (88 + 120 + 120 + 120 + 55 + 70 + 70 + 115);
+        if (wsize < 150) wsize = 150;
 
         this.setState({
             window_size: wsize,
@@ -343,25 +343,25 @@ class MovementsTable extends React.Component {
                 text: 'Code',
                 sort: true,
                 filter: textFilter({
-                    style: { fontSize: 9, width: '55px' },
+                    style: { fontSize: 9, width: '45px' },
                     placeholder: 'code',
                 }),
                 editable: false,
                 headerStyle: (column, colIndex) => {
-                    return { width: '70px', height: '0px', fontSize: 12 };
+                    return { width: '55px', height: '0px', fontSize: 12 };
                 },
             },
             {
                 dataField: 'item',
                 text: 'Item',
                 filter: textFilter({
-                    style: { fontSize: 9, width: this.state.window_size },
+                    style: { fontSize: 9, width: this.state.window_size -70},
                     placeholder: 'item description',
                 }),
                 formatter: this.itemFormatter,
                 headerFormatter: this.itemHeaderFormatter,
                 headerStyle: (column, colIndex) => {
-                    return { height: '0px', fontSize: 12, width: this.state.window_size + 10 };
+                    return { height: '0px', fontSize: 12, width: this.state.window_size + 10 -70};
                 },
                 style: { whiteSpace: 'wrap', overflowX: 'auto' },
                 editable: false,
@@ -371,12 +371,12 @@ class MovementsTable extends React.Component {
                 dataField: 'batches',
                 text: 'Batch',
                 filter: textFilter({
-                    style: { fontSize: 9, width: '77px' },
-                    placeholder: 'batch code',
+                    style: { fontSize: 9, width: '60px' },
+                    placeholder: 'code',
                 }),
                 style: this.setEditCellStyle,
                 headerStyle: (column, colIndex) => {
-                    return { height: '0px', fontSize: 12, display: 'table-cell', width: '90px' };
+                    return { height: '0px', fontSize: 12, display: 'table-cell', width: '70px' };
                 },
                 editor: {
                     type: Type.SELECT,
@@ -397,7 +397,7 @@ class MovementsTable extends React.Component {
                 sort: true,
                 style: this.setEditCellStyle,
                 headerStyle: (column, colIndex) => {
-                    return { height: '0px', fontSize: 12, display: 'table-cell', width: '80px' };
+                    return { height: '0px', fontSize: 12, display: 'table-cell', width: '70px' };
                 },
             },
             {
@@ -406,13 +406,15 @@ class MovementsTable extends React.Component {
                 text: 'Actions',
                 editable: false,
                 headerStyle: (column, colIndex) => {
-                    return { width: '130px', height: '0px', fontSize: 12 };
+                    return { width: '115px', height: '0px', fontSize: 12 };
                 },
                 formatter: (cell, row, rowIndex, extraData) => {
+                    // TODO: change the user name here
                     if (row.operator !== 'Tom' && this.state.bordered_row_id === -1) {
                         return (
                             <div>
                                 <CancelIcon
+                                    fontSize={'small'}
                                     color={extraData[0]}
                                     onClick={(e) => {
                                         extraData[0] === 'disabled' ? '' : this.handleMovementDelete(row.id, rowIndex);
@@ -420,6 +422,7 @@ class MovementsTable extends React.Component {
                                 />
                                 &nbsp;&nbsp;
                                 <EditIcon
+                                    fontSize={'small'}
                                     color={extraData[1]}
                                     onClick={(e) => {
                                         extraData[0] === 'disabled' ? '' : this.handleMovementEdit(row, rowIndex);
@@ -431,6 +434,7 @@ class MovementsTable extends React.Component {
                         return (
                             <div>
                                 <CancelIcon
+                                    fontSize={'small'}
                                     color={extraData[0]}
                                     onClick={(e) => {
                                         extraData[0] === 'disabled' ? '' : this.handleMovementDelete(row.id, rowIndex);
@@ -438,6 +442,7 @@ class MovementsTable extends React.Component {
                                 />
                                 &nbsp;&nbsp;
                                 <EditIcon
+                                    fontSize={'small'}
                                     color={extraData[1]}
                                     onClick={(e) => {
                                         extraData[0] === 'disabled' ? '' : this.handleMovementEdit(row, rowIndex);
@@ -445,21 +450,25 @@ class MovementsTable extends React.Component {
                                 />
                                 &nbsp;&nbsp;
                                 <DoneAllIcon
+                                    fontSize={'small'}
                                     style={{ color: extraData[2] }}
                                     onClick={(e) =>
                                         extraData[0] === 'gray' ? '' : this.handleCommitAllEditsForMovement(row.id, row.date_movement, row.batches, row.quantity, rowIndex)
                                     }
                                 />
                                 &nbsp;&nbsp;
-                                <ReplayIcon style={{ color: extraData[2] }} onClick={(e) => (extraData[0] === 'gray' ? '' : this.handleAbortMovementEdit(rowIndex))} />
+                                <ReplayIcon 
+                                    fontSize={'small'}
+                                    style={{ color: extraData[2] }} 
+                                    onClick={(e) => (extraData[0] === 'gray' ? '' : this.handleAbortMovementEdit(rowIndex))} />
                             </div>
                         );
                     } else {
                         return (
                             <h5>
-                                <CancelIcon color="disabled" />
+                                <CancelIcon fontSize={'small'} color="disabled" />
                                 &nbsp;&nbsp;
-                                <EditIcon color="disabled" />
+                                <EditIcon fontSize={'small'} color="disabled" />
                             </h5>
                         );
                     }
@@ -506,6 +515,7 @@ class MovementsTable extends React.Component {
                             order: 'desc',
                         },
                     ]}
+                    // style={{overflowX: 'auto !important'}}
                     table-responsive
                     bootstrap4
                 />

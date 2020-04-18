@@ -23,8 +23,19 @@ const styles = {
     userInfo: {
         fontWeight: 'bold',
     },
+    formParentControl:{
+        display: 'flex',
+        flexWrap: 'wrap'
+    },
     formControl: {
-        minWidth: 140,
+        flexGrow: 1,
+        paddingRight: '5px',
+        minWidth: 110,
+        
+    },
+    formItemControl:{
+        minWidth: 110,
+        flexGrow: 40,
         paddingRight: '5px',
     },
     selectEmpty: {
@@ -37,7 +48,7 @@ const styles = {
         paddingRight: '5px',
     },
     buttonStyle: {
-        marginLeft: '15px',
+        marginLeft: '20px',
         marginTop: '10px',
         fontSize: 12,
     },
@@ -408,7 +419,7 @@ class AddMovementBar extends React.Component {
 
         const { classes } = this.props;
         return (
-            <div>
+            <div className={classes.formParentControl}>
                 <FormControl className={classes.formControl}>
                     <InputLabel className={classes.userInfo}>Category</InputLabel>
                     <Select value={this.state.current_selection.categoryId} className={classes.selectEmpty} onChange={this.handleCategoryChange}>
@@ -432,7 +443,7 @@ class AddMovementBar extends React.Component {
                         {this.state.companies}
                     </Select>
                 </FormControl>
-                <FormControl className={classes.formControl}>
+                <FormControl className={classes.formItemControl}>
                     <InputLabel className={classes.userInfo}>Item</InputLabel>
                     <Select value={this.state.current_selection.itemId} className={classes.selectEmpty} onChange={this.handleItemChange} disabled={this.state.disabled_item}>
                         <MenuItem className={classes.menuitem} value="select">

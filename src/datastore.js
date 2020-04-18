@@ -18,15 +18,33 @@ import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 const styles = {
     userInfoStyle: {
         marginTop: '9px',
-        padding: '9px',
+        padding: '11px',
         backgroundColor: '#bc9460',
-        margin: '3px',
+        marginLeft: '0px',
+        marginBottom: '3px',
+        marginRight: '6px',
     },
-    paperStyle: {
+    paperAddBarStyle: {
         marginTop: '9px',
         padding: '9px',
-        margin: '3px',
+        marginBottom: '3px',
     },
+    paperMovementStyle: {
+        marginTop: '9px',
+        padding: '9px',
+        marginBottom: '3px',
+        overflowX: 'auto',
+        // whiteSpace: 'nowrap'
+    },
+    grid: {
+        margin: 0,
+        flexGrow: 0,
+        maxWidth: '100%',
+        flexBasis: '100%',
+        padding: 0,
+        // overflowX: 'hidden',
+        spacing: 0
+      }
 };
 
 class MainLayout extends React.Component {
@@ -180,21 +198,25 @@ class MainLayout extends React.Component {
         const { classes } = this.props;
 
         return (
-            <div>
-                <Grid container spacing={0}>
-                    <Grid item xs={12} md={2} padding={10}>
+            <div style={{ padding: 15 }}>
+                <Grid container spacing={0} >
+                    <Grid item xs={12} md={2} >
                         <Paper elevation={5} className={classes.userInfoStyle}>
                             <InfoPaper stores={this.state.stores} userinfo={this.state.user_info} onStoreSelect={this.handleStoreSelect}/>
                         </Paper>
                     </Grid>
-                    <Grid item xs={12} md={9} padding={10}>
-                        <Paper className={classes.paperStyle}>
+                    <Grid item xs={12} md={8} >
+                        <Paper className={classes.paperAddBarStyle} elevation={5}>
                             <AddMovementBar sid={this.state.current_storeid} all_categories={this.state.all_categories} onTableAddRequest={this.handleTableAddRequest} />
                         </Paper>
                     </Grid>
-                    <Grid container item xs={12} md={12} padding={10}>
-                        <Paper className={classes.root} elevation={5} style={{ padding: 10, backgroundColor: '#fafafa' }}>
-                            <MovementsTable data={this.state.movements} onTableDelete={this.handleTableDelete} onTableEdit={this.handleTableEdit} /> {/* sid={this.state.current_storeid} */}
+                    <Grid item xs={12} md={12}>
+                        <Paper className={classes.paperMovementStyle} elevation={5}>
+                            <Grid container style={{ margin: 0}}>
+                                <Grid item xs={10} md={10} >
+                                    <MovementsTable data={this.state.movements} onTableDelete={this.handleTableDelete} onTableEdit={this.handleTableEdit} />
+                                </Grid>
+                            </Grid>
                         </Paper>
                     </Grid>
                 </Grid>
