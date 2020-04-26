@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+from sqlalchemy.sql.expression import func 
 
 from persistence.model.movement import Movement, movements_schema
 from persistence.model.account_store import User, users_schema, user_schema, Store, stores_schema
@@ -54,7 +55,6 @@ def create_empty_db():
 
 
 def load_stores(userid: int):
-    # rs = Store.query.filter(Store.Users.any(id=userid)).with_entities(Store.id, Store.name)
     rs = User.query.join(Store.Users).filter_by(
         id=userid).with_entities(Store.id, Store.name)
     output = stores_schema.dump(rs)
@@ -90,19 +90,8 @@ def load_items(categoryid: int, companyid: int, storeid: int):
 
 
 def load_batches_per_item(itemid: int, storeid: int):
-    rs = Item.query.filter_by(id=itemid).join(Store, Item.stored_in).filter(
-        Store.id == storeid).join(Batch, Item.batches).first()
-
-    output = []
-    for b in rs.batches:
-        output.append(
-            {
-                'id': b.id,
-                'code': b.code,
-                'date_expiry': b.date_expiry,
-                'notification': rs.notification
-            }
-        )
+    rs = Batch.query.join(Item, Batch.item).filter(Item.id==itemid).join(Store, Item.stored_in).filter(Store.id==storeid)
+    output = batches_schema.dump(rs)
     return output
 
 
@@ -113,6 +102,7 @@ def load_batches_per_movement(movementid: int):
     return output
 
 
+#######################################################################
 # Add, edit and delete movements
 def add_movement(date_movement, quantity, operator, item_id, batch_id):
     oper = User.query.filter_by(id=operator).first()
@@ -143,7 +133,7 @@ def edit_movement(movement_id, date, batch, quantity):
 
 def delete_movement(delete_id):
     Movement.query.filter_by(id=delete_id).delete()
-
+#######################################################################
 
 def load_movements(storeid: int):
     rs = Movement.query.join(User, Movement.operator).join(
@@ -185,5 +175,66 @@ def load_companies_per_category(category):
     return {'companies': list(set(company_names))}
 
 
+#######################################################################
+# QuickInfoBox component's queries
+def load_expiring_by_store(storeid:int):
+    rs = Movement.query.join(Item, Item.id == Movement.item_id).join(Store, Item.stored_in).filter(Store.id==storeid).group_by(
+            Movement.batch_id).having(func.sum(Movement.quantity)>0).join(Batch, Batch.id==Movement.batch_id).filter(
+        datetime.today() >= Batch.date_notification).with_entities(
+        Movement.batch_id,
+        Batch.code.label('batch_code'),
+        Batch.date_expiry.label('batch_date_expiry'),
+        Batch.date_notification.label('batch_date_notification'),
+        func.sum(Movement.quantity).label('batch_quantity'),
+        Item.id.label('item_id'),
+        Item.code_item.label('item_code_item'),
+        Item.name.label('item_name'),
+        Item.quantity_notification.label('item_quantity_notification')
+    ).order_by(Batch.date_expiry.desc())
+    foutput = [
+        {
+            'batch_id': r.batch_id,
+            'batch_code': r.batch_code,
+            'batch_date_expiry': r.batch_date_expiry,
+            'batch_date_notification': r.batch_date_notification,
+            'batch_quantity': r.batch_quantity,
+            'item_id': r.item_id,
+            'item_code_item': r.item_code_item,
+            'item_name': r.item_name,
+            'item_quantity_notification': r.item_quantity_notification,
+        } for r in rs
+    ] 
+    return foutput
+
+def load_runningout_by_store(storeid:int):
+    # Get not-expired batches
+    sub = Batch.query.filter(datetime.today() < Batch.date_expiry).subquery()
+    # Get items not expired and with total quantity (counting all batches) <= a fixed threshold
+    rs = Movement.query.join(sub, Movement.batch_id==sub.c.id).join(Item, Item.id==Movement.item_id).group_by(  # isouter=true
+        Movement.batch_id).having(func.sum(Movement.quantity)<=Item.quantity_notification).with_entities(
+        Item.id.label('item_id'),
+        Item.code_item.label('item_code_item'),
+        Item.name.label('item_name'),
+        Item.quantity_notification.label('item_quantity_notification'),
+        sub.c.code.label('batch_code'),
+        sub.c.date_expiry.label('batch_date_expiry'),
+        sub.c.date_notification.label('batch_date_notification'),
+        func.sum(Movement.quantity).label('batch_quantity')).order_by(Item.id, func.sum(Movement.quantity).asc()).distinct().all()
+    foutput = [
+        {
+            'item_id': r.item_id,
+            'item_code_item': r.item_code_item,
+            'item_name': r.item_name,
+            'item_quantity_notification': r.item_quantity_notification,
+            'batch_code': r.batch_code,
+            'batch_date_expiry': r.batch_date_expiry,
+            'batch_date_notification': r.batch_date_notification,
+            'batch_quantity': r.batch_quantity
+        } for r in rs
+    ] 
+    return foutput
+#######################################################################
+
+#######################################################################
 def do_login(email, password):
     return User.query.filter_by(email=email, password=password).first()

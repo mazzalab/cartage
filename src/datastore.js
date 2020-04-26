@@ -7,6 +7,7 @@ import axios from 'axios';
 import InfoPaper from './components/InfoPaper';
 import AddMovementBar from './components/AddMovementBar';
 import MovementsTable from './components/MovementsTable';
+import QuickInfoBox from './components/QuickInfoBox'
 
 import { withStyles } from '@material-ui/core/styles';
 import { Grid } from '@material-ui/core';
@@ -21,13 +22,20 @@ const styles = {
         padding: '11px',
         backgroundColor: '#bc9460',
         marginLeft: '0px',
+        marginBottom: '3px'
+    },
+    movementInfoStyle: {
+        marginTop: '9px',
+        padding: '11px',
+        backgroundColor: '#60a3bc',
         marginBottom: '3px',
-        marginRight: '6px',
+        marginLeft: '6px',
     },
     paperAddBarStyle: {
         marginTop: '9px',
         padding: '9px',
         marginBottom: '3px',
+        marginLeft: '6px',
     },
     paperMovementStyle: {
         marginTop: '9px',
@@ -208,6 +216,11 @@ class MainLayout extends React.Component {
                     <Grid item xs={12} md={8} >
                         <Paper className={classes.paperAddBarStyle} elevation={5}>
                             <AddMovementBar sid={this.state.current_storeid} all_categories={this.state.all_categories} onTableAddRequest={this.handleTableAddRequest} />
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={12} md={2} >
+                        <Paper className={classes.movementInfoStyle} elevation={5}>
+                            <QuickInfoBox sid={this.state.current_storeid}/>
                         </Paper>
                     </Grid>
                     <Grid item xs={12} md={12}>

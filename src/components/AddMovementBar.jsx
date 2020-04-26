@@ -99,7 +99,7 @@ class AddMovementBar extends React.Component {
                 };
             } else return null;
         } else {
-            // If all_categories is empty or null, then 'select' was chosen in the lab selection combobox
+            // If all_categories is empty then 'select' was chosen in the lab selection combobox
             let newState = prevState;
             newState.categories = [];
             newState.current_selection.categoryId = 'select';
@@ -112,14 +112,13 @@ class AddMovementBar extends React.Component {
             newState.batches = [];
             newState.current_selection.batchCode = 'select';
             newState.current_selection.batchId = 'select';
-
+            newState.current_selection.quantity = 0;
+            
             newState.disabled_company = true;
             newState.disabled_item = true;
             newState.disabled_batch = true;
             newState.disabled_quantity = true;
             newState.disabled_button = true;
-
-            // TODO: Reset the quantity field to zero
 
             return newState;
         }
@@ -147,7 +146,6 @@ class AddMovementBar extends React.Component {
             new_current_selection.batchId = 'select';
             new_current_selection.batchCode = 'select';
             new_current_selection.quantity = 0;
-            this.input_name.value = 0;
 
             if (categoryId === 'select') {
                 this.setState({
@@ -214,7 +212,6 @@ class AddMovementBar extends React.Component {
             new_current_selection.batchId = 'select';
             new_current_selection.batchCode = 'select';
             new_current_selection.quantity = 0;
-            this.input_name.value = 0;
 
             if (companyId === 'select') {
                 this.setState({
@@ -275,7 +272,6 @@ class AddMovementBar extends React.Component {
             new_current_selection.batchId = 'select';
             new_current_selection.batchCode = 'select';
             new_current_selection.quantity = 0;
-            this.input_name.value = 0;
 
             if (itemId === 'select') {
                 this.setState({
@@ -293,7 +289,7 @@ class AddMovementBar extends React.Component {
                         const { classes } = this.props;
 
                         batch_list = batch_list.map((r) => {
-                            let notification = r.notification;
+                            let notification = r.date_notification;
                             let date_expiry = new Date(r.date_expiry);
                             var today = new Date();
                             let threshold_date = new Date(r.date_expiry);
@@ -373,9 +369,8 @@ class AddMovementBar extends React.Component {
             new_current_selection.batchId = batch.id;
             new_current_selection.batchCode = batch.code;
             new_current_selection.quantity = 0;
-            this.input_name.value = 0;
 
-            if (batch.id === 0) {
+            if (batch.id === -1) {
                 this.setState({
                     disabled_quantity: true,
                     disabled_button: true,
@@ -411,6 +406,15 @@ class AddMovementBar extends React.Component {
             });
         }
     };
+
+    handleChange = (event) => {
+        let new_current_selection = Object.assign({}, this.state.current_selection);
+        new_current_selection.quantity = event.target.value;
+
+        this.setState({
+            current_selection: new_current_selection,
+        });
+      };
 
     render() {
         if (!this.props.all_categories) {
@@ -488,10 +492,11 @@ class AddMovementBar extends React.Component {
                         error={this.state.error_quantity}
                         id="standard-error"
                         className={classes.quantityEmpty}
-                        defaultValue={0}
+                        value={this.state.current_selection.quantity}
                         disabled={this.state.disabled_quantity}
                         onBlur={this.handleQuantityChange}
-                        inputRef={(el) => (this.input_name = el)}
+                        onChange={this.handleChange}
+                        // inputRef={(el) => (this.input_name = el)}
                     />
                 </FormControl>
                 <Button variant="contained" color="primary" disabled={this.state.disabled_button} className={classes.buttonStyle} onClick={this.handleSubmitNewMovement}>

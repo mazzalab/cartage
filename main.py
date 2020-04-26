@@ -121,6 +121,14 @@ def retrieveBatchesPerMovement(movementid:int):
     result = db_manager.load_batches_per_movement(movementid)
     return jsonify(result)
 
+@app.route('/movements/store/<storeid>')
+# @login_required
+def retrieve_movements_by_store(storeid:int):
+    result = db_manager.load_movements(storeid)
+    return jsonify(result)
+
+
+################################################
 ## Add, Edit and Delete movements
 @app.route('/add_movement', methods=['POST'])
 # @login_required
@@ -172,16 +180,19 @@ def deleteMovement():
     db_manager.delete_movement(delete_id)
     db.session.commit()
     return {'ID': delete_id}
+################################################
 
 
-
-
-
-
-@app.route('/movements/store/<storeid>')
+@app.route('/expiring/store/<storeid>', methods=['GET'])
 # @login_required
-def retrieve_movements_by_store(storeid:int):
-    result = db_manager.load_movements(storeid)
+def retrieve_expiring_by_store(storeid: int):
+    result = db_manager.load_expiring_by_store(storeid)
+    return jsonify(result)
+
+@app.route('/runningout/store/<storeid>', methods=['GET'])
+# @login_required
+def retrieve_runningout_by_store(storeid: int):
+    result = db_manager.load_runningout_by_store(storeid)
     return jsonify(result)
 
 
@@ -192,36 +203,18 @@ def retrieve_movements_by_store(storeid:int):
 #     result = db_manager.load_db_for_store(store_id)
 #     return jsonify(result)
 
+# @app.route('/operators')
+# def retrieve_all_operators():
+#     result = db_manager.load_all_operators()
+#     return jsonify(result)
 
 
-
-
-
-
-
-@app.route('/operators')
-def retrieve_all_operators():
-    result = db_manager.load_all_operators()
-    return jsonify(result)
-
-
-@app.route('/companies_per_category', methods=['POST'])
-def retrieveCompaniesPerCategory():
-    json_data = request.get_json()
-    category = json_data.get('selectedCat')['category']
-    result = db_manager.load_companies_per_category(category)
-    return jsonify(result)
-
-
-
-
-
-
-
-
-
-
-
+# @app.route('/companies_per_category', methods=['POST'])
+# def retrieveCompaniesPerCategory():
+#     json_data = request.get_json()
+#     category = json_data.get('selectedCat')['category']
+#     result = db_manager.load_companies_per_category(category)
+#     return jsonify(result)
 
 
 

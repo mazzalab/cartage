@@ -7,10 +7,27 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sidemenu.css') }}" />
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome-free-5.12.1-web/css/all.min.css') }}" /> -->
     <title>Cartage - Lab Store</title>
 </head>
 
 <body>
+    <!-- about -->
+    <div class="about">
+        <a class="bg_links social portfolio" href="https://www.rafaelalucas.com" target="_blank">
+            <span class="icon"></span>
+        </a>
+        <a class="bg_links social dribbble" href="https://dribbble.com/rafaelalucas" target="_blank">
+            <span class="icon"></span>
+        </a>
+        <a class="bg_links social linkedin" href="https://www.linkedin.com/in/tommasomazza/" target="_blank">
+            <span class="icon"></span>
+        </a>
+        <a class="bg_links logo"></a>
+    </div>
+     <!-- end about -->
+
     <div id="root" uid={{ current_user.id }}></div>
 
     <!-- {% if current_user.is_authenticated %}
@@ -18,7 +35,7 @@
     {% endif %} -->
 
     <script type="text/javascript" src="build.js"></script>
-    <!-- <script type="text/javascript" src="{{url_for('static', filename='js/build.js')}}"></script> -->
+    <!-- <script type="text/javascript" src="{{url_for('static', filename='js/build.js')}}"></script>     -->
 </body>
 
 </html>

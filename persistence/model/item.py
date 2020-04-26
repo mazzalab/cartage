@@ -18,6 +18,7 @@ class Batch(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     code = db.Column(db.String(50), nullable=False)
     date_expiry = db.Column(db.Date, nullable=False)
+    date_notification = db.Column(db.Date, nullable=False)
     item_id = db.Column(db.Integer, db.ForeignKey('item.id'))
     
     def __repr__(self):
@@ -39,8 +40,8 @@ class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     code_item = db.Column(db.String(50), nullable=False)
     name = db.Column(db.String(50), nullable=False)
-    notification = db.Column(db.Integer, nullable=False)
-
+    quantity_notification = db.Column(db.Integer, nullable=False)
+    
     batches = db.relationship("Batch", backref=db.backref("item"))
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'))
     company = db.relationship("Company", backref=db.backref("item"))

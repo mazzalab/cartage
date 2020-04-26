@@ -11,11 +11,11 @@ class Movement(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
 
     item_id = db.Column(db.Integer, db.ForeignKey('item.id'))
-    item = db.relationship("Item", backref=db.backref("movement"), uselist=False)
+    item = db.relationship("Item", backref=db.backref("movement_item"), uselist=False)
     batch_id = db.Column(db.Integer, db.ForeignKey('batch.id'))
-    batch = db.relationship("Batch", backref=db.backref("movement"), uselist=False)
+    batch = db.relationship("Batch", backref=db.backref("movement_batch"), uselist=False)
     operator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    operator = db.relationship("User", backref=db.backref("movement"), uselist=False)
+    operator = db.relationship("User", backref=db.backref("movement_operator"), uselist=False)
 
     def __repr__(self):
         return '[Movement]: item: {}, batch: {}, date: {}, quantity: {}'.format(self.item_id, self.batch_id, self.date_movement, self.quantity)
