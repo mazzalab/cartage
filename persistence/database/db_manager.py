@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
-from sqlalchemy.sql.expression import func 
+from sqlalchemy.sql.expression import func
 
 from persistence.model.movement import Movement, movements_schema
-from persistence.model.account_store import User, users_schema, user_schema, Store, stores_schema
+from persistence.model.account_store import User, users_schema, user_schema, Store, stores_schema, Laboratory
 from persistence.model.category import Category, categories_schema
 from persistence.model.company import Company, companies_schema
 from persistence.model.item import Item, items_schema, Batch, batches_schema
@@ -90,7 +90,8 @@ def load_items(categoryid: int, companyid: int, storeid: int):
 
 
 def load_batches_per_item(itemid: int, storeid: int):
-    rs = Batch.query.join(Item, Batch.item).filter(Item.id==itemid).join(Store, Item.stored_in).filter(Store.id==storeid)
+    rs = Batch.query.join(Item, Batch.item).filter(Item.id == itemid).join(
+        Store, Item.stored_in).filter(Store.id == storeid)
     output = batches_schema.dump(rs)
     return output
 
@@ -135,6 +136,7 @@ def delete_movement(delete_id):
     Movement.query.filter_by(id=delete_id).delete()
 #######################################################################
 
+
 def load_movements(storeid: int):
     rs = Movement.query.join(User, Movement.operator).join(
         Store, User.operator_of).filter_by(id=storeid).all()
@@ -177,9 +179,9 @@ def load_companies_per_category(category):
 
 #######################################################################
 # QuickInfoBox component's queries
-def load_expiring_by_store(storeid:int):
-    rs = Movement.query.join(Item, Item.id == Movement.item_id).join(Store, Item.stored_in).filter(Store.id==storeid).group_by(
-            Movement.batch_id).having(func.sum(Movement.quantity)>0).join(Batch, Batch.id==Movement.batch_id).filter(
+def load_expiring_by_store(storeid: int):
+    rs = Movement.query.join(Item, Item.id == Movement.item_id).join(Store, Item.stored_in).filter(Store.id == storeid).group_by(
+        Movement.batch_id).having(func.sum(Movement.quantity) > 0).join(Batch, Batch.id == Movement.batch_id).filter(
         datetime.today() >= Batch.date_notification).with_entities(
         Movement.batch_id,
         Batch.code.label('batch_code'),
@@ -203,15 +205,16 @@ def load_expiring_by_store(storeid:int):
             'item_name': r.item_name,
             'item_quantity_notification': r.item_quantity_notification,
         } for r in rs
-    ] 
+    ]
     return foutput
 
-def load_runningout_by_store(storeid:int):
+
+def load_runningout_by_store(storeid: int):
     # Get not-expired batches
     sub = Batch.query.filter(datetime.today() < Batch.date_expiry).subquery()
     # Get items not expired and with total quantity (counting all batches) <= a fixed threshold
-    rs = Movement.query.join(sub, Movement.batch_id==sub.c.id).join(Item, Item.id==Movement.item_id).group_by(  # isouter=true
-        Movement.batch_id).having(func.sum(Movement.quantity)<=Item.quantity_notification).with_entities(
+    rs = Movement.query.join(sub, Movement.batch_id == sub.c.id).join(Item, Item.id == Movement.item_id).group_by(  # isouter=true
+        Movement.batch_id).having(func.sum(Movement.quantity) <= Item.quantity_notification).with_entities(
         Item.id.label('item_id'),
         Item.code_item.label('item_code_item'),
         Item.name.label('item_name'),
@@ -231,10 +234,26 @@ def load_runningout_by_store(storeid:int):
             'batch_date_notification': r.batch_date_notification,
             'batch_quantity': r.batch_quantity
         } for r in rs
-    ] 
+    ]
     return foutput
 #######################################################################
 
 #######################################################################
+
+
 def do_login(email, password):
     return User.query.filter_by(email=email, password=password).first()
+
+
+def load_user_by_email(email: str):
+    return User.query.filter_by(email=email).first_or_404()
+
+
+def load_laboratories():
+    return Laboratory.query.with_entities(Laboratory.id, Laboratory.name).all()
+
+
+def load_lab_head(laboratory_id: int):
+    lab = Laboratory.query.filter_by(id=laboratory_id).join(User, User.id == Laboratory.head_id).with_entities(
+        User.name.label('head_name'), User.email.label('head_email')).first()
+    return (lab.head_name, lab.head_email)

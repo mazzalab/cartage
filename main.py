@@ -1,76 +1,107 @@
 import argparse
 import datetime
+import secrets
 
 from flask import Flask, jsonify, render_template, request, flash, redirect, url_for
 from flask_cors import CORS, cross_origin
-from flask_login import login_required, login_user, logout_user  #, current_user
-# from flask_marshmallow import Marshmallow
-# from flask_sqlalchemy import SQLAlchemy
-
-from flask_wtf import FlaskForm
-from wtforms import BooleanField, PasswordField, StringField, SubmitField
-from wtforms.validators import Email, InputRequired, Length
-
-from admin.admin_page import setup_admin_home
+from flask_security import Security, SQLAlchemyUserDatastore, UserMixin, RoleMixin, login_required
+from flask_security.utils import hash_password
+from flask_mail import Mail, Message
+from token_generator import TokenGenerator
 
 from config import config_by_name
 from persistence.database import db_manager
-from persistence.model import db, ma, login_manager
+from persistence.model import db, ma
+from persistence.model.account_store import user_datastore
+from forms import RegistrationForm, LoginForm, ForgotPasswordForm, ResetPasswordForm
 
 # from flask_bcrypt import Bcrypt
 
 
 app = Flask(__name__)
 app.config.from_object(config_by_name['dev'])
-app.config['FLASK_ADMIN_SWATCH'] = 'superhero'
-app.config['SECRET_KEY'] = 'agaTT@powE1'
 app.config['CORS_HEADERS'] = 'Content-Type'
-# flask_bcrypt = Bcrypt()
+app.config['SECURITY_RECOVERABLE'] = True
+app.config['SECURITY_REGISTERABLE'] = True
+app.config['SECURITY_POST_LOGIN_VIEW'] = "/labstore"
+app.config['SECURITY_POST_RESET_VIEW'] = '/login'  ## TODO: fix this redirect
+app.config['SECRET_KEY'] = 'secretkey'  # TODO: to be locked
+app.config['SECURITY_PASSWORD_SALT'] = 'secretsalt'  # TODO: to be locked
+app.config['MAIL_SERVER'] = 'out.virgilio.it'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USERNAME'] = 'irongraft@virgilio.it'
+app.config['MAIL_PASSWORD'] = 'JesusBless1979'
+app.config['SECURITY_EMAIL_SENDER'] = 'irongraft@virgilio.it'
+app.config['SECURITY_EMAIL_SUBJECT_PASSWORD_RESET'] = "Cartage - Password reset instructions"
+app.config['SECURITY_EMAIL_SUBJECT_PASSWORD_RESET'] = "Cartage - Password has been changed"
 
 db.init_app(app)
 ma.init_app(app)
+security = Security(app, user_datastore, register_form=RegistrationForm, login_form=LoginForm, forgot_password_form=ForgotPasswordForm, reset_password_form=ResetPasswordForm)
+mail = Mail(app)
+mailToken = TokenGenerator(app)
 cors = CORS(app)
-login_manager.init_app(app)
-# flask_bcrypt.init_app(app)
-
-# Instantiate the Admin interface
-setup_admin_home(app)
-
-
-class LoginForm(FlaskForm):
-    email = StringField('email', validators=[InputRequired(message="E-mail is a required field"), Email(message="Wrong email format")])
-    password = StringField('password', validators=[InputRequired(), Length(min=4, max=80, message="Passwork length min 4 and max 80")])
-    remember = BooleanField('remember me')
-    submit = SubmitField('Submit')
 
 
 @app.route('/')
 def homepage():
-    return render_template('index.html') # , name=name)
+    return render_template('index.html')  # , name=name)
+
+
+# @app.route('/confirm/<token>', methods=['GET', 'POST'])
+# # @login_required
+# def confirm_registration(token: str):
+#     try:
+#         email = mailToken.confirm_token(token)
+#     except:
+#         flash('The confirmation link is invalid or has expired.', 'danger')
+
+#     user = db_manager.load_user_by_email(email=email)
+#     if user.active:
+#         flash('Account already confirmed.', 'success')
+#     else:
+#         # Update the user status to active
+#         user.active = True
+#         user.confirmed_at = datetime.datetime.now()
+#         db.session.add(user)
+#         db.session.commit()
+#         flash('You have confirmed this account. Thanks!', 'success')
+
+#         # Send confirmation email to the user
+#         with app.app_context():
+#             msg = Message(subject="Hello",
+#                           sender=app.config.get("MAIL_USERNAME"),
+#                           recipients=[email],
+#                           body="Your account has been confirmed!")
+#             mail.send(msg)
+#     return redirect(url_for('homepage'))
+
+# @security.context_processor
+# def security_context_processor():
+#     return dict(
+#         tom="maz"
+#     )
+
+# This processor is added to only the register view
+# @security.register_context_processor
+# def security_register_processor():
+#     # Load all available labs
+#     labs = db_manager.load_laboratories()
+#     return dict(labs=labs)
+
+
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html')
+
 
 @app.route('/labstore')
 @login_required
 def labstorepage():
     return render_template('labstore.html')  # , user=current_user
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-
-    if form.validate_on_submit():
-        user = db_manager.do_login(form.email.data, form.password.data)
-        if user:
-            login_user(user, remember=True)
-            return redirect(url_for('labstorepage'))
-        else:
-            flash("Not logged in", 'warning')        
-    else:
-        if form.errors:
-            for errs in form.errors.values():
-                for err in errs:
-                    flash(err, 'warning')
-
-    return render_template('login.html', form=form)
 
 @app.route('/logout')
 def logout():
@@ -78,58 +109,66 @@ def logout():
     flash('Succesful logout', 'success')
     return redirect(url_for('login'))
 
+
 @app.route('/stores/uid/<uid>')
 # @login_required
-def retrieve_stores_by_user(uid:int):
+def retrieve_stores_by_user(uid: int):
     result = db_manager.load_stores(uid)
     return jsonify(result)
 
+
 @app.route('/users/uid/<uid>')
 # @login_required
-def retrieve_users_info(uid:int):
+def retrieve_users_info(uid: int):
     result = db_manager.load_user_info(uid)
     return jsonify(result)
 
+
 @app.route('/categories/store/<storeid>')
 # @login_required
-def retrieve_categories_by_store(storeid:int):
+def retrieve_categories_by_store(storeid: int):
     result = db_manager.load_categories(storeid)
     return jsonify(result)
 
+
 @app.route('/companies/<categoryid>/<storeid>')
 # @login_required
-def retrieve_companies_by_category(categoryid:int, storeid:int):
+def retrieve_companies_by_category(categoryid: int, storeid: int):
     result = db_manager.load_companies(categoryid, storeid)
     return jsonify(result)
 
-@app.route('/items/category/<categoryid>/company/<companyid>/store/<storeid>', methods=['POST','OPTIONS'])
+
+@app.route('/items/category/<categoryid>/company/<companyid>/store/<storeid>', methods=['POST', 'OPTIONS'])
 # @login_required
 @cross_origin()
-def retrieveItemsPerCompanyAndCategory(categoryid:int, companyid:int, storeid:int):
+def retrieveItemsPerCompanyAndCategory(categoryid: int, companyid: int, storeid: int):
     result = db_manager.load_items(categoryid, companyid, storeid)
     return jsonify(result)
 
-@app.route('/batches/item/<itemid>/store/<storeid>', methods=['POST','GET'])
+
+@app.route('/batches/item/<itemid>/store/<storeid>', methods=['POST', 'GET'])
 # @login_required
-def retrieveBatchesPerItem(itemid:id, storeid:int):
+def retrieveBatchesPerItem(itemid: id, storeid: int):
     result = db_manager.load_batches_per_item(itemid, storeid)
     return jsonify(result)
 
+
 @app.route('/batches/movement/<movementid>', methods=['GET'])
 # @login_required
-def retrieveBatchesPerMovement(movementid:int):
+def retrieveBatchesPerMovement(movementid: int):
     result = db_manager.load_batches_per_movement(movementid)
     return jsonify(result)
 
+
 @app.route('/movements/store/<storeid>')
 # @login_required
-def retrieve_movements_by_store(storeid:int):
+def retrieve_movements_by_store(storeid: int):
     result = db_manager.load_movements(storeid)
     return jsonify(result)
 
 
 ################################################
-## Add, Edit and Delete movements
+# Add, Edit and Delete movements
 @app.route('/add_movement', methods=['POST'])
 # @login_required
 def addMovement():
@@ -157,6 +196,7 @@ def addMovement():
 
     return jsonify(newmov_dict)
 
+
 @app.route('/edit_movement', methods=['POST'])
 # @login_required
 def editMovement():
@@ -172,6 +212,7 @@ def editMovement():
     db.session.commit()
     return {'ID': movement_id}
 
+
 @app.route('/delete_movement', methods=['POST'])
 # @login_required
 def deleteMovement():
@@ -183,39 +224,21 @@ def deleteMovement():
 ################################################
 
 
+################################################
+# InfoBox previews
 @app.route('/expiring/store/<storeid>', methods=['GET'])
 # @login_required
 def retrieve_expiring_by_store(storeid: int):
     result = db_manager.load_expiring_by_store(storeid)
     return jsonify(result)
 
+
 @app.route('/runningout/store/<storeid>', methods=['GET'])
 # @login_required
 def retrieve_runningout_by_store(storeid: int):
     result = db_manager.load_runningout_by_store(storeid)
     return jsonify(result)
-
-
-
-
-# @app.route('/store/<store_id>')
-# def retrieve_data_of_store(store_id:int):
-#     result = db_manager.load_db_for_store(store_id)
-#     return jsonify(result)
-
-# @app.route('/operators')
-# def retrieve_all_operators():
-#     result = db_manager.load_all_operators()
-#     return jsonify(result)
-
-
-# @app.route('/companies_per_category', methods=['POST'])
-# def retrieveCompaniesPerCategory():
-#     json_data = request.get_json()
-#     category = json_data.get('selectedCat')['category']
-#     result = db_manager.load_companies_per_category(category)
-#     return jsonify(result)
-
+################################################
 
 
 
