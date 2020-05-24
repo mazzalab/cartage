@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import axios from 'axios';
 
 import Button from '@material-ui/core/Button';
@@ -361,16 +361,18 @@ class AddMovementBar extends React.Component {
     };
 
     handleBatchChange = (event) => {
-        let batch = event.target.value;
-        if (batch.code === this.state.current_selection.batchCode) {
+        let batch_id = event.currentTarget.id;
+        let batch_code = event.currentTarget.getAttribute("data-value");
+
+        if (batch_code === this.state.current_selection.batchCode) {
             return;
         } else {
             let new_current_selection = Object.assign({}, this.state.current_selection);
-            new_current_selection.batchId = batch.id;
-            new_current_selection.batchCode = batch.code;
+            new_current_selection.batchId = batch_id;
+            new_current_selection.batchCode = batch_code;
             new_current_selection.quantity = 0;
 
-            if (batch.id === -1) {
+            if (batch_id === -1) {
                 this.setState({
                     disabled_quantity: true,
                     disabled_button: true,
@@ -461,27 +463,41 @@ class AddMovementBar extends React.Component {
                         id="standard-select-batch"
                         select
                         label="Batch"
-                        // className={classes.selectEmpty2}
+                        className={classes.userInfo}
                         value={this.state.current_selection.batchCode}
-                        disabled={this.state.disabled_batch}
                         onChange={this.handleBatchChange}
                         SelectProps={{
                             style: { fontSize: 11 },
                             renderValue: (selected) => selected,
+                            disabled: this.state.disabled_batch
                         }}
+                        InputLabelProps={{
+                            classes: {
+                              root: classes.userInfo,
+                              focused: classes.labelFocused
+                            }
+                          }}
                     >
-                        {this.state.batches.map((b) =>
-                            b.id === -1 ? (
-                                <MenuItem className={classes.menuitem} value={b} key={b.id}>
-                                    <ListItemText classes={{ primary: classes.menuitem }} primary={b.code} />
+                        {
+                            this.state.batches.length === 0 ? 
+                            (
+                                <MenuItem className={classes.menuitem} value={'select'}>
+                                    <em>select</em>
                                 </MenuItem>
-                            ) : (
-                                <MenuItem className={classes.menuitem} value={b} key={b.id} style={{ color: b.color, textDecoration: b.decoration, fontWeight: b.fontWeight }}>
-                                    <ListItemIcon>{b.icon}</ListItemIcon>
-                                    <ListItemText classes={{ primary: classes.menuitem }} primary={b.code} secondary={b.date_expiry} />
-                                </MenuItem>
-                            ),
-                        )}
+                            ) :
+                            (
+                                this.state.batches.map((b) => 
+                                    b.id === -1 ?
+                                    (<MenuItem className={classes.menuitem} value={'select'} key={b.id} >
+                                        <em>select</em>
+                                    </MenuItem>) :
+                                    (<MenuItem className={classes.menuitem} value={b.code} id={b.id} key={b.id} style={{ color: b.color, textDecoration: b.decoration, fontWeight: b.fontWeight }}>
+                                        <ListItemIcon>{b.icon}</ListItemIcon>
+                                        <ListItemText classes={{ primary: classes.menuitem }} primary={b.code} secondary={b.date_expiry} />
+                                    </MenuItem>)
+                                )                            
+                            )
+                        }
                     </TextField>
                 </FormControl>
                 <FormControl>

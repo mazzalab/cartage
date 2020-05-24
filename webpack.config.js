@@ -5,7 +5,7 @@ module.exports = {
     entry: './src/datastore.js',
     output: {
         filename: 'build.js',
-        path: path.resolve(__dirname, './static/js')
+        path: path.resolve(__dirname, './static/js/')
     },
     module: {
         rules: [

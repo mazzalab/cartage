@@ -8,11 +8,12 @@
     
     <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/sidemenu.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome-free-5.12.1-web/css/all.min.css') }}" />
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome-free-5.12.1-web/css/all.min.css') }}" /> -->
     <title>Cartage - Lab Store</title>
 </head>
 
 <body>
+    <!-- about -->
     <div class="about">
         <a class="bg_links social portfolio" href="https://www.rafaelalucas.com" target="_blank">
             <span class="icon"></span>
@@ -25,78 +26,7 @@
         </a>
         <a class="bg_links logo"></a>
     </div>
-
-    <nav class="main-menu">
-        <div>
-            <li>
-                <a>
-                    <i href="#" class="logo"></i>
-                    <span class="nav-text">Cartage</span>
-                </a>
-            </li>
-
-        </div>
-        <div class="settings"></div>
-        <div class="scrollbar" id="style-1">
-            <ul>
-                <li>
-                    <a href="/home">
-                        <i class="fa fa-home fa-lg"></i>
-                        <span class="nav-text">Home</span>
-                    </a>
-                </li>
-
-                <li >
-                    <a href="/login">
-                        <i class="fa fa-user fa-lg"></i>
-                        <span class="nav-text">Login</span>
-                    </a>
-                </li>
-
-                </li>
-                <li class="darkerlishadow">
-                    <a href="/labstore">
-                        <i class="fa fa-table fa-lg"></i>
-                        <span class="nav-text">Lab store</span>
-                    </a>
-                </li>
-
-                <li class="darkerli">
-                    <a href="/analytics">
-                        <i class="fa fa-chart-line fa-lg"></i>
-                        <span class="nav-text">Analytics</span>
-                    </a>
-                </li>
-                <li class="darkerlishadowdown">
-                    <a href="/settings">
-                        <i class="fa fa-sliders-h fa-lg"></i>
-                        <span class="nav-text">Settings</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/logout">
-                        <i class="fa fa-sign-out-alt fa-lg"></i>
-                        <span class="nav-text">Logout</span>
-                    </a>
-                </li>
-
-
-                <iframe scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:35px;" allowTransparency="true"></iframe>
-
-                <li>
-                    <a href="/contacts">
-                        <i class="fa fa-id-card fa-lg"></i>
-                        <span class="nav-text">Contacts</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="/help">
-                        <i class="fa fa-question-circle fa-lg"></i>
-                        <span class="nav-text">Help</span>
-                    </a>
-                </li>
-    </nav>
+     <!-- end about -->
 
     <div id="root" uid={{ current_user.id }}></div>
 
@@ -105,89 +35,7 @@
     {% endif %} -->
 
     <!-- <script type="text/javascript" src="build.js"></script> -->
-    <script type="text/javascript" src="{{url_for('static', filename='js/build.js')}}"></script>
-    <script id="rendered-js">
-        $(document).ready(function () {
-            var active1 = false;
-            var active2 = false;
-            var active3 = false;
-            var active4 = false;
-
-            $('.parent2').on('mousedown touchstart', function () {
-                if (!active1)
-                    $(this)
-                        .find('.test1')
-                        .css({ 'background-color': 'gray', transform: 'translate(0px,125px)' });
-                else
-                    $(this)
-                        .find('.test1')
-                        .css({ 'background-color': 'dimGray', transform: 'none' });
-                if (!active2)
-                    $(this)
-                        .find('.test2')
-                        .css({ 'background-color': 'gray', transform: 'translate(60px,105px)' });
-                else
-                    $(this)
-                        .find('.test2')
-                        .css({ 'background-color': 'darkGray', transform: 'none' });
-                if (!active3)
-                    $(this)
-                        .find('.test3')
-                        .css({ 'background-color': 'gray', transform: 'translate(105px,60px)' });
-                else
-                    $(this)
-                        .find('.test3')
-                        .css({ 'background-color': 'silver', transform: 'none' });
-                if (!active4)
-                    $(this)
-                        .find('.test4')
-                        .css({ 'background-color': 'gray', transform: 'translate(125px,0px)' });
-                else
-                    $(this)
-                        .find('.test4')
-                        .css({ 'background-color': 'silver', transform: 'none' });
-                active1 = !active1;
-                active2 = !active2;
-                active3 = !active3;
-                active4 = !active4;
-            });
-        });
-    </script>
-    <script>
-        var iconMenu = document.querySelector('.icon-menu'),
-            menu = document.querySelector('.menu'),
-            menuLink = document.querySelectorAll('.menu-link.sub');
-
-        iconMenu.addEventListener('click', openMenu);
-
-        menuLink.forEach(function (el) {
-            el.addEventListener('click', openSubmenu);
-        });
-
-        function openMenu() {
-            if (menu.classList.contains('open')) {
-                menu.classList.add('close');
-                iconMenu.classList.remove('icon-closed');
-
-                setTimeout(function () {
-                    menu.classList.remove('open');
-                }, 1300);
-            } else {
-                menu.classList.remove('close');
-                menu.classList.add('open');
-                iconMenu.classList.add('icon-closed');
-            }
-        }
-
-        function openSubmenu(event) {
-            if (event.currentTarget.classList.contains('active')) {
-                event.currentTarget.classList.remove('active');
-            } else {
-                event.currentTarget.classList.add('active');
-            }
-        }
-    </script>
-    
+    <script type="text/javascript" src="{{url_for('static', filename='js/build.js')}}"></script>    
 </body>
 
 </html>

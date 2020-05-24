@@ -76,7 +76,7 @@ function QuickInfoBox(props) {
     };
     
     React.useEffect(() => {
-        if (props.sid !== 'select') {
+        if (props.sid !== 'select' && props.sid !== "") {
             let url1 = 'http://127.0.0.1:5000/expiring/store/' + props.sid;
             let url2 = 'http://127.0.0.1:5000/runningout/store/' + props.sid;
 

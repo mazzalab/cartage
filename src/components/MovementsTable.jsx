@@ -284,12 +284,12 @@ class MovementsTable extends React.Component {
                 // ),
                 filter: textFilter({
                     style: { fontSize: 9, width: '77px' }, //     fontStyle: 'italic',
-                    placeholder: 'dd-mm-yyyy',
+                    placeholder: 'yyyy-mm-dd',
                 }),
                 formatter: this.dateFormatter,
                 editor: {
-                    // type: Type.DATE,
-                    type: Type.TEXT,
+                    type: Type.DATE,
+                    // type: Type.TEXT,
                     style: { fontSize: 10 },
                 },
                 editable: this.setEditableCell,
@@ -409,8 +409,7 @@ class MovementsTable extends React.Component {
                     return { width: '115px', height: '0px', fontSize: 12 };
                 },
                 formatter: (cell, row, rowIndex, extraData) => {
-                    // TODO: change the user name here
-                    if (row.operator !== 'Tom' && this.state.bordered_row_id === -1) {
+                    if (row.operator === this.props.userinfo.name + " " + this.props.userinfo.surname && this.state.bordered_row_id === -1) {
                         return (
                             <div>
                                 <CancelIcon
@@ -430,7 +429,7 @@ class MovementsTable extends React.Component {
                                 />
                             </div>
                         );
-                    } else if (row.operator !== 'Tom' && this.state.bordered_row_id !== -1 && rowIndex !== -1 && rowIndex === this.state.bordered_row_id) {
+                    } else if (row.operator === this.props.userinfo.name + " " + this.props.userinfo.surname && this.state.bordered_row_id !== -1 && rowIndex !== -1 && rowIndex === this.state.bordered_row_id) {
                         return (
                             <div>
                                 <CancelIcon

@@ -44,7 +44,7 @@ function InfoPaper(props) {
         <FormControl className={classes.formControl}>
             <InputLabel className={classes.userInfo}>{props.userinfo.name} {props.userinfo.surname}</InputLabel>
             <Select value={value} onChange={handleChange} className={classes.selectEmpty}>
-                <MenuItem className={classes.menuitem} value="select">
+                <MenuItem className={classes.menuitem} value='select'>
                     <em>select</em>
                 </MenuItem>
                 {stores}

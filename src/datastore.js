@@ -105,6 +105,8 @@ class MainLayout extends React.Component {
 
         var today = new Date();
         var today_temp = `${('0' + today.getUTCDate()).slice(-2)}/${('0' + (today.getUTCMonth() + 1)).slice(-2)}/${today.getUTCFullYear()}`;
+        var today_temp_4yable = `${today.getUTCFullYear()}-${('0' + (today.getUTCMonth() + 1)).slice(-2)}-${('0' + today.getUTCDate()).slice(-2)}`
+
         const date_movement = {
             date_movement: today_temp,
         };
@@ -138,7 +140,7 @@ class MainLayout extends React.Component {
                 id: res['movement_id'],
                 code_item: res['item_code'],
                 operator: res['operator_name'] + " " + res['operator_surname'],
-                date_movement: today_temp,
+                date_movement: today_temp_4yable,
                 item: res['item_name'],
                 category: current_selection.categoryName,
                 batches: current_selection.batchCode, //res['batch_code'],
@@ -227,7 +229,7 @@ class MainLayout extends React.Component {
                         <Paper className={classes.paperMovementStyle} elevation={5}>
                             <Grid container style={{ margin: 0}}>
                                 <Grid item xs={10} md={10} >
-                                    <MovementsTable data={this.state.movements} onTableDelete={this.handleTableDelete} onTableEdit={this.handleTableEdit} />
+                                    <MovementsTable data={this.state.movements} userinfo={this.state.user_info} onTableDelete={this.handleTableDelete} onTableEdit={this.handleTableEdit} />
                                 </Grid>
                             </Grid>
                         </Paper>
