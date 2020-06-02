@@ -4,7 +4,7 @@ import secrets
 
 from flask import Flask, jsonify, render_template, request, flash, redirect, url_for
 from flask_cors import CORS, cross_origin
-from flask_security import Security, SQLAlchemyUserDatastore, UserMixin, RoleMixin, login_required
+from flask_security import Security, SQLAlchemyUserDatastore, UserMixin, RoleMixin, login_required, logout_user
 from flask_security.utils import hash_password
 from flask_mail import Mail, Message
 from token_generator import TokenGenerator

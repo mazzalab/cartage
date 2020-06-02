@@ -2,7 +2,7 @@ const path = require('path');
 const HWP = require('html-webpack-plugin');
 
 module.exports = {
-    entry: './src/datastore.js',
+    entry: './src/datastore.jsx',
     output: {
         filename: 'build.js',
         path: path.resolve(__dirname, './static/js/')

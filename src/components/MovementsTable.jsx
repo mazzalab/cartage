@@ -76,7 +76,7 @@ class MovementsTable extends React.Component {
     };
 
     handleWindowResize = () => {
-        let wsize = window.innerWidth - (88 + 120 + 120 + 120 + 55 + 70 + 70 + 115);
+        let wsize = window.innerWidth - (88 + 120 + 120 + 120 + 55 + 70 + 70 + 115 + 40);  //latest figure (40) takes care of the size of the left menu
         if (wsize < 150) wsize = 150;
 
         this.setState({
